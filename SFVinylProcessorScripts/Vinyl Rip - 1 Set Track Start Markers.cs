@@ -1,3 +1,17 @@
+/* =======================================================================================================
+ *	Script Name: Vinyl Rip - 1 Set Track Start Markers
+ *	Description: Inserts track start points (after aggresively cleaning audio).
+ *
+ *	Initial State: Run with a file open a selection containing at least 2 seconds of track noise
+ *	
+ *	Parameters (Args):
+ *		None
+ *
+ *	Output:
+ *	    None
+ *
+ * ==================================================================================================== */
+
 using System;
 using System.Windows.Forms;
 using System.Collections.Generic;
@@ -8,41 +22,90 @@ public class EntryPoint
     public void FromSoundForge(IScriptableApp app)
     {
         ForgeApp = app; //execution begins here
-        app.SetStatusText(String.Format("Script '{0}' is running.", Script.Name));
-        string msg = ForgeScript.Engine.Begin(app);
-        app.SetStatusText(msg != null ? msg : String.Format("Script '{0}' is done.", Script.Name));
+        //app.SetStatusText(String.Format("Script '{0}' is running.", Script.Name));
+        ForgeScript.Engine.Begin(app);
+        //app.SetStatusText(msg != null ? msg : String.Format("Script '{0}' is done.", Script.Name));
     }
     public static IScriptableApp ForgeApp = null;
-    public static void DPF(string sz) { ForgeApp.OutputText(sz); }
-    public static void DPF(string fmt, params object[] args) { ForgeApp.OutputText(String.Format(fmt, args)); }
-    public static string GETARG(string key, string str) { string val = Script.Args.ValueOf(key); if (val == null) val = str; return val; }
+    //public static void DPF(string sz) { ForgeApp.OutputText(sz); }
+    //public static void DPF(string fmt, params object[] args) { ForgeApp.OutputText(String.Format(fmt, args)); }
+    //public static string GETARG(string key, string str) { string val = Script.Args.ValueOf(key); if (val == null) val = str; return val; }
 } //EntryPoint
+
+
 
 namespace ForgeScript
 {
+    public class OutputHelper
+    {
+        private readonly IScriptableApp _app;
+
+        public OutputHelper(IScriptableApp app)
+        {
+            _app = app;
+        }
+
+        public void ToMessageBox(string fmt, params object[] args)
+        {
+             MessageBox.Show(string.Format(fmt, args));
+        }
+
+        public void ToScriptWindow(string fmt, params object[] args)
+        {
+            _app.OutputText(string.Format(fmt, args));
+        }
+
+        public void ToStatusBar(string fmt, params object[] args)
+        {
+            _app.SetStatusText(string.Format(fmt, args));
+        }
+
+        public void ToStatusField1(string fmt, params object[] args)
+        {
+            _app.SetStatusField(0, string.Format(fmt, args));
+        }
+
+        public void ToStatusField2(string fmt, params object[] args)
+        {
+            _app.SetStatusField(1, string.Format(fmt, args));
+        }
+    }
+
     public class Engine
     {
         private List<long> _markerPositions = new List<long>();
+        private OutputHelper _outputHelper;
+        private readonly IScriptableApp _app;
+        private readonly ISfFileHost _file;
 
-        public static string Begin(IScriptableApp app)
+        private Engine(IScriptableApp app)
         {
+            _app = app;
+            _file = _app.CurrentFile;
+            _outputHelper = new OutputHelper(app);
+        }
 
-            ISfFileHost file = app.CurrentFile;
-            if (file == null)
+        public static void Begin(IScriptableApp app)
+        {
+            new Engine(app).Execute();
+        }
+
+        public void Execute()
+        {
+            if (_file == null)
             {
-                MessageBox.Show("A file must be open before this script can be run.");
+                _outputHelper.ToMessageBox("A file must be open before this script can be run.");
             }
             else
             {
-                Engine engine = new Engine();
-                int undoId = engine.PrepareAudio(app, file);
-                file.Markers.Clear();
-                engine.FindTrackStarts(app, file);
-                file.EndUndo(undoId, false);
+                CreateNoisePrint();
+                //int undoId = engine.PrepareAudio(app, file);
+                //file.Markers.Clear();
+                //engine.FindTrackStarts(app, file);
+                //file.EndUndo(undoId, false);
                 //file.Window.SetCursorAndScroll(engine._markerPositions[0], DataWndScrollTo.Nearest);
                 //file.Markers.AddMarker(engine._markerPositions[0], "bob");
             }
-            return null;
         }
 
         private int FindTrackStarts(IScriptableApp app, ISfFileHost file)
@@ -68,6 +131,8 @@ namespace ForgeScript
 
         private int PrepareAudio(IScriptableApp app, ISfFileHost file)
         {
+            CreateNoisePrint();
+
             SfAudioSelection wholeFileSelection = new SfAudioSelection(0, -1);
 
             file.UndosAreEnabled = true;
@@ -76,13 +141,20 @@ namespace ForgeScript
             double[,] aGainMap = new double[1, 2] { { 0.5, 0.5 } };
             file.DoConvertChannels(1, 0, aGainMap, EffectOptions.EffectOnly);
 
-            ApplyEffectPreset(app, wholeFileSelection, "Sony Click and Crackle Removal", "[Sys] For manually fixing small selections");
-            ApplyEffectPreset(app, wholeFileSelection, "Sony Click and Crackle Removal", "[Sys] For manually fixing small selections");
-            //TODO: need to get the noise gate setting right:
-            /* too much and the find tool gets too many hits (it gates parts of the track), too little and there are many hits during the track gaps).*/
-            //ApplyEffectPreset(app, wholeFileSelection, "Sony ExpressFX Noise Gate", "Pre-Vinyl Track Splitting");
+            const string stage1Preset = "Vinyl Processing (Pre-Track Splitting)";
+            ApplyEffectPreset(app, wholeFileSelection, "Sony Click and Crackle Removal", stage1Preset);
+            ApplyEffectPreset(app, wholeFileSelection, "Sony Noise Reduction", stage1Preset);
+            ApplyEffectPreset(app, wholeFileSelection, "Sony Noise Reduction", stage1Preset); // 2 passes
 
             return undoId;
+        }
+
+        private void CreateNoisePrint()
+        {
+            ISfDataWnd window = _file.Window;
+            _outputHelper.ToScriptWindow("Selection length: {0}", window.SelectionLength);
+            double lengthSeconds = _file.PositionToSeconds(window.Selection.Length);
+            _outputHelper.ToScriptWindow("Selection length: {0}", lengthSeconds);
         }
 
         private static void ApplyEffectPreset(IScriptableApp app, SfAudioSelection selection, string effectName, string presetName)
