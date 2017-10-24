@@ -62,7 +62,7 @@
   <PropertyGroup>
     <PostBuildEvent>copy $(TargetDir)SoundForgeScripts.Lib.dll "Y:\Program Files (x86)\sony\Sound Forge Pro 10.0\Script Menu"
 
-forfiles /p "$(TargetDir)Scripts" /m *.cs /s /c "cmd /c ^0x22$(SolutionDir)packages\LINQPad.5.22.2\lib\net46\lprun.exe^0x22 ^0x22$(SolutionDir)ProcessScriptFile.linq^0x22 @path &gt; @path"
+forfiles /p "$(TargetDir)Scripts" /m *.cs /s /c "cmd /c ^0x22$(SolutionDir)packages\LINQPad.5.22.2\lib\net46\lprun.exe^0x22 ^0x22$(SolutionDir)ProcessScriptFile.linq^0x22 @path"
 
 forfiles /p "$(TargetDir)Scripts" /m *.cs /s /c "cmd /c copy @path ^0x22Y:\Program^ Files^ (x86)\sony\Sound^ Forge^ Pro^ 10.0\Script^ Menu^0x22"</PostBuildEvent>
   </PropertyGroup>
