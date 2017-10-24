@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundForgeScripts", "SoundF
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundForgeScripts.Lib", "SoundForgeScripts.Lib\SoundForgeScripts.Lib.csproj", "{7C9A13DA-B70B-4F71-8C88-81BB7EBAC4AE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScriptFileProcessor", "ScriptFileProcessor\ScriptFileProcessor.csproj", "{56E49401-06E1-4241-B29D-AE1B96DAD73F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{7C9A13DA-B70B-4F71-8C88-81BB7EBAC4AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7C9A13DA-B70B-4F71-8C88-81BB7EBAC4AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7C9A13DA-B70B-4F71-8C88-81BB7EBAC4AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56E49401-06E1-4241-B29D-AE1B96DAD73F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56E49401-06E1-4241-B29D-AE1B96DAD73F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56E49401-06E1-4241-B29D-AE1B96DAD73F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56E49401-06E1-4241-B29D-AE1B96DAD73F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
