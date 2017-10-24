@@ -1,7 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFVinylProcessorScripts", "SFVinylProcessorScripts\SFVinylProcessorScripts.csproj", "{486762F1-28FE-43A8-AB4B-2CAC9365839D}"
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundForgeScripts", "SoundForgeScripts\SoundForgeScripts.csproj", "{486762F1-28FE-43A8-AB4B-2CAC9365839D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundForgeScripts.Lib", "SoundForgeScripts.Lib\SoundForgeScripts.Lib.csproj", "{7C9A13DA-B70B-4F71-8C88-81BB7EBAC4AE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,6 +17,10 @@ Global
 		{486762F1-28FE-43A8-AB4B-2CAC9365839D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{486762F1-28FE-43A8-AB4B-2CAC9365839D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{486762F1-28FE-43A8-AB4B-2CAC9365839D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C9A13DA-B70B-4F71-8C88-81BB7EBAC4AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C9A13DA-B70B-4F71-8C88-81BB7EBAC4AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C9A13DA-B70B-4F71-8C88-81BB7EBAC4AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C9A13DA-B70B-4F71-8C88-81BB7EBAC4AE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
