@@ -47,7 +47,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SoundForgeScripts.Lib\SoundForgeScriptsLib.csproj">
+    <ProjectReference Include="..\SoundForgeScriptsLib\SoundForgeScriptsLib.csproj">
       <Project>{7c9a13da-b70b-4f71-8c88-81bb7ebac4ae}</Project>
       <Name>SoundForgeScriptsLib</Name>
     </ProjectReference>
@@ -59,11 +59,16 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy $(TargetDir)SoundForgeScriptsLib.dll "Y:\Program Files (x86)\sony\Sound Forge Pro 10.0\Script Menu"
+    <PostBuildEvent>@echo Copying SoundForgeScriptsLib.dll ...
+copy $(TargetDir)SoundForgeScriptsLib.dll "Y:\Program Files (x86)\sony\Sound Forge Pro 10.0\Script Menu"
 
+@echo Processing script file contents...
 forfiles /p "$(TargetDir)Scripts" /m *.cs /s /c "cmd /c ^0x22$(SolutionDir)ScriptFileProcessor\bin\$(ConfigurationName)\ScriptFileProcessor.exe^0x22 @path
 
+@echo Copying script files...
 forfiles /p "$(TargetDir)Scripts" /m *.cs /s /c "cmd /c copy @path ^0x22Y:\Program^ Files^ (x86)\sony\Sound^ Forge^ Pro^ 10.0\Script^ Menu^0x22"
+
+@echo Copying config files...
 forfiles /p "$(TargetDir)Scripts" /m *.cs.config /s /c "cmd /c copy @path ^0x22Y:\Program^ Files^ (x86)\sony\Sound^ Forge^ Pro^ 10.0\Script^ Menu^0x22"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
