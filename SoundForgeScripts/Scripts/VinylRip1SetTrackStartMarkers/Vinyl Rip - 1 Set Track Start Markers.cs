@@ -13,7 +13,7 @@
  * ==================================================================================================== */
 
 using SoundForge;
-using SoundForgeScriptsLib;
+using SoundForgeScriptsLib.EntryPoints;
 
 namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
 {
@@ -21,7 +21,7 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
     {
         public void FromSoundForge(IScriptableApp app)
         {
-            new SoundForgeScriptsLib.EntryPoints.SetVinylTrackStartMarkers().Begin(app);
+            new SetVinylTrackStartMarkers().Begin(app);
         }
     }
 
