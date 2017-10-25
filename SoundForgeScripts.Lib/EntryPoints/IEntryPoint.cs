@@ -1,6 +1,6 @@
 ﻿using SoundForge;
 
-namespace SoundForgeScripts.Lib.EntryPoints
+namespace SoundForgeScriptsLib.EntryPoints
 {
     public interface IEntryPoint
     {

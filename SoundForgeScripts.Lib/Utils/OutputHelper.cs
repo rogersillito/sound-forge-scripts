@@ -1,7 +1,7 @@
 using System.Windows.Forms;
 using SoundForge;
 
-namespace SoundForgeScripts.Lib
+namespace SoundForgeScriptsLib.Utils
 {
     public class OutputHelper
     {

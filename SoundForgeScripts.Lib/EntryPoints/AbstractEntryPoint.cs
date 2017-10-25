@@ -1,8 +1,8 @@
 ﻿using System;
 using SoundForge;
-using SoundForgeScripts.Lib.Utils;
+using SoundForgeScriptsLib.Utils;
 
-namespace SoundForgeScripts.Lib.EntryPoints
+namespace SoundForgeScriptsLib.EntryPoints
 {
     public abstract class AbstractEntryPoint: IEntryPoint
     {

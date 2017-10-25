@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace SoundForgeScripts.Lib.Utils
+namespace SoundForgeScriptsLib.Utils
 {
     public class ErrorFormatter
     {

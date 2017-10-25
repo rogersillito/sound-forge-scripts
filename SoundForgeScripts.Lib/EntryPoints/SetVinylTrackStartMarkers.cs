@@ -1,8 +1,8 @@
-﻿using SoundForge;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using SoundForge;
 
-namespace SoundForgeScripts.Lib.EntryPoints
+namespace SoundForgeScriptsLib.EntryPoints
 {
     public class SetVinylTrackStartMarkers: AbstractEntryPoint
     {
