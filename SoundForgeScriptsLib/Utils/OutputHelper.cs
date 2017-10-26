@@ -17,6 +17,11 @@ namespace SoundForgeScriptsLib.Utils
             MessageBox.Show(string.Format(fmt, args));
         }
 
+        public void ToMessageBox(string caption, MessageBoxIcon icon, string fmt, params object[] args)
+        {
+            MessageBox.Show(string.Format(fmt, args), caption, MessageBoxButtons.OK, icon);
+        }
+
         public void ToScriptWindow(string fmt, params object[] args)
         {
             _app.OutputText(string.Format(fmt, args));

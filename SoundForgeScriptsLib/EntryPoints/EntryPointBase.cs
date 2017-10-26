@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows.Forms;
 using SoundForge;
 using SoundForgeScriptsLib.Utils;
 
@@ -29,7 +30,7 @@ namespace SoundForgeScriptsLib.EntryPoints
             }
             catch (ScriptAbortedException ex)
             {
-                Output.ToMessageBox("Script Aborted{0}", string.IsNullOrEmpty(ex.Message) ? "" : " - " + ex.Message);
+                Output.ToMessageBox("Script Aborted", MessageBoxIcon.Error, string.IsNullOrEmpty(ex.Message) ? "" : ex.Message);
                 Output.ToStatusBar("Script Aborted");
                 Output.ToScriptWindow(ErrorFormatter.Format(ex));
             }

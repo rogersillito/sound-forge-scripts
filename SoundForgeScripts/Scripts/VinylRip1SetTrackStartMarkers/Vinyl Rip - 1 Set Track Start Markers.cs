@@ -14,7 +14,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Windows.Forms;
 using SoundForge;
+using SoundForgeScriptsLib;
 using SoundForgeScriptsLib.EntryPoints;
 
 namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
@@ -31,7 +33,7 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
 
             if (_file == null)
             {
-                Output.ToMessageBox("A file must be open before this script can be run.");
+                throw new ScriptAbortedException("A file must be open before this script can be run.");
             }
             else
             {
@@ -89,9 +91,36 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
         private void CreateNoisePrint()
         {
             ISfDataWnd window = _file.Window;
-            Output.ToScriptWindow("Selection length: {0}", window.SelectionLength);
-            double lengthSeconds = _file.PositionToSeconds(window.Selection.Length);
-            Output.ToScriptWindow("Selection length: {0}", lengthSeconds);
+            double selectionLengthSeconds = _file.PositionToSeconds(window.Selection.Length);
+            const double noisePrintLength = 2.0d;
+            if (selectionLengthSeconds < noisePrintLength)
+                throw new ScriptAbortedException("A noise selection of {0} seconds or more must be made before running this script.", noisePrintLength);
+
+            SelectBothChannels(window);
+
+            long noisePrintSampleLength = _file.SecondsToPosition(noisePrintLength);
+            window.SetSelectionAndScroll(window.Selection.Start, noisePrintSampleLength, DataWndScrollTo.NoMove);
+        }
+
+        private static void SelectBothChannels(ISfDataWnd window)
+        {
+            if (window.File.Channels != 2)
+                throw new ScriptAbortedException("Expected a 2-channel file.");
+            switch (window.Selection.ChanMask)
+            {
+                case 0:
+                    // both
+                    return;
+                case 1:
+                    // left-only
+                    window.ForwardKey(Keys.Tab);
+                    window.ForwardKey(Keys.Tab);
+                    return;
+                case 2:
+                    // right-only
+                    window.ForwardKey(Keys.Tab);
+                    break;
+            }
         }
 
         private static void ApplyEffectPreset(IScriptableApp app, SfAudioSelection selection, string effectName, string presetName)
