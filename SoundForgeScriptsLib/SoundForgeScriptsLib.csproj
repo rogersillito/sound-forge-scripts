@@ -30,6 +30,15 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugWithDllCopy|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\DebugWithDllCopy\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Forge100.Script">
       <HintPath>C:\Program Files (x86)\Sony\Sound Forge Pro 10.0\Forge100.Script.dll</HintPath>
@@ -40,9 +49,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EntryPoints\AbstractEntryPoint.cs" />
+    <Compile Include="EntryPoints\EntryPointBase.cs" />
     <Compile Include="EntryPoints\IEntryPoint.cs" />
-    <Compile Include="EntryPoints\SetVinylTrackStartMarkers.cs" />
+    <Compile Include="ScriptAbortedException.cs" />
     <Compile Include="Utils\OutputHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\ErrorFormatter.cs" />

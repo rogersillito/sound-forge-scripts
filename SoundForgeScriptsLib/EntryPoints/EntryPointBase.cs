@@ -4,7 +4,7 @@ using SoundForgeScriptsLib.Utils;
 
 namespace SoundForgeScriptsLib.EntryPoints
 {
-    public abstract class AbstractEntryPoint: IEntryPoint
+    public abstract class EntryPointBase: IEntryPoint
     {
         private IScriptableApp _app;
         private OutputHelper _outputHelper;
@@ -19,7 +19,7 @@ namespace SoundForgeScriptsLib.EntryPoints
             get { return _outputHelper; }
         }
 
-        public void Begin(IScriptableApp app)
+        public void FromSoundForge(IScriptableApp app)
         {
             _app = app;
             _outputHelper = new OutputHelper(app);
@@ -27,9 +27,15 @@ namespace SoundForgeScriptsLib.EntryPoints
             {
                 Execute();
             }
+            catch (ScriptAbortedException ex)
+            {
+                Output.ToMessageBox("Script Aborted{0}", string.IsNullOrEmpty(ex.Message) ? "" : " - " + ex.Message);
+                Output.ToStatusBar("Script Aborted");
+                Output.ToScriptWindow(ErrorFormatter.Format(ex));
+            }
             catch (Exception ex)
             {
-                Output.ToStatusBar("Script Terminated: An exception occurred while executing EntryPoint '{0}'", GetType().Name);
+                Output.ToStatusBar("Script Terminated: An unhandled exception occurred while executing EntryPoint '{0}'", GetType().Name);
                 Output.ToScriptWindow(ErrorFormatter.Format(ex));
             }
         }

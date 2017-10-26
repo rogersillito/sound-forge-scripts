@@ -31,6 +31,15 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugWithDllCopy|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\DebugWithDllCopy\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Forge100.Script">
       <HintPath>C:\Program Files (x86)\Sony\Sound Forge Pro 10.0\Forge100.Script.dll</HintPath>
@@ -59,8 +68,17 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>@echo Copying SoundForgeScriptsLib.dll ...
+    <PostBuildEvent>ECHO Post-build: $(ConfigurationName)
+
+IF NOT [$(ConfigurationName)]==[DebugWithDllCopy] GOTO :process_scripts
+
+@echo Stopping SoundForge...
+@TASKKILL /F /FI "Imagename eq Forge100.exe"
+
+@echo Copying SoundForgeScriptsLib.dll ...
 copy $(TargetDir)SoundForgeScriptsLib.dll "Y:\Program Files (x86)\sony\Sound Forge Pro 10.0\Script Menu"
+
+:process_scripts
 
 @echo Processing script file contents...
 forfiles /p "$(TargetDir)Scripts" /m *.cs /s /c "cmd /c ^0x22$(SolutionDir)ScriptFileProcessor\bin\$(ConfigurationName)\ScriptFileProcessor.exe^0x22 @path
@@ -69,7 +87,15 @@ forfiles /p "$(TargetDir)Scripts" /m *.cs /s /c "cmd /c ^0x22$(SolutionDir)Scrip
 forfiles /p "$(TargetDir)Scripts" /m *.cs /s /c "cmd /c copy @path ^0x22Y:\Program^ Files^ (x86)\sony\Sound^ Forge^ Pro^ 10.0\Script^ Menu^0x22"
 
 @echo Copying config files...
-forfiles /p "$(TargetDir)Scripts" /m *.cs.config /s /c "cmd /c copy @path ^0x22Y:\Program^ Files^ (x86)\sony\Sound^ Forge^ Pro^ 10.0\Script^ Menu^0x22"</PostBuildEvent>
+forfiles /p "$(TargetDir)Scripts" /m *.cs.config /s /c "cmd /c copy @path ^0x22Y:\Program^ Files^ (x86)\sony\Sound^ Forge^ Pro^ 10.0\Script^ Menu^0x22"
+
+IF NOT [$(ConfigurationName)]==[DebugWithDllCopy] GOTO :EOF
+
+@echo Starting SoundForge...
+@Echo NB: Requires Powershell x86 execution policy to be set from an administrative prompt, e.g. "Set-ExecutionPolicy RemoteSigned"
+powershell -File $(SolutionDir)StartSoundForge.ps1
+
+EXIT /B 0</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

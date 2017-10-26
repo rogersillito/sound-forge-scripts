@@ -4,6 +4,6 @@ namespace SoundForgeScriptsLib.EntryPoints
 {
     public interface IEntryPoint
     {
-        void Begin(IScriptableApp app);
+        void FromSoundForge(IScriptableApp app);
     }
 }

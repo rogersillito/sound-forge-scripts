@@ -9,22 +9,34 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundForgeScriptsLib", "Sou
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScriptFileProcessor", "ScriptFileProcessor\ScriptFileProcessor.csproj", "{56E49401-06E1-4241-B29D-AE1B96DAD73F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{34EC3D8D-3CA9-4B0D-94AD-5FEF330BFB75}"
+	ProjectSection(SolutionItems) = preProject
+		StartSoundForge.ps1 = StartSoundForge.ps1
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		DebugWithDllCopy|Any CPU = DebugWithDllCopy|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{486762F1-28FE-43A8-AB4B-2CAC9365839D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{486762F1-28FE-43A8-AB4B-2CAC9365839D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{486762F1-28FE-43A8-AB4B-2CAC9365839D}.DebugWithDllCopy|Any CPU.ActiveCfg = DebugWithDllCopy|Any CPU
+		{486762F1-28FE-43A8-AB4B-2CAC9365839D}.DebugWithDllCopy|Any CPU.Build.0 = DebugWithDllCopy|Any CPU
 		{486762F1-28FE-43A8-AB4B-2CAC9365839D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{486762F1-28FE-43A8-AB4B-2CAC9365839D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7C9A13DA-B70B-4F71-8C88-81BB7EBAC4AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7C9A13DA-B70B-4F71-8C88-81BB7EBAC4AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C9A13DA-B70B-4F71-8C88-81BB7EBAC4AE}.DebugWithDllCopy|Any CPU.ActiveCfg = DebugWithDllCopy|Any CPU
+		{7C9A13DA-B70B-4F71-8C88-81BB7EBAC4AE}.DebugWithDllCopy|Any CPU.Build.0 = DebugWithDllCopy|Any CPU
 		{7C9A13DA-B70B-4F71-8C88-81BB7EBAC4AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7C9A13DA-B70B-4F71-8C88-81BB7EBAC4AE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{56E49401-06E1-4241-B29D-AE1B96DAD73F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{56E49401-06E1-4241-B29D-AE1B96DAD73F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56E49401-06E1-4241-B29D-AE1B96DAD73F}.DebugWithDllCopy|Any CPU.ActiveCfg = DebugWithDllCopy|Any CPU
+		{56E49401-06E1-4241-B29D-AE1B96DAD73F}.DebugWithDllCopy|Any CPU.Build.0 = DebugWithDllCopy|Any CPU
 		{56E49401-06E1-4241-B29D-AE1B96DAD73F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{56E49401-06E1-4241-B29D-AE1B96DAD73F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
