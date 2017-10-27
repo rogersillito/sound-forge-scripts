@@ -100,6 +100,16 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
 
             long noisePrintSampleLength = _file.SecondsToPosition(noisePrintLength);
             window.SetSelectionAndScroll(window.Selection.Start, noisePrintSampleLength, DataWndScrollTo.NoMove);
+            ISfFileHost noisePrintData = window.File.NewFile(window.Selection);
+            App.DoMenuAndWait("Edit.Copy", false);
+
+            window.SetCursorAndScroll(0, DataWndScrollTo.NoMove);
+            _file.Markers.AddMarker(0, "NoisePrint End");
+            //TODO: fix - is pasting to a new window..?
+            App.DoMenuAndWait("Edit.Paste", false);
+
+            //_file.OverwriteAudio(0,0,noisePrintData, new SfAudioSelection(noisePrintData));
+
         }
 
         private static void SelectBothChannels(ISfDataWnd window)
