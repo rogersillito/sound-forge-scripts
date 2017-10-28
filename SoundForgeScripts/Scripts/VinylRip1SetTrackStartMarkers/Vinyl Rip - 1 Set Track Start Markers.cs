@@ -37,11 +37,10 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
             }
             else
             {
-                CreateNoisePrint();
-                //int undoId = engine.PrepareAudio(app, file);
-                //file.Markers.Clear();
-                //engine.FindTrackStarts(app, file);
-                //file.EndUndo(undoId, false);
+                int undoId = PrepareAudio();
+                _file.Markers.Clear();
+                //FindTrackStarts(App, _file);
+                _file.EndUndo(undoId, false); //TODO: retain marker positions in script and undo NOT working!
                 //file.Window.SetCursorAndScroll(engine._markerPositions[0], DataWndScrollTo.Nearest);
                 //file.Markers.AddMarker(engine._markerPositions[0], "bob");
             }
@@ -68,51 +67,71 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
             return 0;
         }
 
-        private int PrepareAudio(IScriptableApp app, ISfFileHost file)
+        private int PrepareAudio()
         {
-            CreateNoisePrint();
+            FileTasks.CopyNoisePrintSelectionToStart(App, _file); // retain this after undo for subsequent Vinyl Rip Scripts to use
+
+            _file.UndosAreEnabled = true;
+            int undoId = _file.BeginUndo("PrepareAudio");
 
             SfAudioSelection wholeFileSelection = new SfAudioSelection(0, -1);
 
-            file.UndosAreEnabled = true;
-            int undoId = file.BeginUndo("PrepareAudio");
-
+            // convert mono
             double[,] aGainMap = new double[1, 2] { { 0.5, 0.5 } };
-            file.DoConvertChannels(1, 0, aGainMap, EffectOptions.EffectOnly);
+            _file.DoConvertChannels(1, 0, aGainMap, EffectOptions.EffectOnly);
+            // Eof: convert mono
 
             const string stage1Preset = "Vinyl Processing (Pre-Track Splitting)";
-            ApplyEffectPreset(app, wholeFileSelection, "Sony Click and Crackle Removal", stage1Preset);
-            ApplyEffectPreset(app, wholeFileSelection, "Sony Noise Reduction", stage1Preset);
-            ApplyEffectPreset(app, wholeFileSelection, "Sony Noise Reduction", stage1Preset); // 2 passes
+            ApplyEffectPreset(App, wholeFileSelection, "Sony Click and Crackle Removal", stage1Preset);
+            ApplyEffectPreset(App, wholeFileSelection, "Sony Noise Reduction", stage1Preset);
+            ApplyEffectPreset(App, wholeFileSelection, "Sony Noise Reduction", stage1Preset); // 2 passes
 
             return undoId;
         }
 
-        private void CreateNoisePrint()
+        private static void ApplyEffectPreset(IScriptableApp app, SfAudioSelection selection, string effectName, string presetName)
         {
-            ISfDataWnd window = _file.Window;
-            double selectionLengthSeconds = _file.PositionToSeconds(window.Selection.Length);
-            const double noisePrintLength = 2.0d;
+            ISfFileHost file = app.CurrentFile;
+
+            ISfGenericEffect effect = app.FindEffect(effectName);
+            if (effect == null) throw new Exception(string.Format("Effect '{0}' was not found.", effectName));
+
+            ISfGenericPreset preset = effect.GetPreset(presetName);
+            if (preset == null) throw new Exception(string.Format("Preset '{0}' was not found for effect '{1}'", presetName, effectName));
+
+            file.DoEffect(effect.Guid, preset.Name, selection, EffectOptions.EffectOnly);
+        }
+    }
+
+    public class FileTasks
+    {
+        public static void CopyNoisePrintSelectionToStart(IScriptableApp app, ISfFileHost file)
+        {
+            CopyNoisePrintSelectionToStart(app, file, 2.0d);
+        }
+
+        public static void CopyNoisePrintSelectionToStart(IScriptableApp app, ISfFileHost file, double noisePrintLength)
+        {
+            ISfDataWnd window = file.Window;
+            double selectionLengthSeconds = file.PositionToSeconds(window.Selection.Length);
             if (selectionLengthSeconds < noisePrintLength)
                 throw new ScriptAbortedException("A noise selection of {0} seconds or more must be made before running this script.", noisePrintLength);
 
-            SelectBothChannels(window);
+            WindowTasks.SelectBothChannels(window);
 
-            long noisePrintSampleLength = _file.SecondsToPosition(noisePrintLength);
+            long noisePrintSampleLength = file.SecondsToPosition(noisePrintLength);
             window.SetSelectionAndScroll(window.Selection.Start, noisePrintSampleLength, DataWndScrollTo.NoMove);
-            ISfFileHost noisePrintData = window.File.NewFile(window.Selection);
-            App.DoMenuAndWait("Edit.Copy", false);
+            app.DoMenuAndWait("Edit.Copy", false);
 
             window.SetCursorAndScroll(0, DataWndScrollTo.NoMove);
-            _file.Markers.AddMarker(0, "NoisePrint End");
-            //TODO: fix - is pasting to a new window..?
-            App.DoMenuAndWait("Edit.Paste", false);
-
-            //_file.OverwriteAudio(0,0,noisePrintData, new SfAudioSelection(noisePrintData));
-
+            file.Markers.AddMarker(0, "Noise-Print-End");
+            app.DoMenuAndWait("Edit.Paste", false);
         }
+    }
 
-        private static void SelectBothChannels(ISfDataWnd window)
+    public class WindowTasks
+    {
+        public static void SelectBothChannels(ISfDataWnd window)
         {
             if (window.File.Channels != 2)
                 throw new ScriptAbortedException("Expected a 2-channel file.");
@@ -131,19 +150,6 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
                     window.ForwardKey(Keys.Tab);
                     break;
             }
-        }
-
-        private static void ApplyEffectPreset(IScriptableApp app, SfAudioSelection selection, string effectName, string presetName)
-        {
-            ISfFileHost file = app.CurrentFile;
-
-            ISfGenericEffect effect = app.FindEffect(effectName);
-            if (effect == null) throw new Exception(string.Format("Effect '{0}' was not found.", effectName));
-
-            ISfGenericPreset preset = effect.GetPreset(presetName);
-            if (preset == null) throw new Exception(string.Format("Preset '{0}' was not found for effect '{1}'", presetName, effectName));
-
-            file.DoEffect(effect.Guid, preset.Name, selection, EffectOptions.EffectOnly);
         }
     }
 }
