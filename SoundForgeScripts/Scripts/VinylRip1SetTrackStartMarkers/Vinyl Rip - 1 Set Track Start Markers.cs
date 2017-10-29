@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using SoundForge;
 using SoundForgeScriptsLib;
@@ -32,25 +33,25 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
             _file = App.CurrentFile;
             _markerPositions.Clear();
 
-            if (_file == null)
+            if (_file == null || _file.Channels != 2)
             {
-                throw new ScriptAbortedException("A file must be open before this script can be run.");
+                throw new ScriptAbortedException("A stereo file must be open before this script can be run.");
             }
             //_file.UndosAreEnabled = true;
             //Output.ToScriptWindow(_file.UndosAreEnabled);
 
-            //FileTasks.CopyNoisePrintSelectionToStart(App, _file); // retain this after undo for subsequent Vinyl Rip Scripts to use
+            FileTasks.CopyNoisePrintSelectionToStart(App, _file); // retain this after undo for subsequent Vinyl Rip Scripts to use
 
             //int undoId = _file.BeginUndo("PrepareAudio");
-            //AggressivelyCleanRecordedAudio();
+            AggressivelyCleanRecordedAudio();
             //_file.Markers.Clear();
             FindTracksOptions options = new FindTracksOptions();
             options.ScanWindowLengthInSeconds = 2;
             FindTracks(App, _file, options);
             //Output.ToMessageBox("end undo", MessageBoxIcon.Hand, "press ok");
             //_file.EndUndo(undoId, true); //TODO: retain marker positions in script and undo NOT working!
-            Output.ToMessageBox("Crack on...", MessageBoxIcon.Hand, "press ok");
-            App.DoMenuAndWait("Edit.UndoAll", false);
+            //Output.ToMessageBox("Crack on...", MessageBoxIcon.Hand, "press ok");
+            //App.DoMenuAndWait("Edit.UndoAll", false);
 
             //file.Window.SetCursorAndScroll(engine._markerPositions[0], DataWndScrollTo.Nearest);
             //file.Markers.AddMarker(engine._markerPositions[0], "bob");
@@ -60,11 +61,32 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
         private void FindTracks(IScriptableApp app, ISfFileHost file, FindTracksOptions findTracksOptions)
         {
             findTracksOptions.Validate();
+
+            ScriptTimer.Reset();
+            List<ScanResult> results = DoStatisticsScan(findTracksOptions);
+            foreach (ScanResult scanResult in results)
+            {
+                Output.ToScriptWindow("{0}\t{1}\t{2}\t{3}\t{4}\t{5}", 
+                    scanResult.WindowNumber, 
+                    OutputHelper.FormatToTimeSpan(file.PositionToSeconds(scanResult.SelectionStart)), 
+                    OutputHelper.FormatToTimeSpan(file.PositionToSeconds(scanResult.SelectionEnd)), 
+                    SfHelpers.RatioTodB(scanResult.Ch1Statistics.RMSLevel), 
+                    SfHelpers.RatioTodB(scanResult.Ch2Statistics.RMSLevel), 
+                    scanResult.GetMaxRmsLevel()
+                );
+            }
+            //TODO: statistics we're saving don't correspond to what we get when manually selecting a region and generating them...
+            Output.ToScriptWindow("FindTracks Finished scanning:\r\n- Scanned: {0} windows\r\n- Window Length: {1}s\r\n- Scan Duration: {2}", results.Count, findTracksOptions.ScanWindowLengthInSeconds, ScriptTimer.Time());
+        }
+
+        private List<ScanResult> DoStatisticsScan(FindTracksOptions findTracksOptions)
+        {
             long selectionStart = 0;
             long scanWindowLength = _file.SecondsToPosition(findTracksOptions.ScanWindowLengthInSeconds);
             long windowCount = 1;
 
             bool scannedToEnd = false;
+            List<ScanResult> results = new List<ScanResult>();
             while (!scannedToEnd)
             {
                 long selectionEnd = selectionStart + scanWindowLength;
@@ -74,14 +96,22 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
                     scannedToEnd = true;
                 }
                 //Output.ToScriptWindow("Start={0} End={1}", selectionStart, selectionEnd);
-                SfAudioSelection windowSelection = new SfAudioSelection(selectionStart, selectionEnd);
+                SfAudioSelection windowedSelection = new SfAudioSelection(selectionStart, selectionEnd);
+
+                ScanResult result = new ScanResult();
+                result.WindowNumber = windowCount;
+                result.SelectionStart = selectionStart;
+                result.SelectionEnd = selectionEnd;
+                result.Ch1Statistics = FileTasks.GetChannelStatisticsOverSelection(0, windowedSelection, _file);
+                result.Ch2Statistics = FileTasks.GetChannelStatisticsOverSelection(1, windowedSelection, _file);
+                results.Add(result);
 
                 Output.ToStatusField1("{0}", windowCount);
                 Output.ToStatusField2("{0}s", OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(selectionStart)));
                 selectionStart = selectionEnd + 1;
                 windowCount++;
             }
-            Output.ToScriptWindow("FindTracks Finished scanning:\r\n- Scanned: {0} windows\r\n- Window Length: {1}s\r\n", windowCount, findTracksOptions.ScanWindowLengthInSeconds);
+            return results;
         }
 
         //private int FindTrackStartsOld(IScriptableApp app, ISfFileHost file)
@@ -128,9 +158,27 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
         }
     }
 
+    public class ScanResult
+    {
+        public long WindowNumber;
+        public long SelectionStart;
+        public long SelectionEnd;
+        public SfAudioStatistics Ch1Statistics;
+        public SfAudioStatistics Ch2Statistics;
+
+        public double GetMaxRmsLevel()
+        {
+            double loudest = Ch1Statistics.RMSLevel;
+            if (Ch2Statistics.RMSLevel > loudest)
+                loudest = Ch2Statistics.RMSLevel;
+            return SfHelpers.RatioTodB(loudest);
+        }
+    }
+
     public class FindTracksOptions
     {
         private double _scanWindowLengthInSeconds;
+        private double _gapNoisefloorThresholdInDecibels;
 
         public double ScanWindowLengthInSeconds
         {
@@ -138,11 +186,19 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
             set { _scanWindowLengthInSeconds = value; }
         }
 
+        public double GapNoisefloorThresholdInDecibels
+        {
+            get { return _gapNoisefloorThresholdInDecibels; }
+            set { _gapNoisefloorThresholdInDecibels = value; }
+        }
+
         public void Validate()
         {
-            double minWinLength = 0.2; 
+            const double minWinLength = 0.2;
             if (_scanWindowLengthInSeconds < minWinLength)
                 throw new ScriptAbortedException("ScanWindowLengthInSeconds must be >= {0}", minWinLength);
+
+            //double minNoiseFloor = 0.2;
         }
     }
 
@@ -175,6 +231,16 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
         {
             double[,] aGainMap = new double[1, 2] { { 0.5, 0.5 } };
             file.DoConvertChannels(1, 0, aGainMap, EffectOptions.EffectOnly);
+        }
+
+        public static SfAudioStatistics GetChannelStatisticsOverSelection(uint channel, SfAudioSelection selection, ISfFileHost file)
+        {
+            file.UpdateStatistics(selection);
+            SfStatus status = file.WaitForDoneOrCancel();
+            if (!file.StatisticsAreUpToDate)
+                throw new ScriptAbortedException("Failed to update statistics for selection: {0} - {1} samples (WaitForDoneOrCancel returned \"{2}\")", status);
+            SfAudioStatistics statistics = file.GetStatistics(channel);
+            return statistics;
         }
     }
 
