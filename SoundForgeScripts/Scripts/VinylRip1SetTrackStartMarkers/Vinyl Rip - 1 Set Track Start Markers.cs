@@ -38,24 +38,21 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
                 throw new ScriptAbortedException("A stereo file must be open before this script can be run.");
             }
             //_file.UndosAreEnabled = true;
-            //Output.ToScriptWindow(_file.UndosAreEnabled);
 
-            FileTasks.CopyNoisePrintSelectionToStart(App, _file); // retain this after undo for subsequent Vinyl Rip Scripts to use
-
+            //TODO: uncomment, for quicker testing though - use "Hi-Gloss_TEST-for_testing_track_find.pca"
+            //FileTasks.CopyNoisePrintSelectionToStart(App, _file); // retain this after undo for subsequent Vinyl Rip Scripts to use
             //int undoId = _file.BeginUndo("PrepareAudio");
-            AggressivelyCleanRecordedAudio();
+            //AggressivelyCleanRecordedAudio();
             //_file.Markers.Clear();
             FindTracksOptions options = new FindTracksOptions();
             options.ScanWindowLengthInSeconds = 2;
             FindTracks(App, _file, options);
-            //Output.ToMessageBox("end undo", MessageBoxIcon.Hand, "press ok");
             //_file.EndUndo(undoId, true); //TODO: retain marker positions in script and undo NOT working!
-            //Output.ToMessageBox("Crack on...", MessageBoxIcon.Hand, "press ok");
+            //Output.ToMessageBox("Pausing...", MessageBoxIcon.Hand, "press ok");
             //App.DoMenuAndWait("Edit.UndoAll", false);
 
             //file.Window.SetCursorAndScroll(engine._markerPositions[0], DataWndScrollTo.Nearest);
             //file.Markers.AddMarker(engine._markerPositions[0], "bob");
-            Output.ToScriptWindow("c");
         }
 
         private void FindTracks(IScriptableApp app, ISfFileHost file, FindTracksOptions findTracksOptions)
@@ -96,7 +93,7 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
                     scannedToEnd = true;
                 }
                 //Output.ToScriptWindow("Start={0} End={1}", selectionStart, selectionEnd);
-                SfAudioSelection windowedSelection = new SfAudioSelection(selectionStart, selectionEnd);
+                SfAudioSelection windowedSelection = WindowTasks.NewSelectionUsingEndPosition(selectionStart, selectionEnd);
 
                 ScanResult result = new ScanResult();
                 result.WindowNumber = windowCount;
@@ -265,6 +262,11 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
                     window.ForwardKey(Keys.Tab);
                     break;
             }
+        }
+
+        public static SfAudioSelection NewSelectionUsingEndPosition(long ccStart, long ccEnd)
+        {
+            return new SfAudioSelection(ccStart, ccEnd - ccStart);
         }
 
         public static SfAudioSelection NewWholeFileSelection()
