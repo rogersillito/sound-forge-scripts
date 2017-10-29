@@ -18,10 +18,11 @@ using System.Windows.Forms;
 using SoundForge;
 using SoundForgeScriptsLib;
 using SoundForgeScriptsLib.EntryPoints;
+using SoundForgeScriptsLib.Utils;
 
 namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
 {
-    public class EntryPoint: EntryPointBase
+    public class EntryPoint : EntryPointBase
     {
         private ISfFileHost _file;
         private readonly List<long> _markerPositions = new List<long>();
@@ -35,58 +36,82 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
             {
                 throw new ScriptAbortedException("A file must be open before this script can be run.");
             }
-            else
-            {
-                int undoId = PrepareAudio();
-                _file.Markers.Clear();
-                //FindTrackStarts(App, _file);
-                _file.EndUndo(undoId, false); //TODO: retain marker positions in script and undo NOT working!
-                //file.Window.SetCursorAndScroll(engine._markerPositions[0], DataWndScrollTo.Nearest);
-                //file.Markers.AddMarker(engine._markerPositions[0], "bob");
-            }
+            //_file.UndosAreEnabled = true;
+            //Output.ToScriptWindow(_file.UndosAreEnabled);
+
+            //FileTasks.CopyNoisePrintSelectionToStart(App, _file); // retain this after undo for subsequent Vinyl Rip Scripts to use
+
+            //int undoId = _file.BeginUndo("PrepareAudio");
+            //AggressivelyCleanRecordedAudio();
+            //_file.Markers.Clear();
+            FindTracksOptions options = new FindTracksOptions();
+            options.ScanWindowLengthInSeconds = 2;
+            FindTracks(App, _file, options);
+            //Output.ToMessageBox("end undo", MessageBoxIcon.Hand, "press ok");
+            //_file.EndUndo(undoId, true); //TODO: retain marker positions in script and undo NOT working!
+            Output.ToMessageBox("Crack on...", MessageBoxIcon.Hand, "press ok");
+            App.DoMenuAndWait("Edit.UndoAll", false);
+
+            //file.Window.SetCursorAndScroll(engine._markerPositions[0], DataWndScrollTo.Nearest);
+            //file.Markers.AddMarker(engine._markerPositions[0], "bob");
+            Output.ToScriptWindow("c");
         }
 
-        private int FindTrackStarts(IScriptableApp app, ISfFileHost file)
+        private void FindTracks(IScriptableApp app, ISfFileHost file, FindTracksOptions findTracksOptions)
         {
-            long fileLength = file.Length;
-            long startPosition = 0;
-            int markerId = 1;
+            findTracksOptions.Validate();
+            long selectionStart = 0;
+            long scanWindowLength = _file.SecondsToPosition(findTracksOptions.ScanWindowLengthInSeconds);
+            long windowCount = 1;
 
-            while (startPosition < file.Length && markerId < 100)
+            bool scannedToEnd = false;
+            while (!scannedToEnd)
             {
+                long selectionEnd = selectionStart + scanWindowLength;
+                if (selectionEnd >= _file.Length)
+                {
+                    selectionEnd = _file.Length;
+                    scannedToEnd = true;
+                }
+                //Output.ToScriptWindow("Start={0} End={1}", selectionStart, selectionEnd);
+                SfAudioSelection windowSelection = new SfAudioSelection(selectionStart, selectionEnd);
 
-                SfAudioSelection selection = new SfAudioSelection(startPosition, file.Length);
-                long foundPosition = file.FindAudioAbove(selection, 0.001, true);
-                _markerPositions.Add(foundPosition);
-                file.Markers.AddMarker(foundPosition, markerId.ToString());
-                markerId++;
-                app.OutputText(foundPosition.ToString());
-                startPosition = foundPosition;
+                Output.ToStatusField1("{0}", windowCount);
+                Output.ToStatusField2("{0}s", OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(selectionStart)));
+                selectionStart = selectionEnd + 1;
+                windowCount++;
             }
-            //MessageBox.Show(foundPosition.ToString());
-            return 0;
+            Output.ToScriptWindow("FindTracks Finished scanning:\r\n- Scanned: {0} windows\r\n- Window Length: {1}s\r\n", windowCount, findTracksOptions.ScanWindowLengthInSeconds);
         }
 
-        private int PrepareAudio()
+        //private int FindTrackStartsOld(IScriptableApp app, ISfFileHost file)
+        //{
+        //    long fileLength = file.Length;
+        //    long startPosition = 0;
+        //    int markerId = 1;
+        //    int foundCount = 0;
+
+        //    while (startPosition < file.Length && markerId < 100)
+        //    {
+        //        SfAudioSelection selection = new SfAudioSelection(startPosition, file.Length);
+        //        long foundPosition = file.FindAudioAbove(selection, 0.001, true);
+        //        _markerPositions.Add(foundPosition);
+        //        file.Markers.AddMarker(foundPosition, markerId.ToString());
+        //        markerId++;
+        //        app.OutputText(foundPosition.ToString());
+        //        startPosition = foundPosition;
+        //    }
+        //    //MessageBox.Show(foundPosition.ToString());
+        //    return 0;
+        //}
+
+        private void AggressivelyCleanRecordedAudio()
         {
-            FileTasks.CopyNoisePrintSelectionToStart(App, _file); // retain this after undo for subsequent Vinyl Rip Scripts to use
-
-            _file.UndosAreEnabled = true;
-            int undoId = _file.BeginUndo("PrepareAudio");
-
-            SfAudioSelection wholeFileSelection = new SfAudioSelection(0, -1);
-
-            // convert mono
-            double[,] aGainMap = new double[1, 2] { { 0.5, 0.5 } };
-            _file.DoConvertChannels(1, 0, aGainMap, EffectOptions.EffectOnly);
-            // Eof: convert mono
-
+            SfAudioSelection selection = WindowTasks.NewWholeFileSelection();
             const string stage1Preset = "Vinyl Processing (Pre-Track Splitting)";
-            ApplyEffectPreset(App, wholeFileSelection, "Sony Click and Crackle Removal", stage1Preset);
-            ApplyEffectPreset(App, wholeFileSelection, "Sony Noise Reduction", stage1Preset);
-            ApplyEffectPreset(App, wholeFileSelection, "Sony Noise Reduction", stage1Preset); // 2 passes
-
-            return undoId;
+            ApplyEffectPreset(App, selection, "Sony Click and Crackle Removal", stage1Preset);
+            ApplyEffectPreset(App, selection, "Sony Noise Reduction", stage1Preset);
+            ApplyEffectPreset(App, selection, "Sony Noise Reduction", stage1Preset); // 2 passes
         }
 
         private static void ApplyEffectPreset(IScriptableApp app, SfAudioSelection selection, string effectName, string presetName)
@@ -100,6 +125,24 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
             if (preset == null) throw new Exception(string.Format("Preset '{0}' was not found for effect '{1}'", presetName, effectName));
 
             file.DoEffect(effect.Guid, preset.Name, selection, EffectOptions.EffectOnly);
+        }
+    }
+
+    public class FindTracksOptions
+    {
+        private double _scanWindowLengthInSeconds;
+
+        public double ScanWindowLengthInSeconds
+        {
+            get { return _scanWindowLengthInSeconds; }
+            set { _scanWindowLengthInSeconds = value; }
+        }
+
+        public void Validate()
+        {
+            double minWinLength = 0.2; 
+            if (_scanWindowLengthInSeconds < minWinLength)
+                throw new ScriptAbortedException("ScanWindowLengthInSeconds must be >= {0}", minWinLength);
         }
     }
 
@@ -127,6 +170,12 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
             file.Markers.AddMarker(0, "Noise-Print-End");
             app.DoMenuAndWait("Edit.Paste", false);
         }
+
+        public static void ConvertStereoToMono(ISfFileHost file)
+        {
+            double[,] aGainMap = new double[1, 2] { { 0.5, 0.5 } };
+            file.DoConvertChannels(1, 0, aGainMap, EffectOptions.EffectOnly);
+        }
     }
 
     public class WindowTasks
@@ -150,6 +199,11 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
                     window.ForwardKey(Keys.Tab);
                     break;
             }
+        }
+
+        public static SfAudioSelection NewWholeFileSelection()
+        {
+            return new SfAudioSelection(0, -1);
         }
     }
 }
