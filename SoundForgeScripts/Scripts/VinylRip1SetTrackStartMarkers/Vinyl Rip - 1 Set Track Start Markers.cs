@@ -15,6 +15,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 using SoundForge;
 using SoundForgeScriptsLib;
@@ -28,6 +29,10 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
         private ISfFileHost _file;
         private readonly List<long> _markerPositions = new List<long>();
 
+        private TextBox _tbxAlbum;
+        private TextBox _tbxArtist;
+        private TextBox _tbxRootFolder;
+
         protected override void Execute()
         {
             _file = App.CurrentFile;
@@ -40,18 +45,20 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
             //_file.UndosAreEnabled = true;
 
             //TODO: uncomment, for quicker testing though - use "Hi-Gloss_TEST-for_testing_track_find.pca"
-            const int noisePrintLengthSeconds = 2;
+            //const int noisePrintLengthSeconds = 2;
             //SfAudioSelection noiseprintSelection = FileTasks.CopyNoisePrintSelectionToStart(App, _file, noisePrintLengthSeconds); // retain this after undo for subsequent Vinyl Rip Scripts to use
             //int undoId = _file.BeginUndo("PrepareAudio");
             //AggressivelyCleanRecordedAudio();
             //_file.Markers.Clear();
-            FindTracksOptions options = new FindTracksOptions();
-            options.ScanWindowLengthInSeconds = 1.0;
-            options.GapNoisefloorThresholdInDecibels = -70;
-            options.MinimumTrackGapInSeconds = 1;
-            options.MinimumTrackLengthInSeconds = 10;
-            options.StartScanFilePositionInSamples = _file.SecondsToPosition(noisePrintLengthSeconds);
-            FindTracks(App, _file, options);
+
+            ConfirmTrackSplitsForm(App.Win32Window);
+            //FindTracksOptions options = new FindTracksOptions();
+            //options.ScanWindowLengthInSeconds = 1.0;
+            //options.GapNoisefloorThresholdInDecibels = -70;
+            //options.MinimumTrackGapInSeconds = 1;
+            //options.MinimumTrackLengthInSeconds = 10;
+            //options.StartScanFilePositionInSamples = _file.SecondsToPosition(noisePrintLengthSeconds);
+            //FindTracks(App, _file, options);
             //_file.EndUndo(undoId, true); //TODO: retain marker positions in script and undo NOT working!
             //Output.ToMessageBox("Pausing...", MessageBoxIcon.Hand, "press ok");
             //App.DoMenuAndWait("Edit.UndoAll", false);
@@ -211,13 +218,15 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
             file.DoEffect(effect.Guid, preset.Name, selection, EffectOptions.EffectOnly);
         }
 
+        public const string ScriptTitle = "Process Vinyl Recording";
+
         #region Results Form
         public void ConfirmTrackSplitsForm(IWin32Window hOwner)
         {
             Form dlg = new Form();
-            Size sForm = new Size(520, 250);
+            Size sForm = new Size(520, 450);
 
-            dlg.Text = "Confirm Track Definitions";
+            dlg.Text = ScriptTitle;
             dlg.FormBorderStyle = FormBorderStyle.FixedDialog;
             dlg.MaximizeBox = false;
             dlg.MinimizeBox = false;
@@ -226,34 +235,56 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
 
             Point pt = new Point(10, 10);
             Size sOff = new Size(10, 10);
+            Size sSpacer = new Size(10, 5);
+            const int lblHeight = 16;
+            const int tbxHeight = 16;
 
-            Label lbl = new Label();
-            lbl.Text = "Press OK to apply final processing and split tracks...";
-            lbl.Width = sForm.Width - pt.X - sOff.Width;
-            lbl.Height = 14;
-            lbl.Location = pt;
-            dlg.Controls.Add(lbl);
-            pt.Y += lbl.Height;
+            Label lblRootFolder = new Label();
+            lblRootFolder.Text = "Root Library Folder Path:";
+            lblRootFolder.Width = sForm.Width - pt.X - sOff.Width;
+            lblRootFolder.Height = lblHeight;
+            lblRootFolder.Location = pt;
+            dlg.Controls.Add(lblRootFolder);
+            pt.Y += lblRootFolder.Height;
 
-            //ListView lv = new ListView();
-            //lv.FullRowSelect = true;
-            //lv.Size = sForm - new Size(20, 70);
-            //lv.Location = pt;
-            //lv.View = View.Details;
-            //lv.Columns.Add("Effect", -1, HorizontalAlignment.Left);
-            //lv.Columns.Add("Preset", -1, HorizontalAlignment.Left);
-            //dlg.Controls.Add(lv);
+            _tbxRootFolder = new TextBox();
+            _tbxRootFolder.Width = sForm.Width - pt.X - sOff.Width;
+            _tbxRootFolder.Height = tbxHeight;
+            _tbxRootFolder.Location = pt;
+            dlg.Controls.Add(_tbxRootFolder);
+            pt.Y += _tbxRootFolder.Height + sSpacer.Height;
 
-            //lv.Items.Clear();
-            //foreach (EffectInfo ei in aEffectList)
-            //{
-            //   ListViewItem lvi = new ListViewItem(ei.EffectName);
-            //   lvi.SubItems.Add(ei.PresetName);
-            //   lv.Items.Add(lvi);
-            //}
+            Label lblArtist = new Label();
+            lblArtist.Text = "Artist Folder Name:";
+            lblArtist.Width = sForm.Width - pt.X - sOff.Width;
+            lblArtist.Height = lblHeight;
+            lblArtist.Location = pt;
+            dlg.Controls.Add(lblArtist);
+            pt.Y += lblArtist.Height;
+
+            _tbxArtist = new TextBox();
+            _tbxArtist.Width = sForm.Width - pt.X - sOff.Width;
+            _tbxArtist.Height = tbxHeight;
+            _tbxArtist.Location = pt;
+            dlg.Controls.Add(_tbxArtist);
+            pt.Y += _tbxArtist.Height + sSpacer.Height;
+
+            Label lblAlbum = new Label();
+            lblAlbum.Text = "Album Folder Name:";
+            lblAlbum.Width = sForm.Width - pt.X - sOff.Width;
+            lblAlbum.Height = lblHeight;
+            lblAlbum.Location = pt;
+            dlg.Controls.Add(lblAlbum);
+            pt.Y += lblAlbum.Height;
+
+            _tbxAlbum = new TextBox();
+            _tbxAlbum.Width = sForm.Width - pt.X - sOff.Width;
+            _tbxAlbum.Height = tbxHeight;
+            _tbxAlbum.Location = pt;
+            dlg.Controls.Add(_tbxAlbum);
+            pt.Y += _tbxAlbum.Height + sOff.Height;
 
             // we position the buttons relative to the bottom and left of the form.
-             
             pt = (Point)dlg.ClientSize;
             pt -= sOff;
 
@@ -261,7 +292,7 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
             pt -= btn.Size;
             btn.Text = "Cancel";
             btn.Location = pt;
-            btn.Click += new EventHandler(OnCancel_Click);
+            btn.Click += OnCancel_Click;
             dlg.Controls.Add(btn);
             dlg.CancelButton = btn;
             pt.X -= (btn.Width + 10);
@@ -269,19 +300,49 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
             btn = new Button();
             btn.Text = "OK";
             btn.Location = pt;
-            btn.Click += new EventHandler(OnOK_Click);
+            btn.Click += OnOK_Click;
             dlg.Controls.Add(btn);
             dlg.AcceptButton = btn;
             pt.X -= (btn.Width + 10);
 
+            // position prompt beside buttons
+            pt = new Point(sOff.Width, dlg.ClientSize.Height - sSpacer.Height - btn.Size.Height);
+
+            Label lblPrompt = new Label();
+            lblPrompt.Text = "Press OK to apply final processing and split tracks...";
+            lblPrompt.Width = sForm.Width - pt.X - sOff.Width;
+            lblPrompt.Height = lblHeight;
+            lblPrompt.Location = pt;
+            dlg.Controls.Add(lblPrompt);
+            pt.Y -= lblPrompt.Height;
+
             dlg.Show(hOwner);
         }
+
+        private bool ValidatePathDetails()
+        {
+            if (Directory.Exists(_tbxRootFolder.Text)) return true;
+            Output.ToMessageBox(ScriptTitle, MessageBoxIcon.Error, "Root library folder path does not exist.");
+            return false;
+        }
+
+        public static string GetPathSafeSegmentName(string name)
+        {
+            const char replChar = ';';
+            foreach (char c in Path.GetInvalidFileNameChars())
+            {
+                name = name.Replace(c, replChar);
+            }
+            return name;
+}
 
         // generic OK button click (sets dialog result and dismisses the form)
         private void OnOK_Click(object sender, System.EventArgs e)
         {
             Button btn = (Button)sender;
             Form form = (Form)btn.Parent;
+            if (!ValidatePathDetails())
+                return;
             form.DialogResult = DialogResult.OK;
             form.Close();
             //TODO: trigger track splitting here
