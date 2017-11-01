@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
 using SoundForge;
 using SoundForgeScriptsLib;
@@ -45,7 +46,7 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
             //AggressivelyCleanRecordedAudio();
             //_file.Markers.Clear();
             FindTracksOptions options = new FindTracksOptions();
-            options.ScanWindowLengthInSeconds = 1;
+            options.ScanWindowLengthInSeconds = 1.0;
             options.GapNoisefloorThresholdInDecibels = -70;
             options.MinimumTrackGapInSeconds = 1;
             options.MinimumTrackLengthInSeconds = 10;
@@ -71,10 +72,9 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
             bool currentResultIsTrack = false;
             foreach (ScanResult scanResult in results)
             {
-                //TODO: maybe create preliminary track list without validating; validate once true start/ends have been found?
                 if (scanResult.RmsLevelExceeds(findTracksOptions.GapNoisefloorThresholdInDecibels))
                 {
-                    Output.ToScriptWindow("{0} above threshold", scanResult.WindowNumber);
+                    //Output.ToScriptWindow("{0} above threshold", scanResult.WindowNumber);
                     if (!currentResultIsTrack && tracks.CanAddNextTrack(scanResult.SelectionStart))
                     {
                         tracks.AddNew();
@@ -84,15 +84,11 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
                     }
                     tracks.LastAdded.EndPosition = scanResult.SelectionEnd;
                 }
-                else if (tracks.CanSetTrackBreak()) 
+                else if (tracks.CanSetTrackBreak())
                 {
                     currentResultIsTrack = false;
                 }
-//long foundExactStartPosition = file.FindAudioAbove(windowedSelection, SfHelpers.dBToRatio(findTracksOptions.GapNoisefloorThresholdInDecibels)
 
-//file.SnapPositionToZeroCrossing(foundExactStartPosition, true); // This honors the 'Snap to zero crossing-slope' setting in Preferences -> Editing
-//App.DoMenuAndWait(Edit.SnapToZero, false);
-                
                 //Output.ToScriptWindow("{0}\t{1}\t{2}\t{3}\t{4}\t{5}",
                 //    scanResult.WindowNumber,
                 //    OutputHelper.FormatToTimeSpan(file.PositionToSeconds(scanResult.SelectionStart)),
@@ -104,8 +100,13 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
 
             Output.ToScriptWindow("FindTracks Finished scanning:\r\n- Scanned: {0} windows\r\n- Window Length: {1}s\r\n- Scan Duration: {2}", results.Count, findTracksOptions.ScanWindowLengthInSeconds, ScriptTimer.Time());
 
+            //file.SnapPositionToZeroCrossing(foundExactStartPosition, true); // This honors the 'Snap to zero crossing-slope' setting in Preferences -> Editing
+            //App.DoMenuAndWait("Edit.SnapToZero", false);
+
+            ScriptTimer.Reset();
             RefineTrackDefinitionsByScanning(tracks, findTracksOptions);
-            //tracks.RefineStartPositions(Output);
+            Output.ToScriptWindow("RefineTrackDefinitionsByScanning Finished scanning:\r\n- Scan Duration: {0}", ScriptTimer.Time());
+
             foreach (TrackDefinition track in tracks)
             {
 
@@ -117,6 +118,8 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
 
                 file.Markers.AddRegion(track.StartPosition, track.EndPosition - track.StartPosition, string.Format("Track_{0:D4}", track.Number));
             }
+
+            ConfirmTrackSplitsForm(app.Win32Window);
         }
 
         private List<ScanResult> DoFirstPassStatisticsScan(FindTracksOptions findTracksOptions)
@@ -126,7 +129,7 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
 
         private void RefineTrackDefinitionsByScanning(TrackList tracks, FindTracksOptions findTracksOptions)
         {
-            long windowLength = _file.SecondsToPosition(0.1);
+            long windowLength = _file.SecondsToPosition(0.05);
             long scanSelectionLength = findTracksOptions.ScanWindowLengthInSamples(_file);
 
             for (int i = 0; i < tracks.Count; i++)
@@ -137,7 +140,7 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
                 {
                     if (!scanResult.RmsLevelExceeds(findTracksOptions.GapNoisefloorThresholdInDecibels)) continue;
                     track.StartPosition = scanResult.SelectionStart;
-                    Output.ToScriptWindow("Track {0} - Moving START to {1}", track.Number, OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(track.StartPosition)));
+                    Output.ToScriptWindow("Track {0} - Moving ST5ART to {1}", track.Number, OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(track.StartPosition)));
                     break;
                 }
                 List<ScanResult> refineEndResults = DoStatisticsScan(windowLength, track.EndPosition - scanSelectionLength, track.EndPosition);
@@ -185,27 +188,6 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
             return results;
         }
 
-        //private int FindTrackStartsOld(IScriptableApp app, ISfFileHost file)
-        //{
-        //    long fileLength = file.Length;
-        //    long startPosition = 0;
-        //    int markerId = 1;
-        //    int foundCount = 0;
-
-        //    while (startPosition < file.Length && markerId < 100)
-        //    {
-        //        SfAudioSelection selection = new SfAudioSelection(startPosition, file.Length);
-        //        long foundPosition = file.FindAudioAbove(selection, 0.001, true);
-        //        _markerPositions.Add(foundPosition);
-        //        file.Markers.AddMarker(foundPosition, markerId.ToString());
-        //        markerId++;
-        //        app.OutputText(foundPosition.ToString());
-        //        startPosition = foundPosition;
-        //    }
-        //    //MessageBox.Show(foundPosition.ToString());
-        //    return 0;
-        //}
-
         private void AggressivelyCleanRecordedAudio()
         {
             SfAudioSelection selection = WindowTasks.NewWholeFileSelection();
@@ -218,7 +200,7 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
         private static void ApplyEffectPreset(IScriptableApp app, SfAudioSelection selection, string effectName, string presetName)
         {
             ISfFileHost file = app.CurrentFile;
-//long foundExactStartPosition = file.FindAudioAbove(windowedSelection, SfHelpers.dBToRatio(findTracksOptions.GapNoisefloorThresholdInDecibels)
+            //long foundExactStartPosition = file.FindAudioAbove(windowedSelection, SfHelpers.dBToRatio(findTracksOptions.GapNoisefloorThresholdInDecibels)
 
             ISfGenericEffect effect = app.FindEffect(effectName);
             if (effect == null) throw new Exception(string.Format("Effect '{0}' was not found.", effectName));
@@ -228,7 +210,95 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
 
             file.DoEffect(effect.Guid, preset.Name, selection, EffectOptions.EffectOnly);
         }
+
+        #region Results Form
+        public void ConfirmTrackSplitsForm(IWin32Window hOwner)
+        {
+            Form dlg = new Form();
+            Size sForm = new Size(520, 250);
+
+            dlg.Text = "Confirm Track Definitions";
+            dlg.FormBorderStyle = FormBorderStyle.FixedDialog;
+            dlg.MaximizeBox = false;
+            dlg.MinimizeBox = false;
+            dlg.StartPosition = FormStartPosition.CenterScreen;
+            dlg.ClientSize = sForm;
+
+            Point pt = new Point(10, 10);
+            Size sOff = new Size(10, 10);
+
+            Label lbl = new Label();
+            lbl.Text = "Press OK to apply final processing and split tracks...";
+            lbl.Width = sForm.Width - pt.X - sOff.Width;
+            lbl.Height = 14;
+            lbl.Location = pt;
+            dlg.Controls.Add(lbl);
+            pt.Y += lbl.Height;
+
+            //ListView lv = new ListView();
+            //lv.FullRowSelect = true;
+            //lv.Size = sForm - new Size(20, 70);
+            //lv.Location = pt;
+            //lv.View = View.Details;
+            //lv.Columns.Add("Effect", -1, HorizontalAlignment.Left);
+            //lv.Columns.Add("Preset", -1, HorizontalAlignment.Left);
+            //dlg.Controls.Add(lv);
+
+            //lv.Items.Clear();
+            //foreach (EffectInfo ei in aEffectList)
+            //{
+            //   ListViewItem lvi = new ListViewItem(ei.EffectName);
+            //   lvi.SubItems.Add(ei.PresetName);
+            //   lv.Items.Add(lvi);
+            //}
+
+            // we position the buttons relative to the bottom and left of the form.
+             
+            pt = (Point)dlg.ClientSize;
+            pt -= sOff;
+
+            Button btn = new Button();
+            pt -= btn.Size;
+            btn.Text = "Cancel";
+            btn.Location = pt;
+            btn.Click += new EventHandler(OnCancel_Click);
+            dlg.Controls.Add(btn);
+            dlg.CancelButton = btn;
+            pt.X -= (btn.Width + 10);
+
+            btn = new Button();
+            btn.Text = "OK";
+            btn.Location = pt;
+            btn.Click += new EventHandler(OnOK_Click);
+            dlg.Controls.Add(btn);
+            dlg.AcceptButton = btn;
+            pt.X -= (btn.Width + 10);
+
+            dlg.Show(hOwner);
+        }
+
+        // generic OK button click (sets dialog result and dismisses the form)
+        private void OnOK_Click(object sender, System.EventArgs e)
+        {
+            Button btn = (Button)sender;
+            Form form = (Form)btn.Parent;
+            form.DialogResult = DialogResult.OK;
+            form.Close();
+            //TODO: trigger track splitting here
+            Output.ToMessageBox("OK clicked!");
+        }
+
+        // generic Cancel button click (sets dialog result and dismisses the form)
+        private static void OnCancel_Click(object sender, System.EventArgs e)
+        {
+            Button btn = (Button)sender;
+            Form form = (Form)btn.Parent;
+            form.DialogResult = DialogResult.Cancel;
+            form.Close();
+        }
+        #endregion // Results Form
     }
+
 
     public class TrackDefinition
     {
@@ -260,7 +330,7 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
 
         public long Length
         {
-//long foundExactStartPosition = file.FindAudioAbove(windowedSelection, SfHelpers.dBToRatio(findTracksOptions.GapNoisefloorThresholdInDecibels)
+            //long foundExactStartPosition = file.FindAudioAbove(windowedSelection, SfHelpers.dBToRatio(findTracksOptions.GapNoisefloorThresholdInDecibels)
             get { return _endPosition - StartPosition; }
         }
     }
@@ -283,7 +353,7 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
 
             // would track gap be too short ?
             long minimumAllowableStartPosition = LastAdded.EndPosition + _file.SecondsToPosition(_findTracksOptions.MinimumTrackGapInSeconds);
-            return minimumAllowableStartPosition <= nextTrackStartPosition; 
+            return minimumAllowableStartPosition <= nextTrackStartPosition;
         }
 
         public bool CanSetTrackBreak()
