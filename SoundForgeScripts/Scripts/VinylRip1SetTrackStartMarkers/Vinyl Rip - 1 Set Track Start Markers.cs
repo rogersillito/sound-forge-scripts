@@ -41,7 +41,7 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
 
             //TODO: uncomment, for quicker testing though - use "Hi-Gloss_TEST-for_testing_track_find.pca"
             const int noisePrintLengthSeconds = 2;
-            //FileTasks.CopyNoisePrintSelectionToStart(App, _file, noisePrintLengthSeconds); // retain this after undo for subsequent Vinyl Rip Scripts to use
+            //SfAudioSelection noiseprintSelection = FileTasks.CopyNoisePrintSelectionToStart(App, _file, noisePrintLengthSeconds); // retain this after undo for subsequent Vinyl Rip Scripts to use
             //int undoId = _file.BeginUndo("PrepareAudio");
             //AggressivelyCleanRecordedAudio();
             //_file.Markers.Clear();
@@ -463,12 +463,12 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
 
     public class FileTasks
     {
-        public static void CopyNoisePrintSelectionToStart(IScriptableApp app, ISfFileHost file)
+        public static SfAudioSelection CopyNoisePrintSelectionToStart(IScriptableApp app, ISfFileHost file)
         {
-            CopyNoisePrintSelectionToStart(app, file, 2.0d);
+            return CopyNoisePrintSelectionToStart(app, file, 2.0d);
         }
 
-        public static void CopyNoisePrintSelectionToStart(IScriptableApp app, ISfFileHost file, double noisePrintLength)
+        public static SfAudioSelection CopyNoisePrintSelectionToStart(IScriptableApp app, ISfFileHost file, double noisePrintLength)
         {
             ISfDataWnd window = file.Window;
             double selectionLengthSeconds = file.PositionToSeconds(window.Selection.Length);
@@ -479,11 +479,14 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
 
             long noisePrintSampleLength = file.SecondsToPosition(noisePrintLength);
             window.SetSelectionAndScroll(window.Selection.Start, noisePrintSampleLength, DataWndScrollTo.NoMove);
+            SfAudioSelection selection = new SfAudioSelection(window.Selection.Start, noisePrintSampleLength, 0);
             app.DoMenuAndWait("Edit.Copy", false);
 
             window.SetCursorAndScroll(0, DataWndScrollTo.NoMove);
             file.Markers.AddMarker(0, "Noise-Print-End");
             app.DoMenuAndWait("Edit.Paste", false);
+
+            return selection;
         }
 
         public static void ConvertStereoToMono(ISfFileHost file)
