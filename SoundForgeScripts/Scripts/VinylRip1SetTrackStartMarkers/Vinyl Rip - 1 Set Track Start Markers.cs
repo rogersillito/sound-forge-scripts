@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using SoundForge;
 using SoundForgeScriptsLib;
@@ -27,59 +28,92 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
     public class EntryPoint : EntryPointBase
     {
         private ISfFileHost _file;
-        private readonly List<long> _markerPositions = new List<long>();
+        //private readonly List<long> _markerPositions = new List<long>();
 
         private TextBox _tbxAlbum;
         private TextBox _tbxArtist;
         private TextBox _tbxRootFolder;
+        private FindTracksOptions _findTracksOptions;
+        private SfAudioSelection _noiseprintSelection;
+        private TrackList _trackList;
+        private string _outputDirectory;
+
+        private const string AggressiveCleaningPreset = "Vinyl Processing (Pre-Track Splitting)";
+        private const string FinalCleaningPreset = "Vinyl Processing (Final)";
+        private const string DefaultRootLibraryFolder = @"F:\My Music\From Vinyl\";
+        private const string TrackRegionPrefix = @"__TRACK__";
 
         protected override void Execute()
         {
             _file = App.CurrentFile;
-            _markerPositions.Clear();
+            //_markerPositions.Clear();
 
             if (_file == null || _file.Channels != 2)
             {
                 throw new ScriptAbortedException("A stereo file must be open before this script can be run.");
             }
+            FileTasks.ZoomOutFull(_file);
+
+            //TODO: retain marker positions in script and undo NOT working!
             //_file.UndosAreEnabled = true;
+            //int undoId = _file.BeginUndo("PrepareAudio");
+            //_file.EndUndo(undoId, true); 
 
             //TODO: uncomment, for quicker testing though - use "Hi-Gloss_TEST-for_testing_track_find.pca"
-            //const int noisePrintLengthSeconds = 2;
-            //SfAudioSelection noiseprintSelection = FileTasks.CopyNoisePrintSelectionToStart(App, _file, noisePrintLengthSeconds); // retain this after undo for subsequent Vinyl Rip Scripts to use
-            //int undoId = _file.BeginUndo("PrepareAudio");
-            //AggressivelyCleanRecordedAudio();
-            //_file.Markers.Clear();
+            const int noisePrintLengthSeconds = 2;
+            _noiseprintSelection = FileTasks.PromptNoisePrintSelection(App, _file, noisePrintLengthSeconds);
+            FileTasks.CopySelectionToStart(App, _file, _noiseprintSelection);
+            CleanVinylRecording(AggressiveCleaningPreset);
+
+            //TODO: initial dialog to configure these:
+            _findTracksOptions = new FindTracksOptions();
+            _findTracksOptions.ScanWindowLengthInSeconds = 1.0;
+            _findTracksOptions.GapNoisefloorThresholdInDecibels = -70;
+            _findTracksOptions.MinimumTrackGapInSeconds = 1;
+            _findTracksOptions.MinimumTrackLengthInSeconds = 10;
+            _findTracksOptions.StartScanFilePositionInSamples = _file.SecondsToPosition(noisePrintLengthSeconds);
+            _findTracksOptions.TrackAddFadeOutLengthInSeconds = 1.8;
+            _findTracksOptions.TrackFadeInLengthInSamples = 30;
+
+            _trackList = FindTracks(App, _file);
+
+            App.DoMenuAndWait("Edit.UndoAll", false);
+
+            foreach (TrackDefinition track in _trackList)
+            {
+                Output.ToScriptWindow("Track {0}\t{1}\t{2}",
+                    track.Number,
+                    OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(track.StartPosition)),
+                    OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(track.EndPosition))
+                    );
+                long startPosition = track.StartPosition - _noiseprintSelection.Length;
+                long endPosition = track.EndPosition - track.StartPosition - _noiseprintSelection.Length;
+                _file.Markers.AddRegion(startPosition, endPosition, string.Format("{0}{1:D4}", TrackRegionPrefix, track.Number));
+            }
 
             ConfirmTrackSplitsForm(App.Win32Window);
-            //FindTracksOptions options = new FindTracksOptions();
-            //options.ScanWindowLengthInSeconds = 1.0;
-            //options.GapNoisefloorThresholdInDecibels = -70;
-            //options.MinimumTrackGapInSeconds = 1;
-            //options.MinimumTrackLengthInSeconds = 10;
-            //options.StartScanFilePositionInSamples = _file.SecondsToPosition(noisePrintLengthSeconds);
-            //FindTracks(App, _file, options);
-            //_file.EndUndo(undoId, true); //TODO: retain marker positions in script and undo NOT working!
-            //Output.ToMessageBox("Pausing...", MessageBoxIcon.Hand, "press ok");
-            //App.DoMenuAndWait("Edit.UndoAll", false);
 
-            //file.Window.SetCursorAndScroll(engine._markerPositions[0], DataWndScrollTo.Nearest);
-            //file.Markers.AddMarker(engine._markerPositions[0], "bob");
+            //Output.ToMessageBox("Pausing...", MessageBoxIcon.Hand, "press ok");
         }
 
-        private void FindTracks(IScriptableApp app, ISfFileHost file, FindTracksOptions findTracksOptions)
+        private void SetNoisePrintMarker()
         {
-            findTracksOptions.Validate();
+            _file.Markers.AddMarker(0, "Noise-Print-End");
+        }
+
+        private TrackList FindTracks(IScriptableApp app, ISfFileHost file)
+        {
+            _findTracksOptions.Validate();
 
             ScriptTimer.Reset();
-            List<ScanResult> results = DoFirstPassStatisticsScan(findTracksOptions);
+            List<ScanResult> results = DoFirstPassStatisticsScan();
 
-            TrackList tracks = new TrackList(findTracksOptions, file);
+            TrackList tracks = new TrackList(_findTracksOptions, file);
             int trackCount = 1;
             bool currentResultIsTrack = false;
             foreach (ScanResult scanResult in results)
             {
-                if (scanResult.RmsLevelExceeds(findTracksOptions.GapNoisefloorThresholdInDecibels))
+                if (scanResult.RmsLevelExceeds(_findTracksOptions.GapNoisefloorThresholdInDecibels))
                 {
                     //Output.ToScriptWindow("{0} above threshold", scanResult.WindowNumber);
                     if (!currentResultIsTrack && tracks.CanAddNextTrack(scanResult.SelectionStart))
@@ -95,7 +129,6 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
                 {
                     currentResultIsTrack = false;
                 }
-
                 //Output.ToScriptWindow("{0}\t{1}\t{2}\t{3}\t{4}\t{5}",
                 //    scanResult.WindowNumber,
                 //    OutputHelper.FormatToTimeSpan(file.PositionToSeconds(scanResult.SelectionStart)),
@@ -105,39 +138,24 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
                 //    scanResult.GetMaxRmsLevel()
             }
 
-            Output.ToScriptWindow("FindTracks Finished scanning:\r\n- Scanned: {0} windows\r\n- Window Length: {1}s\r\n- Scan Duration: {2}", results.Count, findTracksOptions.ScanWindowLengthInSeconds, ScriptTimer.Time());
-
-            //file.SnapPositionToZeroCrossing(foundExactStartPosition, true); // This honors the 'Snap to zero crossing-slope' setting in Preferences -> Editing
-            //App.DoMenuAndWait("Edit.SnapToZero", false);
+            Output.ToScriptWindow("FindTracks Finished scanning:\r\n- Scanned: {0} windows\r\n- Window Length: {1}s\r\n- Scan Duration: {2}", results.Count, _findTracksOptions.ScanWindowLengthInSeconds, ScriptTimer.Time());
 
             ScriptTimer.Reset();
-            RefineTrackDefinitionsByScanning(tracks, findTracksOptions);
+            RefineTrackDefinitionsByScanning(tracks);
             Output.ToScriptWindow("RefineTrackDefinitionsByScanning Finished scanning:\r\n- Scan Duration: {0}", ScriptTimer.Time());
 
-            foreach (TrackDefinition track in tracks)
-            {
-
-                Output.ToScriptWindow("{0}\t{1}\t{2}",
-                    track.Number,
-                    OutputHelper.FormatToTimeSpan(file.PositionToSeconds(track.StartPosition)),
-                    OutputHelper.FormatToTimeSpan(file.PositionToSeconds(track.EndPosition))
-                    );
-
-                file.Markers.AddRegion(track.StartPosition, track.EndPosition - track.StartPosition, string.Format("Track_{0:D4}", track.Number));
-            }
-
-            ConfirmTrackSplitsForm(app.Win32Window);
+            return tracks;
         }
 
-        private List<ScanResult> DoFirstPassStatisticsScan(FindTracksOptions findTracksOptions)
+        private List<ScanResult> DoFirstPassStatisticsScan()
         {
-            return DoStatisticsScan(findTracksOptions.ScanWindowLengthInSamples(_file), findTracksOptions.StartScanFilePositionInSamples, _file.Length);
+            return DoStatisticsScan(_findTracksOptions.ScanWindowLengthInSamples(_file), _findTracksOptions.StartScanFilePositionInSamples, _file.Length);
         }
 
-        private void RefineTrackDefinitionsByScanning(TrackList tracks, FindTracksOptions findTracksOptions)
+        private void RefineTrackDefinitionsByScanning(TrackList tracks)
         {
             long windowLength = _file.SecondsToPosition(0.05);
-            long scanSelectionLength = findTracksOptions.ScanWindowLengthInSamples(_file);
+            long scanSelectionLength = _findTracksOptions.ScanWindowLengthInSamples(_file);
 
             for (int i = 0; i < tracks.Count; i++)
             {
@@ -145,16 +163,16 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
                 List<ScanResult> refineStartResults = DoStatisticsScan(windowLength, track.StartPosition, track.StartPosition + scanSelectionLength);
                 foreach (ScanResult scanResult in refineStartResults)
                 {
-                    if (!scanResult.RmsLevelExceeds(findTracksOptions.GapNoisefloorThresholdInDecibels)) continue;
+                    if (!scanResult.RmsLevelExceeds(_findTracksOptions.GapNoisefloorThresholdInDecibels)) continue;
                     track.StartPosition = scanResult.SelectionStart;
-                    Output.ToScriptWindow("Track {0} - Moving ST5ART to {1}", track.Number, OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(track.StartPosition)));
+                    Output.ToScriptWindow("Track {0} - Moving START to {1}", track.Number, OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(track.StartPosition)));
                     break;
                 }
                 List<ScanResult> refineEndResults = DoStatisticsScan(windowLength, track.EndPosition - scanSelectionLength, track.EndPosition);
                 for (int j = 0; j < refineEndResults.Count; j++)
                 {
                     ScanResult scanResult = refineEndResults[j];
-                    if (scanResult.RmsLevelExceeds(findTracksOptions.GapNoisefloorThresholdInDecibels)) continue;
+                    if (scanResult.RmsLevelExceeds(_findTracksOptions.GapNoisefloorThresholdInDecibels)) continue;
                     track.EndPosition = scanResult.SelectionStart - 1;
                     Output.ToScriptWindow("Track {0} - Moving END to {1}", track.Number, OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(track.EndPosition)));
                     break;
@@ -195,15 +213,15 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
             return results;
         }
 
-        private void AggressivelyCleanRecordedAudio()
+        private void CleanVinylRecording(string presetName)
         {
             SfAudioSelection selection = WindowTasks.NewWholeFileSelection();
-            const string stage1Preset = "Vinyl Processing (Pre-Track Splitting)";
-            ApplyEffectPreset(App, selection, "Sony Click and Crackle Removal", stage1Preset);
-            ApplyEffectPreset(App, selection, "Sony Noise Reduction", stage1Preset);
-            ApplyEffectPreset(App, selection, "Sony Noise Reduction", stage1Preset); // 2 passes
+            ApplyEffectPreset(App, selection, "Sony Click and Crackle Removal", presetName);
+            ApplyEffectPreset(App, selection, "Sony Noise Reduction", presetName);
+            ApplyEffectPreset(App, selection, "Sony Noise Reduction", presetName); // 2 passes
         }
 
+        //TODO: move to helper
         private static void ApplyEffectPreset(IScriptableApp app, SfAudioSelection selection, string effectName, string presetName)
         {
             ISfFileHost file = app.CurrentFile;
@@ -248,9 +266,11 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
             pt.Y += lblRootFolder.Height;
 
             _tbxRootFolder = new TextBox();
+            lblRootFolder.TabIndex = 1;
             _tbxRootFolder.Width = sForm.Width - pt.X - sOff.Width;
             _tbxRootFolder.Height = tbxHeight;
             _tbxRootFolder.Location = pt;
+            _tbxRootFolder.Text = DefaultRootLibraryFolder;
             dlg.Controls.Add(_tbxRootFolder);
             pt.Y += _tbxRootFolder.Height + sSpacer.Height;
 
@@ -263,6 +283,7 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
             pt.Y += lblArtist.Height;
 
             _tbxArtist = new TextBox();
+            lblRootFolder.TabIndex = 2;
             _tbxArtist.Width = sForm.Width - pt.X - sOff.Width;
             _tbxArtist.Height = tbxHeight;
             _tbxArtist.Location = pt;
@@ -278,6 +299,7 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
             pt.Y += lblAlbum.Height;
 
             _tbxAlbum = new TextBox();
+            lblRootFolder.TabIndex = 3;
             _tbxAlbum.Width = sForm.Width - pt.X - sOff.Width;
             _tbxAlbum.Height = tbxHeight;
             _tbxAlbum.Location = pt;
@@ -289,6 +311,7 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
             pt -= sOff;
 
             Button btn = new Button();
+            btn.TabIndex = 5;
             pt -= btn.Size;
             btn.Text = "Cancel";
             btn.Location = pt;
@@ -298,6 +321,7 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
             pt.X -= (btn.Width + 10);
 
             btn = new Button();
+            btn.TabIndex = 4;
             btn.Text = "OK";
             btn.Location = pt;
             btn.Click += OnOK_Click;
@@ -321,9 +345,21 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
 
         private bool ValidatePathDetails()
         {
-            if (Directory.Exists(_tbxRootFolder.Text)) return true;
-            Output.ToMessageBox(ScriptTitle, MessageBoxIcon.Error, "Root library folder path does not exist.");
-            return false;
+            if (!Directory.Exists(_tbxRootFolder.Text))
+            {
+                Output.ToMessageBox(ScriptTitle, MessageBoxIcon.Error, "Root library folder path does not exist.");
+                return false;
+            }
+            string album = GetPathSafeSegmentName(_tbxAlbum.Text);
+            string artist = GetPathSafeSegmentName(_tbxArtist.Text);
+            string path = Path.Combine(Path.Combine(_tbxRootFolder.Text, artist), album);
+            if (Directory.Exists(path))
+            {
+                Output.ToMessageBox(ScriptTitle, MessageBoxIcon.Error, "Output path already exists: \"{0}\"", path);
+                return false;
+            }
+            _outputDirectory = path;
+            return true;
         }
 
         public static string GetPathSafeSegmentName(string name)
@@ -336,7 +372,6 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
             return name;
 }
 
-        // generic OK button click (sets dialog result and dismisses the form)
         private void OnOK_Click(object sender, System.EventArgs e)
         {
             Button btn = (Button)sender;
@@ -345,8 +380,42 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
                 return;
             form.DialogResult = DialogResult.OK;
             form.Close();
-            //TODO: trigger track splitting here
-            Output.ToMessageBox("OK clicked!");
+
+            Directory.CreateDirectory(_outputDirectory);
+            DoFinalAudioClean();
+            DoTrackSplitting();
+
+            Output.ToStatusBar(ScriptTitle + " DONE");
+        }
+
+        private void DoFinalAudioClean()
+        {
+            FileTasks.CopySelectionToStart(App, _file, _noiseprintSelection);
+            SetNoisePrintMarker();
+            FileTasks.ZoomOutFull(_file);
+            _file.Window.SetSelectionAndScroll(0, _file.Length, DataWndScrollTo.NoMove);
+            CleanVinylRecording(FinalCleaningPreset);
+            //TODO: normalize
+            //TODO: dither?
+        }
+
+        private void DoTrackSplitting()
+        {
+            Regex regionNameRegex = new Regex(string.Concat("^", TrackRegionPrefix, "[0-9]{4}$"));
+            int saveTrackNumber = 1;
+            foreach (SfAudioMarker marker in _file.Markers)
+            {
+                if (!marker.IsRegion || !regionNameRegex.IsMatch(marker.Name))
+                    continue;
+
+                long addFadeSamples = _file.SecondsToPosition(_findTracksOptions.TrackAddFadeOutLengthInSeconds);
+                SfAudioSelection trackSelection = new SfAudioSelection(marker.Start, marker.Length + addFadeSamples);
+                _file.NewFile(trackSelection);
+                // TOD apply fade settings 
+                // TOD apply fade settings 
+
+                saveTrackNumber++;
+            }
         }
 
         // generic Cancel button click (sets dialog result and dismisses the form)
@@ -365,24 +434,7 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
     {
         public int Number;
         public long StartPosition;
-        private long _endPosition;
-        private bool _endWasSet;
-
-        public long EndPosition
-        {
-            //TODO: do we need all this now? delete?
-            get { return _endPosition; }
-            set
-            {
-                _endWasSet = true;
-                _endPosition = value;
-            }
-        }
-
-        public bool EndWasSet
-        {
-            get { return _endWasSet; }
-        }
+        public long EndPosition;
 
         public SfAudioSelection WholeTrackSelection()
         {
@@ -391,8 +443,7 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
 
         public long Length
         {
-            //long foundExactStartPosition = file.FindAudioAbove(windowedSelection, SfHelpers.dBToRatio(findTracksOptions.GapNoisefloorThresholdInDecibels)
-            get { return _endPosition - StartPosition; }
+            get { return EndPosition - StartPosition; }
         }
     }
 
@@ -466,6 +517,8 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
         private double _minimumTrackGapInSeconds;
         private double _minimumTrackLengthInSeconds;
         private long _startScanFilePositionInSamples;
+        private long _trackFadeInLengthInSamples;
+        private double _trackAddFadeOutLengthInSeconds;
 
         public double ScanWindowLengthInSeconds
         {
@@ -502,8 +555,21 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
             set { _startScanFilePositionInSamples = value; }
         }
 
+        public long TrackFadeInLengthInSamples
+        {
+            get { return _trackFadeInLengthInSamples; }
+            set { _trackFadeInLengthInSamples = value; }
+        }
+
+        public double TrackAddFadeOutLengthInSeconds
+        {
+            get { return _trackAddFadeOutLengthInSeconds; }
+            set { _trackAddFadeOutLengthInSeconds = value; }
+        }
+
         public void Validate()
         {
+            //TODO: instead of validating, set defaults? use in an initial UI to allow reconfiguring?
             const double minWinLength = 0.1;
             if (_scanWindowLengthInSeconds < minWinLength)
                 throw new ScriptAbortedException("ScanWindowLengthInSeconds must be >= {0}", minWinLength);
@@ -524,12 +590,12 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
 
     public class FileTasks
     {
-        public static SfAudioSelection CopyNoisePrintSelectionToStart(IScriptableApp app, ISfFileHost file)
+        public static SfAudioSelection PromptNoisePrintSelection(IScriptableApp app, ISfFileHost file)
         {
-            return CopyNoisePrintSelectionToStart(app, file, 2.0d);
+            return PromptNoisePrintSelection(app, file, 2.0d);
         }
 
-        public static SfAudioSelection CopyNoisePrintSelectionToStart(IScriptableApp app, ISfFileHost file, double noisePrintLength)
+        public static SfAudioSelection PromptNoisePrintSelection(IScriptableApp app, ISfFileHost file, double noisePrintLength)
         {
             ISfDataWnd window = file.Window;
             double selectionLengthSeconds = file.PositionToSeconds(window.Selection.Length);
@@ -539,15 +605,17 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
             WindowTasks.SelectBothChannels(window);
 
             long noisePrintSampleLength = file.SecondsToPosition(noisePrintLength);
-            window.SetSelectionAndScroll(window.Selection.Start, noisePrintSampleLength, DataWndScrollTo.NoMove);
             SfAudioSelection selection = new SfAudioSelection(window.Selection.Start, noisePrintSampleLength, 0);
-            app.DoMenuAndWait("Edit.Copy", false);
-
-            window.SetCursorAndScroll(0, DataWndScrollTo.NoMove);
-            file.Markers.AddMarker(0, "Noise-Print-End");
-            app.DoMenuAndWait("Edit.Paste", false);
 
             return selection;
+        }
+
+        public static void CopySelectionToStart(IScriptableApp app, ISfFileHost file, SfAudioSelection selection)
+        {
+            file.Window.SetSelectionAndScroll(selection.Start, selection.Length, DataWndScrollTo.NoMove);
+            app.DoMenuAndWait("Edit.Copy", false);
+            file.Window.SetCursorAndScroll(0, DataWndScrollTo.NoMove);
+            app.DoMenuAndWait("Edit.Paste", false);
         }
 
         public static void ConvertStereoToMono(ISfFileHost file)
@@ -564,6 +632,11 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
                 throw new ScriptAbortedException("Failed to update statistics for selection: {0} - {1} samples (WaitForDoneOrCancel returned \"{2}\")", status);
             SfAudioStatistics statistics = file.GetStatistics(channel);
             return statistics;
+        }
+
+        public static void ZoomOutFull(ISfFileHost file)
+        {
+            file.Window.ZoomToShow(0, file.Length);
         }
     }
 
