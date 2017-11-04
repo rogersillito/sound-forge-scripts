@@ -43,28 +43,28 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
         private const string TrackRegionPrefix = @"__TRACK__";
 
         protected override void Execute()
-        //{
-        //    _file = App.CurrentFile;
+        {
+            _file = App.CurrentFile;
 
-        //    if (_file == null || _file.Channels != 2)
-        //    {
-        //        throw new ScriptAbortedException("A stereo file must be open before this script can be run.");
-        //    }
-        //    const int noiseprintLengthSeconds = 2;
-        //    _fileTasks = new FileTasks(_file);
-        //    _noiseprintSelection = _fileTasks.PromptNoisePrintSelection(App, noiseprintLengthSeconds);
-        //    _findTracksOptions = new FindTracksOptions();
-        //    _findTracksOptions.ScanWindowLengthInSeconds = 1.0;
-        //    _findTracksOptions.GapNoisefloorThresholdInDecibels = -70;
-        //    _findTracksOptions.MinimumTrackGapInSeconds = 1;
-        //    _findTracksOptions.MinimumTrackLengthInSeconds = 10;
-        //    _findTracksOptions.StartScanFilePositionInSamples = _file.SecondsToPosition(noiseprintLengthSeconds);
-        //    _findTracksOptions.TrackAddFadeOutLengthInSeconds = 3;
-        //    _findTracksOptions.TrackFadeInLengthInSamples = 20;
-        //    //ConfirmTrackSplitsForm(Script.Application.Win32Window);
-        //    DoTrackSplitting();
-        //}
-        //protected void Execute2()
+            if (_file == null || _file.Channels != 2)
+            {
+                throw new ScriptAbortedException("A stereo file must be open before this script can be run.");
+            }
+            const int noiseprintLengthSeconds = 2;
+            _fileTasks = new FileTasks(_file);
+            _noiseprintSelection = _fileTasks.PromptNoisePrintSelection(App, noiseprintLengthSeconds);
+            _findTracksOptions = new FindTracksOptions();
+            _findTracksOptions.ScanWindowLengthInSeconds = 1.0;
+            _findTracksOptions.GapNoisefloorThresholdInDecibels = -70;
+            _findTracksOptions.MinimumTrackGapInSeconds = 1;
+            _findTracksOptions.MinimumTrackLengthInSeconds = 10;
+            _findTracksOptions.StartScanFilePositionInSamples = _file.SecondsToPosition(noiseprintLengthSeconds);
+            _findTracksOptions.TrackAddFadeOutLengthInSeconds = 3;
+            _findTracksOptions.TrackFadeInLengthInSamples = 20;
+            //ConfirmTrackSplitsForm(Script.Application.Win32Window);
+            DefineTrackSplits();
+        }
+        protected void Execute2()
         {
             _file = App.CurrentFile;
 
@@ -403,7 +403,8 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
 
             DoFinalAudioClean();
             Directory.CreateDirectory(_outputDirectory);
-            DoTrackSplitting();
+            List<SplitTrackDefinition> tracks = DefineTrackSplits();
+            //DoTrackSplitting(tracks);
         }
         #endregion // Results Form
 
@@ -424,34 +425,83 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
             CleanVinylRecording(FinalCleaningPreset, 2, _noiseprintSelection);
             _fileTasks.ApplyEffectPreset(App, _fileTasks.SelectAll(), "Sony Paragraphic EQ", FinalCleaningPreset, EffectOptions.EffectOnly, Output.ToScriptWindow);
             _fileTasks.ApplyEffectPreset(App, _fileTasks.SelectAll(), "Normalize", "Maxixmize peak value", EffectOptions.EffectOnly, Output.ToScriptWindow);
+            Output.LineBreakToScriptWindow();
         }
 
-        private void DoTrackSplitting()
+        private List<SplitTrackDefinition> DefineTrackSplits()
+        {
+            List<SfAudioMarker> trackMarkers = GetTrackRegions();
+
+            long addFadeSamples = _file.SecondsToPosition(_findTracksOptions.TrackAddFadeOutLengthInSeconds);
+            List<SplitTrackDefinition> splitTrackDefinitions = new List<SplitTrackDefinition>();
+            Output.ToScriptWindow("Track Splits");
+            for (int i = 1; i <= trackMarkers.Count; i++)
+            {
+                int mi = i - 1;
+                SfAudioMarker marker = trackMarkers[mi];
+                long maxEndPosition = _file.Length; // cannot be past end of file
+                if (i < trackMarkers.Count)
+                {
+                    maxEndPosition = trackMarkers[mi + 1].Start - 1; // cannot overlap next track
+                }
+                long maxLength = maxEndPosition - marker.Start;
+                long lengthWithFade = marker.Length + addFadeSamples;
+                if (lengthWithFade > maxLength)
+                    lengthWithFade = maxLength;
+                SplitTrackDefinition track = new SplitTrackDefinition();
+                track.Number = i;
+                track.Selection = new SfAudioSelection(marker.Start, lengthWithFade);
+                track.FadeInLength = _findTracksOptions.TrackFadeInLengthInSamples;
+                track.FadeOutStartPosition = marker.Length;
+                splitTrackDefinitions.Add(track);
+
+                Output.ToScriptWindow("{0}:\t{1}\t{2}\t(Start fade @ {3})", track.Number,
+                    OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(track.Selection.Start)),
+                    OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(track.Selection.Length)),
+                    OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(track.FadeOutStartPosition)));
+            }
+            Output.LineBreakToScriptWindow();
+            return splitTrackDefinitions;
+        }
+
+        private List<SfAudioMarker> GetTrackRegions()
         {
             Regex regionNameRegex = new Regex(string.Concat("^", TrackRegionPrefix, "[0-9]{4}$"));
-            int saveTrackNumber = 1;
+            List<SfAudioMarker> trackMarkers = new List<SfAudioMarker>();
             foreach (SfAudioMarker marker in _file.Markers)
             {
                 if (!marker.HasLength)
                     continue;
                 if (!regionNameRegex.IsMatch(marker.Name))
                     continue;
-
-                //Output.ToScriptWindow(marker.Name);
-                long addFadeSamples = _file.SecondsToPosition(_findTracksOptions.TrackAddFadeOutLengthInSeconds);
-                //SfAudioSelection trackSelection = new SfAudioSelection(marker.Start, marker.Length + addFadeSamples);
-                //ISfFileHost trackFile = _file.NewFile(trackSelection);
-                // TOD apply fade settings 
-                // TOD apply fade settings 
-
-                //FileTasks trackTasks = new FileTasks(trackFile);
-                //trackTasks.ApplyEffectPreset(App, trackTasks.SelectAll(), "iZotope MBIT+ Dither", "Convert to 16 bit (advanced light dither)", EffectOptions.EffectOnly, Output.ToScriptWindow);
-                //trackFile.SaveAs(CreateMarkerName(saveTrackNumber)); //RENUMBER!
-                saveTrackNumber++;
+                trackMarkers.Add(marker);
             }
+            return trackMarkers;
+        }
+
+        private void DoTrackSplitting(List<SplitTrackDefinition> tracks)
+        {
+            foreach (SplitTrackDefinition track in tracks)
+            {
+                //ISfFileHost trackFile = _file.NewFile(track.Selection);
+                // TOD apply fade settings 
+                // TOD apply fade settings 
+
+            }
+
+            //FileTasks trackTasks = new FileTasks(trackFile);
+            //trackTasks.ApplyEffectPreset(App, trackTasks.SelectAll(), "iZotope MBIT+ Dither", "Convert to 16 bit (advanced light dither)", EffectOptions.EffectOnly, Output.ToScriptWindow);
+            //trackFile.SaveAs(CreateMarkerName(saveTrackNumber)); //RENUMBER!
         }
     }
 
+    public class SplitTrackDefinition
+    {
+        public int Number;
+        public SfAudioSelection Selection;
+        public long FadeInLength;
+        public long FadeOutStartPosition;
+    }
 
     public class TrackDefinition
     {
