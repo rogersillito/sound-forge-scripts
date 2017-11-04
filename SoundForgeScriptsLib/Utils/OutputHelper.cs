@@ -1,27 +1,39 @@
 using System;
-using System.Globalization;
 using System.Windows.Forms;
 using SoundForge;
+using SoundForgeScriptsLib.EntryPoints;
 
 namespace SoundForgeScriptsLib.Utils
 {
     public class OutputHelper
     {
+        private readonly IEntryPoint _entryPoint;
         private readonly IScriptableApp _app;
 
-        public OutputHelper(IScriptableApp app)
+        public OutputHelper(IEntryPoint entryPoint)
         {
-            _app = app;
+            _entryPoint = entryPoint;
+            _app = entryPoint.App;
         }
 
-        public void ToMessageBox(string fmt, params object[] args)
+        public DialogResult ToMessageBox(string caption, MessageBoxIcon icon, MessageBoxButtons buttons, string fmt, params object[] args)
         {
-            MessageBox.Show(string.Format(fmt, args));
+            return MessageBox.Show(_app.Win32Window, string.Format(fmt, args), caption, buttons, icon);
         }
 
-        public void ToMessageBox(string caption, MessageBoxIcon icon, string fmt, params object[] args)
+        public DialogResult ToMessageBox(MessageBoxIcon icon, MessageBoxButtons buttons, string fmt, params object[] args)
         {
-            MessageBox.Show(string.Format(fmt, args), caption, MessageBoxButtons.OK, icon);
+            return ToMessageBox(_entryPoint.ScriptTitle, icon, buttons, fmt, args);
+        }
+
+        public DialogResult ToMessageBox(MessageBoxIcon icon, string fmt, params object[] args)
+        {
+            return ToMessageBox(_entryPoint.ScriptTitle, icon, MessageBoxButtons.OK, fmt, args);
+        }
+
+        public DialogResult ToMessageBox(string fmt, params object[] args)
+        {
+            return ToMessageBox(_entryPoint.ScriptTitle, MessageBoxIcon.None, MessageBoxButtons.OK, fmt, args);
         }
 
         public void ToScriptWindow(object obj)
@@ -32,6 +44,11 @@ namespace SoundForgeScriptsLib.Utils
         public void ToScriptWindow(string fmt, params object[] args)
         {
             _app.OutputText(string.Format(fmt, args));
+        }
+
+        public void LineBreakToScriptWindow()
+        {
+            _app.OutputText(Environment.NewLine);
         }
 
         public void ToStatusBar(string fmt, params object[] args)
