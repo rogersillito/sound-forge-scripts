@@ -10,6 +10,8 @@ namespace SoundForgeScriptsLib.Utils
         private readonly IEntryPoint _entryPoint;
         private readonly IScriptableApp _app;
 
+        public delegate void MessageLogger(string fmt, params object[] args);
+
         public OutputHelper(IEntryPoint entryPoint)
         {
             _entryPoint = entryPoint;

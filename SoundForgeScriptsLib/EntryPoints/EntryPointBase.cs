@@ -23,7 +23,7 @@ namespace SoundForgeScriptsLib.EntryPoints
 
         public string ScriptTitle
         {
-            get { return _scriptTitle ?? "Sound Forge Script"; }
+            get { return _scriptTitle ?? Script.Name; }
             set { _scriptTitle = value; }
         }
 
@@ -31,13 +31,14 @@ namespace SoundForgeScriptsLib.EntryPoints
         {
             _app = app;
             _outputHelper = new OutputHelper(this);
+            const string aborted = "Script Aborted";
             try
             {
                 Execute();
+                Output.ToStatusBar(ScriptTitle + " Finished.");
             }
             catch (ScriptAbortedException ex)
             {
-                const string aborted = "Script Aborted";
                 string msgText = string.IsNullOrEmpty(ex.Message) ? aborted  : ex.Message;
                 Output.ToMessageBox(MessageBoxIcon.Error, MessageBoxButtons.OK, msgText);
                 Output.ToStatusBar(aborted);
@@ -45,7 +46,7 @@ namespace SoundForgeScriptsLib.EntryPoints
             }
             catch (Exception ex)
             {
-                Output.ToStatusBar("Script Terminated: An unhandled exception occurred while executing EntryPoint '{0}'", GetType().Name);
+                Output.ToStatusBar("Script Terminated: An unhandled exception occurred while executing {0}!", ScriptTitle);
                 Output.ToScriptWindow(ErrorFormatter.Format(ex));
             }
         }
