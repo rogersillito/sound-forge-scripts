@@ -52,6 +52,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Scripts\VinylRip2FinalTrackProcessing\Vinyl Rip - 2 Final Track Processing.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
     <Compile Include="Scripts\VinylRip1SetTrackStartMarkers\Vinyl Rip - 1 Set Track Start Markers.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Compile>
@@ -63,9 +66,20 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Scripts\VinylRip2FinalTrackProcessing\Vinyl Rip - 2 Final Track Processing.cs.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Scripts\VinylRip1SetTrackStartMarkers\Vinyl Rip - 1 Set Track Start Markers.cs.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Scripts\VinylRip1SetTrackStartMarkers\Vinyl Rip - 1 Set Track Start Markers.cs.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Scripts\VinylRip2FinalTrackProcessing\Vinyl Rip - 2 Final Track Processing.cs.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
@@ -89,6 +103,9 @@ forfiles /p "$(TargetDir)Scripts" /m *.cs /s /c "cmd /c copy @path ^0x22Y:\Progr
 
 @echo Copying config files...
 forfiles /p "$(TargetDir)Scripts" /m *.cs.config /s /c "cmd /c copy @path ^0x22Y:\Program^ Files^ (x86)\sony\Sound^ Forge^ Pro^ 10.0\Script^ Menu^0x22"
+
+@echo Copying icon files...
+forfiles /p "$(TargetDir)Scripts" /m *.cs.png /s /c "cmd /c copy @path ^0x22Y:\Program^ Files^ (x86)\sony\Sound^ Forge^ Pro^ 10.0\Script^ Menu^0x22"
 
 IF NOT [$(ConfigurationName)]==[DebugWithDllCopy] GOTO :EOF
 
