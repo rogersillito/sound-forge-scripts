@@ -12,7 +12,6 @@
  *
  * ==================================================================================================== */
 
-using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -43,34 +42,39 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
         private const string DefaultRootLibraryFolder = @"F:\My Music\From Vinyl\";
         private const string TrackRegionPrefix = @"__TRACK__";
 
+        //TODO: address this! http://forum-archive.magix.info/showmessage.asp?messageid=505510
         protected override void Execute()
-        {
-            _file = App.CurrentFile;
+        //{
+        //    _file = App.CurrentFile;
 
-            if (_file == null || _file.Channels != 2)
-            {
-                throw new ScriptAbortedException("A stereo file must be open before this script can be run.");
-            }
-            const int noiseprintLengthSeconds = 2;
-            _fileTasks = new FileTasks(_file);
-            _noiseprintSelection = _fileTasks.PromptNoisePrintSelection(App, noiseprintLengthSeconds);
-            _findTracksOptions = new FindTracksOptions();
-            _findTracksOptions.ScanWindowLengthInSeconds = 1.0;
-            _findTracksOptions.GapNoisefloorThresholdInDecibels = -70;
-            _findTracksOptions.MinimumTrackGapInSeconds = 1;
-            _findTracksOptions.MinimumTrackLengthInSeconds = 10;
-            _findTracksOptions.StartScanFilePositionInSamples = _file.SecondsToPosition(noiseprintLengthSeconds);
-            _findTracksOptions.TrackAddFadeOutLengthInSeconds = 3;
-            _findTracksOptions.TrackFadeInLengthInSamples = 20;
-            //ConfirmTrackSplitsForm(Script.Application.Win32Window);
-            List<SplitTrackDefinition> tracks = GetSplitTrackDefinitions();
-            _tbxAlbum = new TextBox();
-            _tbxAlbum.Text = DateTime.Now.Millisecond.ToString();
-            _tbxArtist = new TextBox();
-            _tbxArtist.Text = "higloss";
-            DoTrackSplitting(tracks);
-        }
-        protected void Execute2()
+        //    if (_file == null || _file.Channels != 2)
+        //    {
+        //        throw new ScriptAbortedException("A stereo file must be open before this script can be run.");
+        //    }
+        //    const int noiseprintLengthSeconds = 2;
+        //    _fileTasks = new FileTasks(_file);
+        //    _noiseprintSelection = _fileTasks.PromptNoisePrintSelection(App, noiseprintLengthSeconds);
+        //    _findTracksOptions = new FindTracksOptions();
+        //    _findTracksOptions.ScanWindowLengthInSeconds = 1.0;
+        //    _findTracksOptions.GapNoisefloorThresholdInDecibels = -70;
+        //    _findTracksOptions.MinimumTrackGapInSeconds = 1;
+        //    _findTracksOptions.MinimumTrackLengthInSeconds = 10;
+        //    _findTracksOptions.StartScanFilePositionInSamples = _file.SecondsToPosition(noiseprintLengthSeconds);
+        //    _findTracksOptions.TrackAddFadeOutLengthInSeconds = 3;
+        //    _findTracksOptions.TrackFadeInLengthInSamples = 20;
+        //    ConfirmTrackSplitsForm(Script.Application.Win32Window);
+        //    DoFinalAudioClean();
+        //    List<SplitTrackDefinition> tracks = GetSplitTrackDefinitions();
+        //    _tbxAlbum = new TextBox();
+        //    _tbxArtist = new TextBox();
+        //    _tbxRootFolder = new TextBox();
+        //    _tbxRootFolder.Text = "F:\\My Music\\From Vinyl";
+        //    _tbxAlbum.Text = "Les Fleur";
+        //    _tbxArtist.Text = "4 Hero";
+        //    ValidatePathDetails();
+        //    DoTrackSplitting(tracks);
+        //}
+        //protected void Execute2()
         {
             _file = App.CurrentFile;
 
@@ -86,7 +90,6 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
             //int undoId = _file.BeginUndo("PrepareAudio");
             //_file.EndUndo(undoId, true); 
 
-            //TODO: uncomment, for quicker testing though - use "Hi-Gloss_TEST-for_testing_track_find.pca"
             const int noiseprintLengthSeconds = 2;
             _noiseprintSelection = _fileTasks.PromptNoisePrintSelection(App, noiseprintLengthSeconds);
             CleanVinylRecording(AggressiveCleaningPreset, 3, _noiseprintSelection); //TODO: configure number of noise reduction passes?
@@ -410,7 +413,7 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
             DoFinalAudioClean();
             Directory.CreateDirectory(_outputDirectory);
             List<SplitTrackDefinition> tracks = GetSplitTrackDefinitions();
-            //DoTrackSplitting(tracks);
+            DoTrackSplitting(tracks);
         }
         #endregion // Results Form
 
@@ -474,7 +477,8 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
         {
             Regex regionNameRegex = new Regex(string.Concat("^", TrackRegionPrefix, "[0-9]{4}$"));
             List<SfAudioMarker> trackMarkers = new List<SfAudioMarker>();
-            foreach (SfAudioMarker marker in _file.Markers)
+            SfAudioMarker[] markers = GetMarkerList();
+            foreach (SfAudioMarker marker in markers)
             {
                 if (!marker.HasLength)
                     continue;
@@ -483,6 +487,13 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
                 trackMarkers.Add(marker);
             }
             return trackMarkers;
+        }
+
+        private SfAudioMarker[] GetMarkerList()
+        {
+            SfAudioMarker[] markers = new SfAudioMarker[_file.Markers.Count];
+            _file.Markers.CopyTo(markers, 0);
+            return markers;
         }
 
         private void DoTrackSplitting(List<SplitTrackDefinition> tracks)
