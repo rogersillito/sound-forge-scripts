@@ -12,6 +12,7 @@
  *
  * ==================================================================================================== */
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -62,7 +63,12 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
             _findTracksOptions.TrackAddFadeOutLengthInSeconds = 3;
             _findTracksOptions.TrackFadeInLengthInSamples = 20;
             //ConfirmTrackSplitsForm(Script.Application.Win32Window);
-            DefineTrackSplits();
+            List<SplitTrackDefinition> tracks = GetSplitTrackDefinitions();
+            _tbxAlbum = new TextBox();
+            _tbxAlbum.Text = DateTime.Now.Millisecond.ToString();
+            _tbxArtist = new TextBox();
+            _tbxArtist.Text = "higloss";
+            DoTrackSplitting(tracks);
         }
         protected void Execute2()
         {
@@ -403,7 +409,7 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
 
             DoFinalAudioClean();
             Directory.CreateDirectory(_outputDirectory);
-            List<SplitTrackDefinition> tracks = DefineTrackSplits();
+            List<SplitTrackDefinition> tracks = GetSplitTrackDefinitions();
             //DoTrackSplitting(tracks);
         }
         #endregion // Results Form
@@ -428,7 +434,7 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
             Output.LineBreakToScriptWindow();
         }
 
-        private List<SplitTrackDefinition> DefineTrackSplits()
+        private List<SplitTrackDefinition> GetSplitTrackDefinitions()
         {
             List<SfAudioMarker> trackMarkers = GetTrackRegions();
 
@@ -481,17 +487,49 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
 
         private void DoTrackSplitting(List<SplitTrackDefinition> tracks)
         {
+            //App.FindRenderer("FLAC Audio", "flac");
+            //foreach (ISfRenderer r in App.Renderers)
+            //{
+            //    Output.LineBreakToScriptWindow();
+            //    Output.ToScriptWindow(r.Name);
+            //    Output.ToScriptWindow(r.Extension);
+            //    Output.ToScriptWindow(r.Guid);
+            //    foreach (ISfGenericPreset preset in r.Templates)
+            //    {
+            //        Output.ToScriptWindow(preset.Name);
+            //    }
+            //}    
+            //tracks.Clear();
             foreach (SplitTrackDefinition track in tracks)
             {
-                //ISfFileHost trackFile = _file.NewFile(track.Selection);
-                // TOD apply fade settings 
-                // TOD apply fade settings 
+                ISfFileHost trackFile = _file.NewFile(track.Selection);
+                trackFile.Markers.Clear();
+                trackFile.Summary.Album = _tbxAlbum.Text;
+                trackFile.Summary.Artist = _tbxArtist.Text;
+                trackFile.Summary.TrackNo = string.Concat(track.Number, "/", tracks.Count);
 
+                FileTasks trackTasks = new FileTasks(trackFile);
+                if (track.FadeInLength > 0)
+                {
+                    Output.ToScriptWindow("Track {0}: Fade In {1} Samples", track.Number, track.FadeInLength);
+                    trackFile.Window.SetSelectionAndScroll(0, track.FadeInLength, DataWndScrollTo.NoMove);
+                    App.DoMenuAndWait("Process.FadeIn", false);
+                }
+                if (track.FadeOutStartPosition < track.Selection.Length)
+                {
+                    Output.ToScriptWindow("Track {0}: Fade Out {1} Samples", track.Number, track.Selection.Length - track.FadeOutStartPosition);
+                    trackFile.Window.SetSelectionAndScroll(track.FadeOutStartPosition, trackFile.Length, DataWndScrollTo.NoMove);
+                    App.DoMenuAndWait("Process.FadeOut", false);
+                }
+                trackTasks.ApplyEffectPreset(App, trackTasks.SelectAll(), "iZotope MBIT+ Dither", "Convert to 16 bit (advanced light dither)", EffectOptions.EffectOnly, Output.ToScriptWindow);
+
+                string savePath = string.Concat(_outputDirectory, Path.PathSeparator, CreateMarkerName(track.Number) + ".flac");
+                trackFile.SaveAs(savePath, "FLAC Audio", "44,100 Hz, 16 Bit, Stereo", RenderOptions.SaveMetadata);
+                trackFile.Close(CloseOptions.QuerySaveIfChanged);
+
+                Output.ToScriptWindow("Saved '{0}'", savePath);
+                Output.LineBreakToScriptWindow();
             }
-
-            //FileTasks trackTasks = new FileTasks(trackFile);
-            //trackTasks.ApplyEffectPreset(App, trackTasks.SelectAll(), "iZotope MBIT+ Dither", "Convert to 16 bit (advanced light dither)", EffectOptions.EffectOnly, Output.ToScriptWindow);
-            //trackFile.SaveAs(CreateMarkerName(saveTrackNumber)); //RENUMBER!
         }
     }
 
