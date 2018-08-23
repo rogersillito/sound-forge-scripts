@@ -85,7 +85,7 @@
   <PropertyGroup>
     <PostBuildEvent>@Echo NB: Requires Powershell x86 execution policy to be set from an administrative prompt, e.g. "Set-ExecutionPolicy RemoteSigned"
 
-IF NOT DEFINED FORGE_DIR SET FORGE_DIR=Cdf:\Program Files (x86)\MAGIX\Sound Forge Pro 11.0
+IF NOT DEFINED FORGE_DIR SET FORGE_DIR=C:\Program Files (x86)\MAGIX\Sound Forge Pro 11.0
 IF NOT DEFINED FORGE_EXE SET FORGE_EXE=Forge110.exe
 
 ECHO.
