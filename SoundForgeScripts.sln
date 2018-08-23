@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundForgeScripts", "SoundForgeScripts\SoundForgeScripts.csproj", "{486762F1-28FE-43A8-AB4B-2CAC9365839D}"
 EndProject
@@ -11,6 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScriptFileProcessor", "Scri
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{34EC3D8D-3CA9-4B0D-94AD-5FEF330BFB75}"
 	ProjectSection(SolutionItems) = preProject
+		DeployScripts.ps1 = DeployScripts.ps1
 		StartSoundForge.ps1 = StartSoundForge.ps1
 	EndProjectSection
 EndProject

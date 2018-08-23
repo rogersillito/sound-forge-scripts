@@ -1,2 +1,6 @@
-start-process -FilePath "C:\Program Files (x86)\Sony\Sound Forge Pro 10.0\Forge100.exe"
+param (
+    [string]$forgeExe = "C:\Program Files (x86)\MAGIX\Sound Forge Pro 11.0\Forge110.exe"
+)
+Echo Running $forgeExe
+start-process -FilePath """$forgeExe"""
 exit 0
