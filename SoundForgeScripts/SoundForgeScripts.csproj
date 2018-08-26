@@ -40,6 +40,9 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup>
+    <RunPostBuildEvent>Always</RunPostBuildEvent>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Forge110.Script">
       <HintPath>Y:\Program Files (x86)\MAGIX\Sound Forge Pro 11.0\Forge110.Script.dll</HintPath>
@@ -52,12 +55,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Scripts\VinylRip2FinalTrackProcessing\Vinyl Rip - 2 Final Track Processing.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Compile>
-    <Compile Include="Scripts\VinylRip1SetTrackStartMarkers\Vinyl Rip - 1 Set Track Start Markers.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Compile>
+    <Compile Include="Scripts\VinylRip1SetTrackStartMarkers\VinylRip1EntryPoint.cs" />
+    <Compile Include="Scripts\VinylRip2FinalTrackProcessing\VinylRip2EntryPoint.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SoundForgeScriptsLib\SoundForgeScriptsLib.csproj">
@@ -66,20 +65,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Scripts\VinylRip2FinalTrackProcessing\Vinyl Rip - 2 Final Track Processing.cs.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Scripts\VinylRip1SetTrackStartMarkers\Vinyl Rip - 1 Set Track Start Markers.cs.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <None Include="Scripts\VinylRip1SetTrackStartMarkers\VinylRip1EntryPoint.cs.config" />
+    <None Include="Scripts\VinylRip2FinalTrackProcessing\VinylRip2EntryPoint.cs.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Scripts\VinylRip1SetTrackStartMarkers\Vinyl Rip - 1 Set Track Start Markers.cs.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Scripts\VinylRip2FinalTrackProcessing\Vinyl Rip - 2 Final Track Processing.cs.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <Content Include="Scripts\VinylRip1SetTrackStartMarkers\VinylRip1EntryPoint.cs.png" />
+    <Content Include="Scripts\VinylRip2FinalTrackProcessing\VinylRip2EntryPoint.cs.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
@@ -103,10 +94,8 @@ copy "$(TargetDir)SoundForgeScriptsLib.dll" "%25FORGE_DIR%25\Script Menu"
 
 :process_scripts
 
-powershell -File "$(SolutionDir)DeployScripts.ps1" -scriptProcessor "$(SolutionDir)ScriptFileProcessor\bin\$(ConfigurationName)\ScriptFileProcessor.exe" -scriptSrc "$(TargetDir)Scripts" -scriptDest "%25FORGE_DIR%25\Script Menu"
-
-@echo Copying icon files...
-forfiles /p "$(TargetDir)Scripts" /m *.cs.png /s /c "cmd /c copy @path ^0x22Y:\Program^ Files^ (x86)\sony\Sound^ Forge^ Pro^ 10.0\Script^ Menu^0x22"
+powershell -File "$(SolutionDir)DeployScripts.ps1" -scriptProcessor "$(SolutionDir)ScriptFileProcessor\bin\$(ConfigurationName)\ScriptFileProcessor.dll" -scriptSrc "$(ProjectDir)Scripts" -outDir "$(ProjectDir)bin\$(ConfigurationName)" -scriptDest "%25FORGE_DIR%25\Script Menu"
+IF %25ERRORLEVEL%25 NEQ 0 EXIT /B 1
 
 IF NOT [$(ConfigurationName)]==[DebugWithDllCopy] GOTO :EOF
 

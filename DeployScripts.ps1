@@ -1,13 +1,21 @@
 param (
     [string]$scriptProcessor,
     [string]$scriptSrc,
+    [string]$outDir,
     [string]$scriptDest
 )
+
+#TODO: why not failing on error?
+$ErrorActionPreference = "Stop"
+
 Echo ""
+Echo "build Dir   = $outDir"
 Echo "script Src  = $scriptSrc"
 Echo "script Dest = $scriptDest"
 
-$scripts = Get-ChildItem -Path $scriptSrc -Recurse -Filter *.cs
+$scriptDirs = Get-ChildItem -Path $scriptSrc -Dir
+
+$assembly = [Reflection.Assembly]::LoadFile($scriptProcessor)
 
 function Copy-If-Exists
 {
@@ -17,18 +25,19 @@ function Copy-If-Exists
     }
 }
 
-foreach ($file in $scripts) {
-	$icon = $file.fullName + ".png"
-	$config = $file.fullName + ".config"
+foreach ($scriptDir in $scriptDirs) {
 
 	Echo ""
-    Echo "Processing '$($file.name)'"
-	start-process -FilePath $scriptProcessor -ArgumentList """$($file.fullName)""" -Wait
+    Echo "Processing Script Dir: '$($scriptDir)'"
+	$sp = New-Object ScriptFileProcessor.ScriptProcessor
+	$script = $sp.BuildEntryPointScript($scriptDir.FullName, $outDir)
 
-    Copy-If-Exists $file.fullName $scriptDest
+    Copy-If-Exists $cript.BuiltPath $scriptDest
     
+	$config = $cript.SourcePath + ".config"
     Copy-If-Exists $config $scriptDest
     
+	$icon = $cript.SourcePath + ".png"
     Copy-If-Exists $icon $scriptDest
 }
 
