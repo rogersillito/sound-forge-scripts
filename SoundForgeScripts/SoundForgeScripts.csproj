@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Scripts\VinylRip1SetTrackStartMarkers\TrackDefinition.cs" />
     <Compile Include="Scripts\VinylRip1SetTrackStartMarkers\VinylRip1EntryPoint.cs" />
     <Compile Include="Scripts\VinylRip2FinalTrackProcessing\VinylRip2EntryPoint.cs" />
   </ItemGroup>

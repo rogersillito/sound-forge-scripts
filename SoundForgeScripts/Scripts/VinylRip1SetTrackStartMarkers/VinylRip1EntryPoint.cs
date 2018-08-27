@@ -563,23 +563,6 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
         public long FadeOutStartPosition;
     }
 
-    public class TrackDefinition
-    {
-        public int Number;
-        public long StartPosition;
-        public long EndPosition;
-
-        public SfAudioSelection WholeTrackSelection()
-        {
-            return new SfAudioSelection(StartPosition, Length);
-        }
-
-        public long Length
-        {
-            get { return EndPosition - StartPosition; }
-        }
-    }
-
     public class TrackList : List<TrackDefinition>
     {
         private readonly FindTracksOptions _findTracksOptions;

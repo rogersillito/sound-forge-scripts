@@ -28,6 +28,7 @@ namespace ScriptFileProcessor
             {
                 var sourceFileText = GetFileText(path);
                 builtScriptText.Append(Environment.NewLine + Environment.NewLine + StripNamespaces(sourceFileText));
+                Dump($"Included contents of {Path.GetFileName(path)}");
             }
 
             string fileText;
