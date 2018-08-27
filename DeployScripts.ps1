@@ -31,6 +31,7 @@ foreach ($scriptDir in $scriptDirs) {
     Echo "Processing Script Dir: '$($scriptDir)'"
 	$sp = New-Object ScriptFileProcessor.ScriptProcessor
 	$script = $sp.BuildEntryPointScript($scriptDir.FullName, $outDir)
+	if (!$script.Success) { continue }
 
     Copy-If-Exists $cript.BuiltPath $scriptDest
     
