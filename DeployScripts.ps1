@@ -1,21 +1,23 @@
 param (
-    [string]$scriptProcessor,
+    [string]$scriptProcessorDir,
     [string]$scriptSrc,
     [string]$outDir,
     [string]$scriptDest
 )
 
-#TODO: why not failing on error?
+#TODO: why not failing build on error?
 $ErrorActionPreference = "Stop"
 
 Echo ""
-Echo "build Dir   = $outDir"
-Echo "script Src  = $scriptSrc"
-Echo "script Dest = $scriptDest"
+Echo "build Dir            = $outDir"
+Echo "script Src           = $scriptSrc"
+Echo "script Dest          = $scriptDest"
+Echo "script Processor Dir = $scriptProcessorDir"
 
 $scriptDirs = Get-ChildItem -Path $scriptSrc -Dir
 
-$assembly = [Reflection.Assembly]::LoadFile($scriptProcessor)
+[Reflection.Assembly]::LoadFile("$scriptProcessorDir\SoundForgeScriptsLib.dll") | Out-Null
+[Reflection.Assembly]::LoadFile("$scriptProcessorDir\ScriptFileProcessor.dll") | Out-Null
 
 function Copy-If-Exists
 {
@@ -31,7 +33,10 @@ foreach ($scriptDir in $scriptDirs) {
     Echo "Processing Script Dir: '$($scriptDir)'"
 	$sp = New-Object ScriptFileProcessor.ScriptProcessor
 	$script = $sp.BuildEntryPointScript($scriptDir.FullName, $outDir)
-	if (!$script.Success) { continue }
+	if (-Not $script.Success) { 
+		Echo $script.error
+		continue
+	}
 
     Copy-If-Exists $cript.BuiltPath $scriptDest
     

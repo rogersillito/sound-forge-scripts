@@ -5,50 +5,59 @@ using System.Linq;
 using System.Reflection.Emit;
 using System.Text;
 using System.Text.RegularExpressions;
+using SoundForgeScriptsLib.Utils;
 
 namespace ScriptFileProcessor
 {
     public class ScriptProcessor
     {
-        private static readonly string[] SourceExtensions = new[] {".cs"};
+        private static readonly string[] SourceExtensions = new[] { ".cs" };
 
         public ScriptInfo BuildEntryPointScript(string scriptDir, string buildDir)
         {
-            var script = FindEntryPoint(scriptDir, buildDir);
-            if (script == null)
-                return null;
-                
-            Dump(script);
-
-            var entryPointFileText = StripNamespaces(GetFileText(script.SourcePath));
-            var builtScriptText = new StringBuilder(entryPointFileText);
-
-            var paths = GetOtherSourcePaths(script);
-            foreach (var path in paths)
+            var script = new ScriptInfo();
+            try
             {
-                var sourceFileText = GetFileText(path);
-                builtScriptText.Append(Environment.NewLine + Environment.NewLine + StripNamespaces(sourceFileText));
-                Dump($"Included contents of {Path.GetFileName(path)}");
+                script = FindEntryPoint(scriptDir, buildDir);
+                if (script == null)
+                    return null;
+
+                Dump(script);
+
+                var entryPointFileText = StripNamespaces(GetFileText(script.SourcePath));
+                var builtScriptText = new StringBuilder(entryPointFileText);
+
+                var paths = GetOtherSourcePaths(script);
+                foreach (var path in paths)
+                {
+                    var sourceFileText = GetFileText(path);
+                    builtScriptText.Append(Environment.NewLine + Environment.NewLine + StripNamespaces(sourceFileText));
+                    Dump($"Included contents of {Path.GetFileName(path)}");
+                }
+
+                string fileText;
+                //var path = script.SourcePath;
+                //fileText = GetFileText(path);
+
+                // REPLACE TEXT
+                //fileText = strip
+
+                //Console.WriteLine("File Content: {0}", fileText);
+
+                using (var writer = new StreamWriter(script.BuiltPath, false))
+                {
+                    // OVERWRITE
+                    writer.WriteLine(builtScriptText.ToString());
+                }
+
+                //Console.WriteLine("File Content Replaced: {0}", filePath);
+
+                script.Success = true;
             }
-
-            string fileText;
-            //var path = script.SourcePath;
-            //fileText = GetFileText(path);
-
-            // REPLACE TEXT
-            //fileText = strip
-
-            //Console.WriteLine("File Content: {0}", fileText);
-
-            using (var writer = new StreamWriter(script.BuiltPath, false))
+            catch (Exception e)
             {
-                // OVERWRITE
-                writer.WriteLine(builtScriptText.ToString());
+                script.Error = ErrorFormatter.Format(e);
             }
-
-            //Console.WriteLine("File Content Replaced: {0}", filePath);
-
-            script.Success = true;
             return script;
         }
 
@@ -81,6 +90,7 @@ namespace ScriptFileProcessor
             public string SourcePath { get; set; }
             public string BuiltPath { get; set; }
             public string SourceDir { get; set; }
+            public string Error { get; set; }
             public bool Success { get; set; }
             public override string ToString()
             {
@@ -88,7 +98,7 @@ namespace ScriptFileProcessor
             }
         }
 
-        public static void Dump(object output) => 
+        public static void Dump(object output) =>
             Console.WriteLine($"----------------------------\n{output}\n----------------------------");
 
         private static ScriptInfo FindEntryPoint(string scriptDir, string buildDir)

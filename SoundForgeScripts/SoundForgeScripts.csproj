@@ -95,7 +95,7 @@ copy "$(TargetDir)SoundForgeScriptsLib.dll" "%25FORGE_DIR%25\Script Menu"
 
 :process_scripts
 
-powershell -File "$(SolutionDir)DeployScripts.ps1" -scriptProcessor "$(SolutionDir)ScriptFileProcessor\bin\$(ConfigurationName)\ScriptFileProcessor.dll" -scriptSrc "$(ProjectDir)Scripts" -outDir "$(ProjectDir)bin\$(ConfigurationName)" -scriptDest "%25FORGE_DIR%25\Script Menu"
+powershell -File "$(SolutionDir)DeployScripts.ps1" -scriptProcessorDir "$(SolutionDir)ScriptFileProcessor\bin\$(ConfigurationName)" -scriptSrc "$(ProjectDir)Scripts" -outDir "$(ProjectDir)bin\$(ConfigurationName)" -scriptDest "%25FORGE_DIR%25\Script Menu"
 IF %25ERRORLEVEL%25 NEQ 0 EXIT /B 1
 
 IF NOT [$(ConfigurationName)]==[DebugWithDllCopy] GOTO :EOF
