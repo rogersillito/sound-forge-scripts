@@ -16,8 +16,21 @@ Echo "script Processor Dir = $scriptProcessorDir"
 
 $scriptDirs = Get-ChildItem -Path $scriptSrc -Dir
 
-[Reflection.Assembly]::LoadFile("$scriptProcessorDir\SoundForgeScriptsLib.dll") | Out-Null
-[Reflection.Assembly]::LoadFile("$scriptProcessorDir\ScriptFileProcessor.dll") | Out-Null
+function Load-Assembly($filePath) {
+	while (!(Test-Path $filePath)) { 
+		echo "Waiting for $filePath..."
+		Start-Sleep 1 
+	}
+	[Reflection.Assembly]::LoadFile($filePath) | Out-Null
+}
+
+
+#echo "$scriptProcessorDir\SoundForgeScriptsLib.dll"
+#echo "$scriptProcessorDir\ScriptFileProcessor.dll"
+#[Reflection.Assembly]::LoadFile("$scriptProcessorDir\SoundForgeScriptsLib.dll") | Out-Null
+#[Reflection.Assembly]::LoadFile("$scriptProcessorDir\ScriptFileProcessor.dll") | Out-Null
+#Load-Assembly "$scriptProcessorDir\SoundForgeScriptsLib.dll"
+Load-Assembly "$scriptProcessorDir\ScriptFileProcessor.dll"
 
 function Copy-If-Exists
 {

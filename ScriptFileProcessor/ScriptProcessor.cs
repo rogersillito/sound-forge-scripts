@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection.Emit;
 using System.Text;
 using System.Text.RegularExpressions;
-using SoundForgeScriptsLib.Utils;
 
 namespace ScriptFileProcessor
 {

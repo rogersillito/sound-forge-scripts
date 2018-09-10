@@ -54,17 +54,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ErrorFormatter.cs" />
     <Compile Include="ScriptProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\SoundForgeScriptsLib\SoundForgeScriptsLib.csproj">
-      <Project>{7c9a13da-b70b-4f71-8c88-81bb7ebac4ae}</Project>
-      <Name>SoundForgeScriptsLib</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
