@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection.Emit;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -84,21 +83,8 @@ namespace ScriptFileProcessor
             return fileText;
         }
 
-        public class ScriptInfo
-        {
-            public string SourcePath { get; set; }
-            public string BuiltPath { get; set; }
-            public string SourceDir { get; set; }
-            public string Error { get; set; }
-            public bool Success { get; set; }
-            public override string ToString()
-            {
-                return $"SourcePath = '{SourcePath}'\nBuiltPath  = '{BuiltPath}'";
-            }
-        }
-
         public static void Dump(object output) =>
-            Console.WriteLine($"----------------------------\n{output}\n----------------------------");
+            Console.WriteLine($"----------------------------\n{output}");
 
         private static ScriptInfo FindEntryPoint(string scriptDir, string buildDir)
         {
@@ -109,25 +95,32 @@ namespace ScriptFileProcessor
                     return true;
 
                 var lines = File.ReadAllLines(f);
-                for (var i = lines.Length; i >= 0; i--)
+                if (!lines.Any()) return true;
+
+                var lineNum = lines.Length  - 1;
+                while (lineNum > 0)
                 {
-                    var line = lines[i - 1];
+                    var line = lines[lineNum];
                     if (Regex.IsMatch(line, @"public +class +([a-zA-Z0-9_@]+) *: *EntryPointBase"))
                     {
                         ep = new ScriptInfo { SourcePath = f, SourceDir = scriptDir };
-                        line = lines[i - 2]; // now check the preceeding line
-                        var attributeMatch = Regex.Match(line, @"^\s*\[\s*ScriptName(Attribute)?\s*\(\s*""([^\""]+)""\s*\)\s*\]");
-                        if (attributeMatch.Success)
+                        if (lineNum > 1)
                         {
-                            // check for ScriptName attribute
-                            var name = attributeMatch.Groups.Cast<Group>().Last().Value.Trim();
-                            if (name != string.Empty)
+                            line = lines[lineNum - 1]; // now check the preceeding line
+                            var attributeMatch = Regex.Match(line, @"^\s*\[\s*ScriptName(Attribute)?\s*\(\s*""([^\""]+)""\s*\)\s*\]");
+                            if (attributeMatch.Success)
                             {
-                                ep.BuiltPath = Path.Combine(buildDir, $"{name}.cs");
+                                // check for ScriptName attribute
+                                var name = attributeMatch.Groups.Cast<Group>().Last().Value.Trim();
+                                if (name != string.Empty)
+                                {
+                                    ep.BuiltPath = Path.Combine(buildDir, $"{name}.cs");
+                                }
                             }
                         }
                         break;
                     }
+                    lineNum--;
                 }
                 return true;
             }).ToList();
