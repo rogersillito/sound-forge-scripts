@@ -8,14 +8,6 @@ param (
 #TODO: why not failing build on error?
 $ErrorActionPreference = "Stop"
 
-Echo ""
-Echo "build Dir            = $outDir"
-Echo "script Src           = $scriptSrc"
-Echo "script Dest          = $scriptDest"
-Echo "script Processor Dir = $scriptProcessorDir"
-
-$scriptDirs = Get-ChildItem -Path $scriptSrc -Dir
-
 function Load-Assembly($filePath) {
 	while (!(Test-Path $filePath)) { 
 		echo "Waiting for $filePath..."
@@ -24,14 +16,6 @@ function Load-Assembly($filePath) {
 	[Reflection.Assembly]::LoadFile($filePath) | Out-Null
 }
 
-
-#echo "$scriptProcessorDir\SoundForgeScriptsLib.dll"
-#echo "$scriptProcessorDir\ScriptFileProcessor.dll"
-#[Reflection.Assembly]::LoadFile("$scriptProcessorDir\SoundForgeScriptsLib.dll") | Out-Null
-#[Reflection.Assembly]::LoadFile("$scriptProcessorDir\ScriptFileProcessor.dll") | Out-Null
-#Load-Assembly "$scriptProcessorDir\SoundForgeScriptsLib.dll"
-Load-Assembly "$scriptProcessorDir\ScriptFileProcessor.dll"
-
 function Copy-If-Exists
 {
     if([System.IO.File]::Exists($args[0])){
@@ -39,6 +23,16 @@ function Copy-If-Exists
 		copy-item $args[0] -Destination $args[1]
     }
 }
+
+Echo ""
+Echo "build Dir            = $outDir"
+Echo "script Src           = $scriptSrc"
+Echo "script Dest          = $scriptDest"
+Echo "script Processor Dir = $scriptProcessorDir"
+
+$scriptDirs = Get-ChildItem -Path $scriptSrc -Dir
+
+Load-Assembly "$scriptProcessorDir\ScriptFileProcessor.dll"
 
 foreach ($scriptDir in $scriptDirs) {
 
