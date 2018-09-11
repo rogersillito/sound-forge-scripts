@@ -12,6 +12,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{34EC3D8D-3CA9-4B0D-94AD-5FEF330BFB75}"
 	ProjectSection(SolutionItems) = preProject
 		DeployScripts.ps1 = DeployScripts.ps1
+		README.md = README.md
 		StartSoundForge.ps1 = StartSoundForge.ps1
 	EndProjectSection
 EndProject
