@@ -20,7 +20,7 @@ namespace ScriptFileProcessor
                 if (script == null)
                     return null;
 
-                Dump(script);
+                Dump(script, true);
 
                 var entryPointFileText = StripNamespaces(GetFileText(script.SourcePath));
                 var builtScriptText = new StringBuilder(entryPointFileText);
@@ -32,24 +32,10 @@ namespace ScriptFileProcessor
                     builtScriptText.Append(Environment.NewLine + Environment.NewLine + StripNamespaces(sourceFileText));
                     Dump($"Included contents of {Path.GetFileName(path)}");
                 }
-
-                string fileText;
-                //var path = script.SourcePath;
-                //fileText = GetFileText(path);
-
-                // REPLACE TEXT
-                //fileText = strip
-
-                //Console.WriteLine("File Content: {0}", fileText);
-
                 using (var writer = new StreamWriter(script.BuiltPath, false))
                 {
-                    // OVERWRITE
                     writer.WriteLine(builtScriptText.ToString());
                 }
-
-                //Console.WriteLine("File Content Replaced: {0}", filePath);
-
                 script.Success = true;
             }
             catch (Exception e)
@@ -83,8 +69,11 @@ namespace ScriptFileProcessor
             return fileText;
         }
 
-        public static void Dump(object output) =>
-            Console.WriteLine($"----------------------------\n{output}");
+        public static void Dump(object output, bool wrapLine = false)
+        {
+            if (wrapLine) output = $"----------------------------\n{output}\n----------------------------\n";
+            Console.WriteLine(output);
+        }
 
         private static ScriptInfo FindEntryPoint(string scriptDir, string buildDir)
         {
