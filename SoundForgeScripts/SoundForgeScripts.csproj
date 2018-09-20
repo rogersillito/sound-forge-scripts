@@ -64,7 +64,15 @@
     <Compile Include="Scripts\VinylRip1SetTrackStartMarkers\TrackList.cs" />
     <Compile Include="Scripts\VinylRip1SetTrackStartMarkers\VinylRip1EntryPoint.cs" />
     <Compile Include="Scripts\VinylRip1SetTrackStartMarkers\WindowTasks.cs" />
+    <Compile Include="Scripts\VinylRip2FinalTrackProcessing\FileTasks.cs" />
+    <Compile Include="Scripts\VinylRip2FinalTrackProcessing\FindTracksOptions.cs" />
+    <Compile Include="Scripts\VinylRip2FinalTrackProcessing\FormHelper.cs" />
+    <Compile Include="Scripts\VinylRip2FinalTrackProcessing\ScanResult.cs" />
+    <Compile Include="Scripts\VinylRip2FinalTrackProcessing\SplitTrackDefinition.cs" />
+    <Compile Include="Scripts\VinylRip2FinalTrackProcessing\TrackDefinition.cs" />
+    <Compile Include="Scripts\VinylRip2FinalTrackProcessing\TrackList.cs" />
     <Compile Include="Scripts\VinylRip2FinalTrackProcessing\VinylRip2EntryPoint.cs" />
+    <Compile Include="Scripts\VinylRip2FinalTrackProcessing\WindowTasks.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SoundForgeScriptsLib\SoundForgeScriptsLib.csproj">
