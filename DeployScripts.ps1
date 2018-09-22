@@ -40,18 +40,20 @@ foreach ($scriptDir in $scriptDirs) {
     Echo "Processing Script Dir: '$($scriptDir)'"
 	$sp = New-Object ScriptFileProcessor.ScriptProcessor
 	$script = $sp.BuildEntryPointScript($scriptDir.FullName, $outDir)
+	Echo ""
 	if (-Not $script.Success) { 
 		Echo $script.error
 		continue
 	}
 
-    Copy-If-Exists $cript.BuiltPath $scriptDest
+    Copy-If-Exists $script.BuiltPath $scriptDest
     
-	$config = $cript.SourcePath + ".config"
-    Copy-If-Exists $config $scriptDest
+	$config = $script.SourcePath + ".config"
+    Copy-If-Exists $config "$scriptDest\$($script.BuiltFilename).config"
     
-	$icon = $cript.SourcePath + ".png"
-    Copy-If-Exists $icon $scriptDest
+	$icon = $script.SourcePath + ".png"
+    Copy-If-Exists $icon "$scriptDest\$($script.BuiltFilename).png"
+	Echo ""
 }
 
 exit 0
