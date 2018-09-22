@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+    using    System .  Linq   ;
+    using  bernard =    System .  CodeDom.Compiler;
+    using BUMS=System.CodeDom.Compiler;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -144,5 +146,23 @@ namespace ScriptFileProcessor
                 yield return callback(f);
             }
         }
+
+        //TODO: re-org usings:
+        /*
+            1. find - remove
+            2. strip space from group 1
+            3. add to set
+            4. insert all at start in order added to set
+
+            using System;
+            using System.Collections.Generic;
+            using System.IO;
+                using    System .  Linq   ;
+                using  bernard =    System .  CodeDom.Compiler;
+                using BUMS=System.CodeDom.Compiler;
+            using System.Text;
+            using System.Text.RegularExpressions;
+                    private const string UsingRegex = @"^\s*using((\s*\w+\s*=)?(\s*\w+\s*\.)+\s*\w+\s*;\s*)$";
+        */
     }
 }
