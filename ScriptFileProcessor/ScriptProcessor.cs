@@ -93,7 +93,7 @@ namespace ScriptFileProcessor
                 while (lineNum > 0)
                 {
                     var line = lines[lineNum];
-                    if (Regex.IsMatch(line, @"public +class +([a-zA-Z0-9_@]+) *: *EntryPointBase"))
+                    if (Regex.IsMatch(line, @"public +class +EntryPoint *: *EntryPointBase"))
                     {
                         ep = new ScriptInfo { SourcePath = f, SourceDir = scriptDir };
                         if (lineNum > 1)
