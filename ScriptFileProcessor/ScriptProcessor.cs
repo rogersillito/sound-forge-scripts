@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-    using    System .  Linq   ;
-    using  bernard =    System .  CodeDom.Compiler;
-    using BUMS=System.CodeDom.Compiler;
+using System.Linq;
+using bernard = System.CodeDom.Compiler;
+using BUMS = System.CodeDom.Compiler;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -88,7 +88,7 @@ namespace ScriptFileProcessor
                 var lines = File.ReadAllLines(f);
                 if (!lines.Any()) return true;
 
-                var lineNum = lines.Length  - 1;
+                var lineNum = lines.Length - 1;
                 while (lineNum > 0)
                 {
                     var line = lines[lineNum];
@@ -147,22 +147,38 @@ namespace ScriptFileProcessor
             }
         }
 
-        //TODO: re-org usings:
-        /*
-            1. find - remove
-            2. strip space from group 1
-            3. add to set
-            4. insert all at start in order added to set
+        public static Match GetUsingLineMatch(string line)
+        {
+            const string usingRegex = @"^\s*using((\s*\w+\s*=)?(\s*\w+\s*\.)*\s*\w+\s*;\s*)$";
+            return Regex.Match(line, usingRegex);
+        }
 
-            using System;
-            using System.Collections.Generic;
-            using System.IO;
-                using    System .  Linq   ;
-                using  bernard =    System .  CodeDom.Compiler;
-                using BUMS=System.CodeDom.Compiler;
-            using System.Text;
-            using System.Text.RegularExpressions;
-                    private const string UsingRegex = @"^\s*using((\s*\w+\s*=)?(\s*\w+\s*\.)+\s*\w+\s*;\s*)$";
-        */
+        public static string ArrangeUsingStatements(string fileText)
+        {
+            var outFile = new StringBuilder();
+            var usings = new List<string>();
+            var lines = fileText.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            foreach (var line in lines)
+            {
+                var matches = GetUsingLineMatch(line);
+                if (!matches.Success)
+                {
+                    outFile.AppendLine(line);
+                    continue;
+                }
+                var ns = matches.Groups[1].Value;
+                ns = Regex.Replace(ns, @"\s+", string.Empty);
+                var usingLine = $"using {ns}";
+                if (usings.Contains(usingLine)) continue;
+                usings.Add(usingLine);
+            }
+
+            usings.Reverse();
+            foreach (var usingLine in usings)
+            {
+                outFile.Insert(0, usingLine + Environment.NewLine);
+            }
+            return outFile.ToString();
+        }
     }
 }

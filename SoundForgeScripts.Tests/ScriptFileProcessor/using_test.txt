@@ -1,0 +1,42 @@
+            using System;
+            using System.Collections.Generic;
+        using System.IO;
+                using    System .  Linq   ;
+             using  bernard =    System .  CodeDom.Compiler;
+                        using STUFF=System.CodeDom.Compiler;
+            using System.Text.RegularExpressions;
+
+public class Thingy {
+
+	public void DoesNothing() {
+	
+	}
+
+}
+
+                        using STUFF=System.CodeDom.Compiler;
+        using System.IO;
+                using System.IO.Compression;
+
+
+public class Thingy2 {
+
+	public void DoesNothing() {
+	
+	}
+
+}
+
+            using System.Text.RegularExpressions;
+            using System.Text;
+using    System   .   IO   ;     
+   using bernard=System.CodeDom.Compiler;
+   
+
+public class Thingy3 {
+
+	public void DoesNothing() {
+	
+	}
+
+}
