@@ -36,7 +36,8 @@ namespace ScriptFileProcessor
                 }
                 using (var writer = new StreamWriter(script.BuiltPath, false))
                 {
-                    writer.WriteLine(builtScriptText.ToString());
+                    var usingsProcessed = ArrangeUsingStatements(builtScriptText.ToString());
+                    writer.WriteLine(usingsProcessed);
                 }
                 script.Success = true;
             }

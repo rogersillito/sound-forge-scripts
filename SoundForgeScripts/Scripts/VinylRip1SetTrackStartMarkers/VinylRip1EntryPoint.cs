@@ -25,7 +25,7 @@ using SoundForgeScriptsLib.Utils;
 namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
 {
     [ScriptName("Vinyl Rip - 1 Set Track Start Markers")]
-    public class VinylRip1EntryPoint : EntryPointBase
+    public class EntryPoint : EntryPointBase
     {
         private ISfFileHost _file;
 
