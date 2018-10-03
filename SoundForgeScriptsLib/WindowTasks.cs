@@ -1,8 +1,7 @@
 using System.Windows.Forms;
 using SoundForge;
-using SoundForgeScriptsLib;
 
-namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
+namespace SoundForgeScriptsLib
 {
     public class WindowTasks
     {

@@ -34,10 +34,6 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
         private const string TrackRegionPrefix = @"__TRACK__";
 
         //TODO: clear console
-        //TODO: address this! http://forum-archive.magix.info/showmessage.asp?messageid=505510
-        //TODO: remove duplication between the 2 vinyl scripts
-        //TODO: remove stuff now obsolete in this script (but used to vinyl rip 2)
-        //TODO: move stuff used by both scripts to Lib
         //TODO: come up with a way of saving settings between script runs, and between the 2 scripts (save options to json?)
         protected override void Execute()
         {

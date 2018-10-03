@@ -41,8 +41,6 @@ namespace SoundForgeScripts.Scripts.VinylRip2FinalTrackProcessing
         private const string DefaultRootLibraryFolder = @"F:\My Music\From Vinyl\";
         private const string TrackRegionPrefix = @"__TRACK__";
 
-        //TODO: address this! http://forum-archive.magix.info/showmessage.asp?messageid=505510
-        //TODO: move stuff used by both scripts to Lib
         //TODO: come up with a way of saving settings between script runs, and between the 2 scripts (save options to json?)
         protected override void Execute()
         {

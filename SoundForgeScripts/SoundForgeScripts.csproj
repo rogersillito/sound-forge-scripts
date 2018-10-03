@@ -55,14 +55,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Scripts\VinylRip1SetTrackStartMarkers\FileTasks.cs" />
     <Compile Include="Scripts\VinylRip1SetTrackStartMarkers\FindTracksOptions.cs" />
     <Compile Include="Scripts\VinylRip1SetTrackStartMarkers\ScanResult.cs" />
     <Compile Include="Scripts\VinylRip1SetTrackStartMarkers\TrackDefinition.cs" />
     <Compile Include="Scripts\VinylRip1SetTrackStartMarkers\TrackList.cs" />
     <Compile Include="Scripts\VinylRip1SetTrackStartMarkers\VinylRip1EntryPoint.cs" />
-    <Compile Include="Scripts\VinylRip1SetTrackStartMarkers\WindowTasks.cs" />
-    <Compile Include="Scripts\VinylRip2FinalTrackProcessing\FileTasks.cs" />
     <Compile Include="Scripts\VinylRip2FinalTrackProcessing\FindTracksOptions.cs" />
     <Compile Include="Scripts\VinylRip2FinalTrackProcessing\FormHelper.cs" />
     <Compile Include="Scripts\VinylRip2FinalTrackProcessing\SplitTrackDefinition.cs" />

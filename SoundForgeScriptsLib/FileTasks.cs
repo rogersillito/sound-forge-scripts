@@ -1,8 +1,7 @@
 using SoundForge;
-using SoundForgeScriptsLib;
 using SoundForgeScriptsLib.Utils;
 
-namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
+namespace SoundForgeScriptsLib
 {
     public class FileTasks
     {
