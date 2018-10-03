@@ -65,10 +65,7 @@
     <Compile Include="Scripts\VinylRip2FinalTrackProcessing\FileTasks.cs" />
     <Compile Include="Scripts\VinylRip2FinalTrackProcessing\FindTracksOptions.cs" />
     <Compile Include="Scripts\VinylRip2FinalTrackProcessing\FormHelper.cs" />
-    <Compile Include="Scripts\VinylRip2FinalTrackProcessing\ScanResult.cs" />
     <Compile Include="Scripts\VinylRip2FinalTrackProcessing\SplitTrackDefinition.cs" />
-    <Compile Include="Scripts\VinylRip2FinalTrackProcessing\TrackDefinition.cs" />
-    <Compile Include="Scripts\VinylRip2FinalTrackProcessing\TrackList.cs" />
     <Compile Include="Scripts\VinylRip2FinalTrackProcessing\VinylRip2EntryPoint.cs" />
     <Compile Include="Scripts\VinylRip2FinalTrackProcessing\WindowTasks.cs" />
   </ItemGroup>

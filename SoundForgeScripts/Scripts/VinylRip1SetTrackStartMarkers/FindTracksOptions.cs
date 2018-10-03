@@ -54,7 +54,7 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
                 throw new ScriptAbortedException("ScanWindowLengthInSeconds must be >= {0}", minWinLength);
 
             const double minNoiseFloor = -100;
-            if (_scanWindowLengthInSeconds < minWinLength)
+            if (_gapNoisefloorThresholdInDecibels < minNoiseFloor)
                 throw new ScriptAbortedException("GapNoisefloorThresholdInDecibels must be >= {0}", minNoiseFloor);
 
             const double minTrackGap = 0.5;
