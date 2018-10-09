@@ -12,6 +12,7 @@
  *
  * ==================================================================================================== */
 
+using System;
 using System.Collections.Generic;
 using SoundForge;
 using SoundForgeScriptsLib;
@@ -153,26 +154,49 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
         private void RefineTrackDefinitionsByScanning(TrackList tracks)
         {
             long scanSelectionLength = _findTracksOptions.ScanWindowLengthInSamples(_file);
+            long trackStartWindowLength = _file.SecondsToPosition(0.05); //TODO: make configurable
+            long trackEndWindowLength = _file.SecondsToPosition(0.1); //TODO: make configurable
+            long trackEndWindowOverlap = trackEndWindowLength - (long)Math.Round(trackEndWindowLength / 100.0f);
 
             for (int i = 0; i < tracks.Count; i++)
             {
                 TrackDefinition track = tracks[i];
-                long trackStartWindowLength = _file.SecondsToPosition(0.05); //TODO: make configurable
                 List<ScanResult> refineStartResults = DoStatisticsScan(trackStartWindowLength, track.StartPosition, track.StartPosition + scanSelectionLength);
                 foreach (ScanResult scanResult in refineStartResults)
                 {
-                    if (!scanResult.RmsLevelExceeds(_findTracksOptions.GapNoisefloorThresholdInDecibels)) continue;
+                    if (!scanResult.RmsLevelExceeds(_findTracksOptions.GapNoisefloorThresholdInDecibels))
+                    {
+                        Output.ToScriptWindow("-- Track {0} NOT START: {1} -> {2}", track.Number, 
+                            OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(scanResult.SelectionStart)),
+                            OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(scanResult.SelectionEnd))
+                        );
+                        continue;
+                    }
                     track.StartPosition = scanResult.SelectionStart;
                     Output.ToScriptWindow("Track {0} - Moving START to {1}", track.Number, OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(track.StartPosition)));
                     break;
                 }
-                long trackEndWindowLength = _file.SecondsToPosition(0.2); //TODO: make configurable
+
                 //TODO: use longer, overlapping windows (but with short intervals between) to find track ends??
-                List<ScanResult> refineEndResults = DoStatisticsScan(trackEndWindowLength, track.EndPosition - scanSelectionLength, track.EndPosition);
+                long trackEndScanPosition = track.EndPosition + trackEndWindowLength;
+                bool isLastTrack = track == tracks.LastAdded;
+                if (trackEndScanPosition > tracks.FileLength)
+                    trackEndScanPosition = tracks.FileLength;
+                else if (!isLastTrack && trackEndScanPosition > tracks[i+1].StartPosition)
+                    trackEndScanPosition = tracks[i+1].StartPosition - 1;
+
+                List<ScanResult> refineEndResults = DoStatisticsScan(trackEndWindowLength, track.EndPosition - scanSelectionLength, trackEndScanPosition, trackEndWindowOverlap);
                 for (int j = 0; j < refineEndResults.Count; j++)
                 {
                     ScanResult scanResult = refineEndResults[j];
-                    if (scanResult.RmsLevelExceeds(_findTracksOptions.GapNoisefloorThresholdInDecibels)) continue;
+                    if (scanResult.RmsLevelExceeds(_findTracksOptions.GapNoisefloorThresholdInDecibels))
+                    {
+                        Output.ToScriptWindow("-- Track {0} NOT END: {1} -> {2}", track.Number, 
+                            OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(scanResult.SelectionStart)),
+                            OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(scanResult.SelectionEnd))
+                        );
+                        continue;
+                    }
                     track.EndPosition = scanResult.SelectionStart - 1;
                     Output.ToScriptWindow("Track {0} - Moving END to {1}", track.Number, OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(track.EndPosition)));
                     break;
@@ -181,6 +205,11 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
         }
 
         private List<ScanResult> DoStatisticsScan(long scanWindowLength, long startPosition, long scanEndPosition)
+        {
+            return DoStatisticsScan(scanWindowLength, startPosition, scanEndPosition, 0);
+        }
+
+        private List<ScanResult> DoStatisticsScan(long scanWindowLength, long startPosition, long scanEndPosition, long windowOverlap)
         {
             long windowCount = 1;
 
@@ -207,7 +236,7 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
 
                 Output.ToStatusField1("{0}", windowCount);
                 Output.ToStatusField2("{0}s", OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(startPosition)));
-                startPosition = selectionEnd + 1;
+                startPosition = selectionEnd + 1 - windowOverlap;
                 windowCount++;
             }
             return results;

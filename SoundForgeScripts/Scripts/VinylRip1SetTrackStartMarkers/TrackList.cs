@@ -42,5 +42,10 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
         {
             Add(new TrackDefinition());
         }
+
+        public long FileLength
+        {
+            get { return _file.Length; }
+        }
     }
 }
