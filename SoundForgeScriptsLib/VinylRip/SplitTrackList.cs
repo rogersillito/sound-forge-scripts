@@ -2,7 +2,7 @@
 using System.Text.RegularExpressions;
 using SoundForge;
 
-namespace SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing
+namespace SoundForgeScriptsLib.VinylRip
 {
     public class SplitTrackList: List<SplitTrackDefinition>
     {

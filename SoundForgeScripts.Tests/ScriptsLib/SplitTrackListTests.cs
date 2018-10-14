@@ -7,6 +7,7 @@ using developwithpassion.specifications.faking;
 using Should;
 using SoundForge;
 using SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing;
+using SoundForgeScriptsLib.VinylRip;
 
 namespace SoundForgeScripts.Tests.ScriptsLib
 {   

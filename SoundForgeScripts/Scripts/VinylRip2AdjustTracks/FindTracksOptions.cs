@@ -1,4 +1,4 @@
-namespace SoundForgeScripts.Scripts.VinylRip2FinalTrackProcessing
+namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 {
     //TODO: this duplicates VinylRip3FinalTrackProcessing.FindTracksOptions
     public class FindTracksOptions

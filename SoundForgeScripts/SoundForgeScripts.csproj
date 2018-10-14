@@ -65,8 +65,6 @@
     <Compile Include="Scripts\VinylRip3FinalTrackProcessing\EffectNames.cs" />
     <Compile Include="Scripts\VinylRip3FinalTrackProcessing\FindTracksOptions.cs" />
     <Compile Include="Scripts\VinylRip3FinalTrackProcessing\FormHelper.cs" />
-    <Compile Include="Scripts\VinylRip3FinalTrackProcessing\SplitTrackDefinition.cs" />
-    <Compile Include="Scripts\VinylRip3FinalTrackProcessing\SplitTrackList.cs" />
     <Compile Include="Scripts\VinylRip3FinalTrackProcessing\VinylRip3EntryPoint.cs" />
     <Compile Include="Scripts\VinylRip3FinalTrackProcessing\WindowTasks.cs" />
   </ItemGroup>

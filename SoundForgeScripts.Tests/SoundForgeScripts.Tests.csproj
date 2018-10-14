@@ -90,6 +90,10 @@
       <Project>{56e49401-06e1-4241-b29d-ae1b96dad73f}</Project>
       <Name>ScriptFileProcessor</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SoundForgeScriptsLib\SoundForgeScriptsLib.csproj">
+      <Project>{7C9A13DA-B70B-4F71-8C88-81BB7EBAC4AE}</Project>
+      <Name>SoundForgeScriptsLib</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SoundForgeScripts\SoundForgeScripts.csproj">
       <Project>{486762F1-28FE-43A8-AB4B-2CAC9365839D}</Project>
       <Name>SoundForgeScripts</Name>

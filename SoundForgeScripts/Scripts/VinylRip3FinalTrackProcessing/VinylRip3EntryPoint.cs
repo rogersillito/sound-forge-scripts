@@ -1,6 +1,6 @@
 /* =======================================================================================================
- *	Script Name: Vinyl Rip - 2 Final Track Processing
- *	Description: Inserts track start points (after aggresively cleaning audio).
+*	Script Name: Vinyl Rip 3 - Save Track Files
+*	Description: Saves track regions found in "Vinyl Rip 1 - Find Tracks" to file
  *
  *	Initial State: Run with a file open a selection containing at least 2 seconds of track noise
  *	
@@ -19,6 +19,7 @@ using SoundForge;
 using SoundForgeScriptsLib;
 using SoundForgeScriptsLib.EntryPoints;
 using SoundForgeScriptsLib.Utils;
+using SoundForgeScriptsLib.VinylRip;
 
 namespace SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing
 {
@@ -250,18 +251,7 @@ namespace SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing
         private SplitTrackList GetSplitTrackDefinitions()
         {
             long fadeOutLengthSamples = _file.SecondsToPosition(_findTracksOptions.TrackAddFadeOutLengthInSeconds);
-            SplitTrackList tracks = _splitTrackList.InitTracks(_findTracksOptions.TrackFadeInLengthInSamples, fadeOutLengthSamples);
-            Output.ToScriptWindow("Track Splits");
-            foreach (SplitTrackDefinition track in tracks)
-            {
-                Output.ToScriptWindow("{0}:\t{1}\t{2}\t(Start fade @ {3})", track.Number,
-                    OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(track.Selection.Start)),
-                    OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(track.Selection.Length)),
-                    OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(track.FadeOutStartPosition)));
-                
-            }
-            Output.LineBreakToScriptWindow();
-            return tracks;
+            return _splitTrackList.InitTracks(_findTracksOptions.TrackFadeInLengthInSamples, fadeOutLengthSamples);
         }
 
         private void DoTrackSplitting(SplitTrackList tracks)

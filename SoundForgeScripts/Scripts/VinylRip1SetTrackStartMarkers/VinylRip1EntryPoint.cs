@@ -1,6 +1,6 @@
 /* =======================================================================================================
- *	Script Name: Vinyl Rip - 1 Set Track Start Markers
- *	Description: Inserts track start points (after aggresively cleaning audio).
+ *	Script Name: Vinyl Rip 1 - Find Tracks
+ *	Description: Inserts track regions (after aggresively cleaning audio).
  *
  *	Initial State: Run with a file open a selection containing at least 2 seconds of track noise
  *	
