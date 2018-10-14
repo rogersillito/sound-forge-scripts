@@ -21,7 +21,7 @@ using SoundForgeScriptsLib.Utils;
 
 namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
 {
-    [ScriptName("Vinyl Rip - 1 Set Track Start Markers")]
+    [ScriptName("Vinyl Rip 1 - Find Tracks")]
     public class EntryPoint : EntryPointBase
     {
         private ISfFileHost _file;
@@ -39,12 +39,8 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
         protected override void Execute()
         {
             _file = App.CurrentFile;
-
-            if (_file == null || _file.Channels != 2)
-            {
-                throw new ScriptAbortedException("A stereo file must be open before this script can be run.");
-            }
             _fileTasks = new FileTasks(_file);
+            _fileTasks.EnforceStereoFileOpen();
             _fileTasks.ZoomOutFull();
 
             //TODO: retain marker positions in script and undo NOT working!
@@ -53,7 +49,7 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
             //_file.EndUndo(undoId, true); 
 
             const int noiseprintLengthSeconds = 2;
-            _noiseprintSelection = _fileTasks.PromptNoisePrintSelection(App, noiseprintLengthSeconds);
+            _noiseprintSelection = _fileTasks.EnforceNoisePrintSelection(App, noiseprintLengthSeconds);
             //TODO: add marker for noiseprint so it can be reused?
             _file.Markers.Add(new SfAudioMarker(_noiseprintSelection));
             CleanVinylRecording(AggressiveCleaningPreset, 3, _noiseprintSelection); //TODO: configure number of noise reduction passes?
@@ -122,13 +118,11 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
                 {
                     currentResultIsTrack = false;
                 }
-                //Output.ToScriptWindow("{0}\t{1}\t{2}\t{3}\t{4}\t{5}",
-                //    scanResult.WindowNumber,
-                //    OutputHelper.FormatToTimeSpan(file.PositionToSeconds(scanResult.SelectionStart)),
-                //    OutputHelper.FormatToTimeSpan(file.PositionToSeconds(scanResult.SelectionEnd)),
-                //    SfHelpers.RatioTodB(scanResult.Ch1Statistics.RMSLevel),
-                //    SfHelpers.RatioTodB(scanResult.Ch2Statistics.RMSLevel),
-                //    scanResult.GetMaxRmsLevel()
+                Output.ToScriptWindow("{0}\t{1}\t{2}\t{3}",
+                    scanResult.WindowNumber,
+                    OutputHelper.FormatToTimeSpan(file.PositionToSeconds(scanResult.SelectionStart)),
+                    OutputHelper.FormatToTimeSpan(file.PositionToSeconds(scanResult.SelectionEnd)),
+                    scanResult.GetMaxRmsLevel());
             }
 
             Output.ToScriptWindow("FindTracks Finished scanning:\r\n- Scanned: {0} windows\r\n- Window Length: {1}s\r\n- Scan Duration: {2}", results.Count, _findTracksOptions.ScanWindowLengthInSeconds, ScriptTimer.Time());
@@ -156,8 +150,8 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
             long scanSelectionLength = _findTracksOptions.ScanWindowLengthInSamples(_file);
             long trackStartWindowLength = _file.SecondsToPosition(0.05); //TODO: make configurable - was 0.05
             long trackEndWindowLength = _file.SecondsToPosition(0.2); //TODO: make configurable - was 0.2
-            long trackEndWindowOverlap = 0;
-            //long trackEndWindowOverlap = trackEndWindowLength - (long)Math.Round(trackEndWindowLength / 5.0f); // was 0
+            //long trackEndWindowOverlap = 0;
+            long trackEndWindowOverlap = trackEndWindowLength - (long)Math.Round(trackEndWindowLength / 4.0f); // was 0
 
             for (int i = 0; i < tracks.Count; i++)
             {
@@ -167,7 +161,7 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
                 {
                     if (!scanResult.RmsLevelExceeds(_findTracksOptions.GapNoisefloorThresholdInDecibels))
                     {
-                        Output.ToScriptWindow("-- Track {0} NOT START: {1} -> {2}", track.Number, 
+                        Output.ToScriptWindow(" ..Track {0} looking for better START: {1} -> {2}", track.Number, 
                             OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(scanResult.SelectionStart)),
                             OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(scanResult.SelectionEnd))
                         );
@@ -191,7 +185,7 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
                     ScanResult scanResult = refineEndResults[j];
                     if (scanResult.RmsLevelExceeds(_findTracksOptions.GapNoisefloorThresholdInDecibels))
                     {
-                        Output.ToScriptWindow("-- Track {0} NOT END: {1} -> {2}", track.Number, 
+                        Output.ToScriptWindow(" ..Track {0} looking for better END: {1} -> {2}", track.Number, 
                             OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(scanResult.SelectionStart)),
                             OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(scanResult.SelectionEnd))
                         );

@@ -1,6 +1,6 @@
 using SoundForge;
 
-namespace SoundForgeScripts.Scripts.VinylRip2FinalTrackProcessing
+namespace SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing
 {
     public class SplitTrackDefinition
     {

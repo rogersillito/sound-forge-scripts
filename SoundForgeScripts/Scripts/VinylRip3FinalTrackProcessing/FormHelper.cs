@@ -1,7 +1,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace SoundForgeScripts.Scripts.VinylRip2FinalTrackProcessing
+namespace SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing
 {
     public class FormHelper
     {

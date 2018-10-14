@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Reflection;
 using System.Windows.Forms;
 using SoundForge;
 using SoundForgeScriptsLib.Utils;
@@ -23,8 +25,13 @@ namespace SoundForgeScriptsLib.EntryPoints
 
         public string ScriptTitle
         {
-            get { return _scriptTitle ?? Script.Name; }
+            get { return _scriptTitle ?? Path.GetFileNameWithoutExtension(Script.Name); }
             set { _scriptTitle = value; }
+        }
+
+        public string ScriptDirectory
+        {
+            get { return System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location); }
         }
 
         public void FromSoundForge(IScriptableApp app)

@@ -6,7 +6,7 @@ using developwithpassion.specifications.extensions;
 using developwithpassion.specifications.faking;
 using Should;
 using SoundForge;
-using SoundForgeScripts.Scripts.VinylRip2FinalTrackProcessing;
+using SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing;
 
 namespace SoundForgeScripts.Tests.ScriptsLib
 {   
@@ -82,6 +82,26 @@ namespace SoundForgeScripts.Tests.ScriptsLib
                 _tracks[0].RegionFound.ShouldEqual(ExistingMarkers[0]);
                 _tracks[1].RegionFound.ShouldEqual(ExistingMarkers[2]);
                 _tracks[2].RegionFound.ShouldEqual(ExistingMarkers[4]);
+            };
+
+            private static SplitTrackList _tracks;
+        }
+
+        [Subject(typeof(SplitTrackList))]
+        public class when_getting_list_of_tracks_with_no_fades : SplitTrackListContext
+        {
+            Because of = () => { _tracks =  sut.InitTracks(0,0); };
+
+            It should_set_no_fade_in_length_to_each_track = () =>
+                _tracks.All(t => t.FadeInLength == 0).ShouldBeTrue();
+
+            It should_set_length_to_be_same_as_original_marker = () =>
+                _tracks.All(t => t.Selection.Length == t.RegionFound.Length).ShouldBeTrue();
+
+            It should_return_false_when_checking_add_fade_in_outs = () =>
+            {
+                _tracks.All(t => t.CanAddFadeIn).ShouldBeFalse();
+                _tracks.All(t => t.CanAddFadeOut).ShouldBeFalse();
             };
 
             private static SplitTrackList _tracks;

@@ -1,5 +1,6 @@
 namespace SoundForgeScripts.Scripts.VinylRip2FinalTrackProcessing
 {
+    //TODO: this duplicates VinylRip3FinalTrackProcessing.FindTracksOptions
     public class FindTracksOptions
     {
         private long _trackFadeInLengthInSamples;

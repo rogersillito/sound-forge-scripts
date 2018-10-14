@@ -60,13 +60,15 @@
     <Compile Include="Scripts\VinylRip1SetTrackStartMarkers\TrackDefinition.cs" />
     <Compile Include="Scripts\VinylRip1SetTrackStartMarkers\TrackList.cs" />
     <Compile Include="Scripts\VinylRip1SetTrackStartMarkers\VinylRip1EntryPoint.cs" />
-    <Compile Include="Scripts\VinylRip2FinalTrackProcessing\EffectNames.cs" />
-    <Compile Include="Scripts\VinylRip2FinalTrackProcessing\FindTracksOptions.cs" />
-    <Compile Include="Scripts\VinylRip2FinalTrackProcessing\FormHelper.cs" />
-    <Compile Include="Scripts\VinylRip2FinalTrackProcessing\SplitTrackDefinition.cs" />
-    <Compile Include="Scripts\VinylRip2FinalTrackProcessing\SplitTrackList.cs" />
-    <Compile Include="Scripts\VinylRip2FinalTrackProcessing\VinylRip2EntryPoint.cs" />
-    <Compile Include="Scripts\VinylRip2FinalTrackProcessing\WindowTasks.cs" />
+    <Compile Include="Scripts\VinylRip2AdjustTracks\FindTracksOptions.cs" />
+    <Compile Include="Scripts\VinylRip2AdjustTracks\VinylRip2EntryPoint.cs" />
+    <Compile Include="Scripts\VinylRip3FinalTrackProcessing\EffectNames.cs" />
+    <Compile Include="Scripts\VinylRip3FinalTrackProcessing\FindTracksOptions.cs" />
+    <Compile Include="Scripts\VinylRip3FinalTrackProcessing\FormHelper.cs" />
+    <Compile Include="Scripts\VinylRip3FinalTrackProcessing\SplitTrackDefinition.cs" />
+    <Compile Include="Scripts\VinylRip3FinalTrackProcessing\SplitTrackList.cs" />
+    <Compile Include="Scripts\VinylRip3FinalTrackProcessing\VinylRip3EntryPoint.cs" />
+    <Compile Include="Scripts\VinylRip3FinalTrackProcessing\WindowTasks.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SoundForgeScriptsLib\SoundForgeScriptsLib.csproj">
@@ -76,12 +78,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Scripts\VinylRip1SetTrackStartMarkers\VinylRip1EntryPoint.cs.config" />
-    <None Include="Scripts\VinylRip2FinalTrackProcessing\VinylRip2EntryPoint.cs.config" />
+    <None Include="Scripts\VinylRip2AdjustTracks\VinylRip2EntryPoint.cs.config" />
+    <None Include="Scripts\VinylRip3FinalTrackProcessing\VinylRip3EntryPoint.cs.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\VinylRip1SetTrackStartMarkers\VinylRip1EntryPoint.cs.png" />
-    <Content Include="Scripts\VinylRip2FinalTrackProcessing\VinylRip2EntryPoint.cs.png" />
+    <Content Include="Scripts\VinylRip2AdjustTracks\VinylRip2EntryPoint.cs.png" />
+    <Content Include="Scripts\VinylRip3FinalTrackProcessing\VinylRip3EntryPoint.cs.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>@Echo NB: Requires Powershell x86 execution policy to be set from an administrative prompt, e.g. "Set-ExecutionPolicy RemoteSigned"

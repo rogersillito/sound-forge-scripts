@@ -20,9 +20,9 @@ using SoundForgeScriptsLib;
 using SoundForgeScriptsLib.EntryPoints;
 using SoundForgeScriptsLib.Utils;
 
-namespace SoundForgeScripts.Scripts.VinylRip2FinalTrackProcessing
+namespace SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing
 {
-    [ScriptName("Vinyl Rip - 2 Final Track Processing")]
+    [ScriptName("Vinyl Rip 3 - Save Track Files")]
     public class EntryPoint : EntryPointBase
     {
         private ISfFileHost _file;
@@ -44,14 +44,11 @@ namespace SoundForgeScripts.Scripts.VinylRip2FinalTrackProcessing
         {
             _file = App.CurrentFile;
 
-            if (_file == null || _file.Channels != 2)
-            {
-                throw new ScriptAbortedException("A stereo file must be open before this script can be run.");
-            }
-            const int noiseprintLengthSeconds = 2;
             _fileTasks = new FileTasks(_file);
+            _fileTasks.EnforceStereoFileOpen();
             _splitTrackList = new SplitTrackList(_file);
-            _noiseprintSelection = _fileTasks.PromptNoisePrintSelection(App, noiseprintLengthSeconds);
+            const int noiseprintLengthSeconds = 2;
+            _noiseprintSelection = _fileTasks.EnforceNoisePrintSelection(App, noiseprintLengthSeconds);
             _findTracksOptions = new FindTracksOptions();
             _findTracksOptions.TrackAddFadeOutLengthInSeconds = 3;
             _findTracksOptions.TrackFadeInLengthInSamples = 20;

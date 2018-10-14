@@ -2,7 +2,7 @@ using System.Windows.Forms;
 using SoundForge;
 using SoundForgeScriptsLib;
 
-namespace SoundForgeScripts.Scripts.VinylRip2FinalTrackProcessing
+namespace SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing
 {
     public class WindowTasks
     {

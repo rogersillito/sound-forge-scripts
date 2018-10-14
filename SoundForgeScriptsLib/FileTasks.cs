@@ -1,3 +1,4 @@
+using System;
 using SoundForge;
 using SoundForgeScriptsLib.Utils;
 
@@ -12,12 +13,12 @@ namespace SoundForgeScriptsLib
             _file = file;
         }
 
-        public SfAudioSelection PromptNoisePrintSelection(IScriptableApp app)
+        public SfAudioSelection EnforceNoisePrintSelection(IScriptableApp app)
         {
-            return PromptNoisePrintSelection(app, 2.0d);
+            return EnforceNoisePrintSelection(app, 2.0d);
         }
 
-        public SfAudioSelection PromptNoisePrintSelection(IScriptableApp app, double noiseprintLength)
+        public SfAudioSelection EnforceNoisePrintSelection(IScriptableApp app, double noiseprintLength)
         {
             ISfDataWnd window = _file.Window;
             double selectionLengthSeconds = _file.PositionToSeconds(window.Selection.Length);
@@ -75,16 +76,24 @@ namespace SoundForgeScriptsLib
 
             ISfGenericEffect effect = app.FindEffect(effectName);
             if (effect == null)
-                throw new ScriptAbortedException(string.Format("Effect '{0}' was not found.", effectName));
+                throw new ScriptAbortedException(String.Format("Effect '{0}' was not found.", effectName));
 
             ISfGenericPreset preset = effect.GetPreset(presetName);
             if (preset == null)
-                throw new ScriptAbortedException(string.Format("Preset '{0}' was not found for effect '{1}'.", presetName, effectName));
+                throw new ScriptAbortedException(String.Format("Preset '{0}' was not found for effect '{1}'.", presetName, effectName));
 
             if (logger != null)
                 logger("Applying Effect '{0}', Preset '{1}'...", effect.Name, preset.Name);
 
             _file.DoEffect(effectName, presetName, selection, effectOption | EffectOptions.WaitForDoneOrCancel | EffectOptions.ReturnPreset);
+        }
+
+        public void EnforceStereoFileOpen()
+        {
+            if (_file == null || _file.Channels != 2)
+            {
+                throw new ScriptAbortedException("A stereo file must be open before this script can be run.");
+            }
         }
     }
 }
