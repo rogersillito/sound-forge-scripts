@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EffectNames.cs" />
     <Compile Include="EntryPoints\EntryPointBase.cs" />
     <Compile Include="EntryPoints\IEntryPoint.cs" />
     <Compile Include="FileTasks.cs" />

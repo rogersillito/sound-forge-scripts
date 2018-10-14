@@ -32,8 +32,32 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="developwithpassion.specifications, Version=0.6.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\developwithpassion.specifications.moq.0.6.0\lib\developwithpassion.specifications.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="developwithpassion.specifications.moq, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\developwithpassion.specifications.moq.0.6.0\lib\developwithpassion.specifications.moq.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Forge110.Script, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Y:\Program Files (x86)\MAGIX\Sound Forge Pro 11.0\Forge110.Script.dll</HintPath>
+    </Reference>
+    <Reference Include="Machine.Fakes, Version=0.5.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Machine.Fakes.0.5.1\lib\net40\Machine.Fakes.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Machine.Fakes.Adapters.Moq, Version=0.5.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Machine.Fakes.Moq.0.5.1\lib\net40\Machine.Fakes.Adapters.Moq.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Machine.Specifications, Version=0.12.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Machine.Specifications.0.12.0\lib\net45\Machine.Specifications.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Moq, Version=4.0.10827.0, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+      <HintPath>..\packages\Moq.4.0.10827\lib\NET40\Moq.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Should, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -55,6 +79,8 @@
     <Compile Include="Helpers\ResourceHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScriptFileProcessor\ScriptProcessorTests.cs" />
+    <Compile Include="ScriptsLib\SplitTrackListTests.cs" />
+    <Compile Include="Scripts\VinylRip1SetTrackStartMarkers\TrackListTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -64,10 +90,15 @@
       <Project>{56e49401-06e1-4241-b29d-ae1b96dad73f}</Project>
       <Name>ScriptFileProcessor</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SoundForgeScripts\SoundForgeScripts.csproj">
+      <Project>{486762F1-28FE-43A8-AB4B-2CAC9365839D}</Project>
+      <Name>SoundForgeScripts</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="ScriptFileProcessor\using_test.txt" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
