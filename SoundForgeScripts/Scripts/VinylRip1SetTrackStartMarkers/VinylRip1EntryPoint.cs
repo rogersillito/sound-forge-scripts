@@ -154,9 +154,10 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
         private void RefineTrackDefinitionsByScanning(TrackList tracks)
         {
             long scanSelectionLength = _findTracksOptions.ScanWindowLengthInSamples(_file);
-            long trackStartWindowLength = _file.SecondsToPosition(0.05); //TODO: make configurable
-            long trackEndWindowLength = _file.SecondsToPosition(0.1); //TODO: make configurable
-            long trackEndWindowOverlap = trackEndWindowLength - (long)Math.Round(trackEndWindowLength / 100.0f);
+            long trackStartWindowLength = _file.SecondsToPosition(0.05); //TODO: make configurable - was 0.05
+            long trackEndWindowLength = _file.SecondsToPosition(0.2); //TODO: make configurable - was 0.2
+            long trackEndWindowOverlap = 0;
+            //long trackEndWindowOverlap = trackEndWindowLength - (long)Math.Round(trackEndWindowLength / 5.0f); // was 0
 
             for (int i = 0; i < tracks.Count; i++)
             {
@@ -179,10 +180,9 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
 
                 //TODO: use longer, overlapping windows (but with short intervals between) to find track ends??
                 long trackEndScanPosition = track.EndPosition + trackEndWindowLength;
-                bool isLastTrack = track == tracks.LastAdded;
                 if (trackEndScanPosition > tracks.FileLength)
                     trackEndScanPosition = tracks.FileLength;
-                else if (!isLastTrack && trackEndScanPosition > tracks[i+1].StartPosition)
+                else if (!track.IsLast && trackEndScanPosition > tracks[i+1].StartPosition)
                     trackEndScanPosition = tracks[i+1].StartPosition - 1;
 
                 List<ScanResult> refineEndResults = DoStatisticsScan(trackEndWindowLength, track.EndPosition - scanSelectionLength, trackEndScanPosition, trackEndWindowOverlap);
@@ -245,7 +245,7 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
         private void CleanVinylRecording(string presetName, int noiseReductionPasses, SfAudioSelection noiseprintSelection)
         {
             SfAudioSelection selection = _fileTasks.SelectAll();
-            _fileTasks.ApplyEffectPreset(App, selection, "Sony Click and Crackle Removal", presetName, EffectOptions.EffectOnly, Output.ToScriptWindow);
+            _fileTasks.ApplyEffectPreset(App, selection, EffectNames.ClickAndCrackleRemoval, presetName, EffectOptions.EffectOnly, Output.ToScriptWindow);
             for (int i = 1; i <= noiseReductionPasses; i++)
             {
                 Output.ToScriptWindow("Noise Reduction (pass #{0})", i);
@@ -253,7 +253,7 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
                 //if (i == 1)
                 //    noiseReductionOption = EffectOptions.DialogFirst;
                 _fileTasks.CopySelectionToStart(App, noiseprintSelection);
-                _fileTasks.ApplyEffectPreset(App, selection, "Sony Noise Reduction", presetName, noiseReductionOption, Output.ToScriptWindow);
+                _fileTasks.ApplyEffectPreset(App, selection, EffectNames.NoiseReduction, presetName, noiseReductionOption, Output.ToScriptWindow);
                 _file.Window.SetSelectionAndScroll(0, _noiseprintSelection.Length, DataWndScrollTo.NoMove);
                 App.DoMenuAndWait("Edit.Delete", false);
             }
