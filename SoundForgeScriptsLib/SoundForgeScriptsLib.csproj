@@ -53,6 +53,7 @@
     <Compile Include="EntryPoints\EntryPointBase.cs" />
     <Compile Include="EntryPoints\IEntryPoint.cs" />
     <Compile Include="FileTasks.cs" />
+    <Compile Include="FormHelper.cs" />
     <Compile Include="ScriptAbortedException.cs" />
     <Compile Include="ScriptNameAttribute.cs" />
     <Compile Include="Utils\OutputHelper.cs" />

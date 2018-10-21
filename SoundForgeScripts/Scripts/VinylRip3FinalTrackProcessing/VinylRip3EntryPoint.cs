@@ -18,7 +18,6 @@ using System.Windows.Forms;
 using SoundForge;
 using SoundForgeScriptsLib;
 using SoundForgeScriptsLib.EntryPoints;
-using SoundForgeScriptsLib.Utils;
 using SoundForgeScriptsLib.VinylRip;
 
 namespace SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing

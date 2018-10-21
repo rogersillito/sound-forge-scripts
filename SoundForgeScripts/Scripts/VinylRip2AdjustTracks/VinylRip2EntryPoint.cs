@@ -12,6 +12,8 @@
  *
  * ==================================================================================================== */
 
+using System.Drawing;
+using System.Windows.Forms;
 using SoundForge;
 using SoundForgeScriptsLib;
 using SoundForgeScriptsLib.EntryPoints;
@@ -45,10 +47,11 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             _findTracksOptions.TrackAddFadeOutLengthInSeconds = 3;
             _findTracksOptions.TrackFadeInLengthInSamples = 20;
 
-            GetSplitTrackDefinitions();
+            SplitTrackList tracks = GetSplitTrackDefinitions();
+            ConfirmTrackSplitsForm(App.Win32Window, tracks);
         }
 
-        private void GetSplitTrackDefinitions()
+        private SplitTrackList GetSplitTrackDefinitions()
         {
             long fadeOutLengthSamples = _file.SecondsToPosition(_findTracksOptions.TrackAddFadeOutLengthInSeconds);
             SplitTrackList tracks = _splitTrackList.InitTracks(_findTracksOptions.TrackFadeInLengthInSamples, fadeOutLengthSamples);
@@ -62,6 +65,60 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
                 
             }
             Output.LineBreakToScriptWindow();
+            return tracks;
         }
+        
+        #region Edit Form
+        public void ConfirmTrackSplitsForm(IWin32Window hOwner, SplitTrackList tracks)
+        {
+            //TODO: I think it's ok, but check it's ok to interact with the file window while the script window is active...
+            //TODO: and figure out the layout...!
+            Form dlg = new Form();
+            Size sForm = new Size(520, 450);
+
+            dlg.Text = ScriptTitle;
+            dlg.FormBorderStyle = FormBorderStyle.FixedDialog;
+            dlg.MaximizeBox = true;
+            dlg.MinimizeBox = true;
+            dlg.StartPosition = FormStartPosition.CenterScreen;
+            dlg.ClientSize = sForm;
+            dlg.AutoScroll = true;
+
+            Point pt = new Point(10, 10);
+            Size sOff = new Size(10, 10);
+            Size sSpacer = new Size(10, 5);
+            const int lblHeight = 16;
+            //const int tbxHeight = 16;
+
+            Label lblPrompt = new Label();
+            lblPrompt.Text = "Adjust track region definitions - click OK to apply changes.";
+            lblPrompt.Width = sForm.Width - pt.X - sOff.Width;
+            lblPrompt.Height = lblHeight;
+            lblPrompt.Location = pt;
+            Output.ToScriptWindow("pt.y {0}", pt.Y);
+            lblPrompt.BackColor = Color.Aqua;
+            dlg.Controls.Add(lblPrompt);
+
+            pt.Y += lblPrompt.Height + sSpacer.Height;
+
+            foreach (SplitTrackDefinition track in tracks)
+            {
+
+                Button btn = new Button();
+                btn.TabStop = true;
+                //btn.TabIndex = 4;
+                btn.Text = string.Format("Track {0}", track.Number);
+                btn.Location = pt;
+                dlg.Controls.Add(btn);
+                //btn.Click += FormHelper.OnOK_Click;
+
+                pt.Y += btn.Height + sSpacer.Height;
+
+            }
+            //dlg.AcceptButton = btn;
+            dlg.Show(hOwner);
+        }
+
+        #endregion // Edit Form
     }
 }
