@@ -13,6 +13,7 @@
  * ==================================================================================================== */
 
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 using SoundForge;
 using SoundForgeScriptsLib;
@@ -96,25 +97,98 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             lblPrompt.Height = lblHeight;
             lblPrompt.Location = pt;
             Output.ToScriptWindow("pt.y {0}", pt.Y);
-            lblPrompt.BackColor = Color.Aqua;
+            //lblPrompt.BackColor = Color.Aqua;
             dlg.Controls.Add(lblPrompt);
 
             pt.Y += lblPrompt.Height + sSpacer.Height;
 
-            foreach (SplitTrackDefinition track in tracks)
-            {
+            const string previewIcon = "SoundForgeScriptsLib.Resources.ionicons_android-volume-up_17.png";
 
-                Button btn = new Button();
-                btn.TabStop = true;
-                //btn.TabIndex = 4;
-                btn.Text = string.Format("Track {0}", track.Number);
-                btn.Location = pt;
-                dlg.Controls.Add(btn);
-                //btn.Click += FormHelper.OnOK_Click;
+            Button btnPrvwStart = new Button();
+            btnPrvwStart.TabStop = true;
+            //btnPrvwStart.TabIndex = 4;
+            btnPrvwStart.Text = "Start";
+            btnPrvwStart.Height = 25;
+            btnPrvwStart.ImageAlign = ContentAlignment.MiddleLeft;
+            btnPrvwStart.TextAlign = ContentAlignment.MiddleRight;
+            ResourceHelper.GetResourceStream(previewIcon, delegate(Stream stream) { btnPrvwStart.Image = Image.FromStream(stream); });
+            btnPrvwStart.Location = pt;
+            dlg.Controls.Add(btnPrvwStart);
+            //btnPrvwStart.Click += FormHelper.OnOK_Click;
 
-                pt.Y += btn.Height + sSpacer.Height;
+            //pt.Y += btnPrvwStart.Height + sSpacer.Height;
+            pt.X += btnPrvwStart.Width + sSpacer.Width;
 
-            }
+            Label lblTrack = new Label();
+            lblTrack.Text = string.Format("Track {0}", 1);
+            lblTrack.Width = sForm.Width - 2 * (sOff.Width + btnPrvwStart.Width + sSpacer.Width);
+            lblTrack.Height = btnPrvwStart.Height;
+            lblTrack.TextAlign = ContentAlignment.MiddleCenter;
+            lblTrack.Location = pt;
+            Output.ToScriptWindow("pt.y {0}", pt.Y);
+            lblTrack.BackColor = Color.LightGray;
+            lblTrack.BorderStyle = BorderStyle.FixedSingle;
+            dlg.Controls.Add(lblTrack);
+
+            pt.X += sSpacer.Width + lblTrack.Width;
+
+            Button btnPrvwEnd = new Button();
+            btnPrvwEnd.Width = btnPrvwStart.Width;
+            btnPrvwEnd.Height = btnPrvwStart.Height;
+            btnPrvwEnd.TabStop = true;
+            //btnPrvwEnd.TabIndex = 4;
+            btnPrvwEnd.Text = "End";
+            btnPrvwEnd.ImageAlign = ContentAlignment.MiddleLeft;
+            btnPrvwEnd.TextAlign = ContentAlignment.MiddleRight;
+            ResourceHelper.GetResourceStream(previewIcon, delegate(Stream stream) { btnPrvwEnd.Image = Image.FromStream(stream); });
+            btnPrvwEnd.Location = pt;
+            dlg.Controls.Add(btnPrvwEnd);
+            //btnPrvwEnd.Click += FormHelper.OnOK_Click;
+
+            pt.X = sOff.Width;
+            pt.Y += btnPrvwEnd.Height + sSpacer.Height;
+
+            Button btnPrevious = new Button();
+            //btnNext.Width = btnPrvwStart.Width;
+            btnPrevious.TabStop = true;
+            //btnNext.TabIndex = 4;
+            btnPrevious.Width = 120; 
+            btnPrevious.Text = "<< Previous Track";
+            btnPrevious.TextAlign = ContentAlignment.MiddleCenter;
+            btnPrevious.Location = pt;
+            dlg.Controls.Add(btnPrevious);
+
+            pt.X += sSpacer.Width + btnPrevious.Width;
+
+            Button btnNext = new Button();
+            btnNext.Width = btnPrevious.Width;
+            btnNext.TabStop = true;
+            //btnNext.TabIndex = 4;
+            btnNext.Text = "Next Track >>";
+            btnNext.TextAlign = ContentAlignment.MiddleCenter;
+            btnNext.Location = pt;
+            dlg.Controls.Add(btnNext);
+            //btnNext.Click += FormHelper.OnOK_Click;
+
+            //btnNext.Click += FormHelper.OnOK_Click;
+
+            //foreach (SplitTrackDefinition track in tracks)
+            //{
+
+            //    Button btn = new Button();
+            //    btn.TabStop = true;
+            //    //btn.TabIndex = 4;
+            //    btn.Text = string.Format("Track {0}", track.Number);
+            //    btn.ImageAlign = ContentAlignment.MiddleLeft;
+            //    btn.TextAlign = ContentAlignment.MiddleRight;
+            //    ResourceHelper.GetResourceStream(previewIcon, delegate(Stream stream) { btn.Image = Image.FromStream(stream); });
+            //    btn.Location = pt;
+            //    dlg.Controls.Add(btn);
+            //    //btn.Click += FormHelper.OnOK_Click;
+
+            //    pt.Y += btn.Height + sSpacer.Height;
+
+            //}
             //dlg.AcceptButton = btn;
             dlg.Show(hOwner);
         }
