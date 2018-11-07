@@ -75,7 +75,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             //TODO: I think it's ok, but check it's ok to interact with the file window while the script window is active...
             //TODO: and figure out the layout...!
             Form dlg = new Form();
-            Size sForm = new Size(520, 450);
+            Size sForm = new Size(520, 160);
 
             dlg.Text = ScriptTitle;
             dlg.FormBorderStyle = FormBorderStyle.FixedDialog;
@@ -87,8 +87,9 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 
             Point pt = new Point(10, 10);
             Size sOff = new Size(10, 10);
-            Size sSpacer = new Size(10, 5);
+            Size sSpacer = new Size(10, 15);
             const int lblHeight = 16;
+            const int fatButtonHeight = 25;
             //const int tbxHeight = 16;
 
             Label lblPrompt = new Label();
@@ -104,25 +105,53 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 
             const string previewIcon = "SoundForgeScriptsLib.Resources.ionicons_android-volume-up_17.png";
 
-            Button btnPrvwStart = new Button();
-            btnPrvwStart.TabStop = true;
-            //btnPrvwStart.TabIndex = 4;
-            btnPrvwStart.Text = "Start";
-            btnPrvwStart.Height = 25;
-            btnPrvwStart.ImageAlign = ContentAlignment.MiddleLeft;
-            btnPrvwStart.TextAlign = ContentAlignment.MiddleRight;
-            ResourceHelper.GetResourceStream(previewIcon, delegate(Stream stream) { btnPrvwStart.Image = Image.FromStream(stream); });
-            btnPrvwStart.Location = pt;
-            dlg.Controls.Add(btnPrvwStart);
+            Button btnPreviewAll = new Button();
+            btnPreviewAll.TabStop = true;
+            //btnNext.TabIndex = 4;
+            btnPreviewAll.Width = (lblPrompt.Width - sSpacer.Width) / 2;
+            btnPreviewAll.Height = fatButtonHeight;
+            btnPreviewAll.Text = "Preview All";
+            btnPreviewAll.TextAlign = ContentAlignment.MiddleCenter;
+            btnPreviewAll.Location = pt;
+            btnPreviewAll.ImageAlign = ContentAlignment.MiddleLeft;
+            btnPreviewAll.TextAlign = ContentAlignment.MiddleCenter;
+            ResourceHelper.GetResourceStream(previewIcon, delegate(Stream stream) { btnPreviewAll.Image = Image.FromStream(stream); });
+            dlg.Controls.Add(btnPreviewAll);
+
+            pt.X += sSpacer.Width + btnPreviewAll.Width;
+
+            Button btnAddTrack = new Button();
+            btnAddTrack.TabStop = true;
+            btnAddTrack.Height = fatButtonHeight;
+            //btnNext.TabIndex = 4;
+            btnAddTrack.Width = btnPreviewAll.Width;
+            btnAddTrack.Text = "Add Track From Selection";
+            btnAddTrack.TextAlign = ContentAlignment.MiddleCenter;
+            btnAddTrack.Location = pt;
+            dlg.Controls.Add(btnAddTrack);
+
+            pt.Y += btnAddTrack.Height + sSpacer.Height;
+            pt.X = sOff.Width;
+
+            Button btnPreviewStart = new Button();
+            btnPreviewStart.TabStop = true;
+            //btnPreviewStart.TabIndex = 4;
+            btnPreviewStart.Text = "Start";
+            btnPreviewStart.Height = fatButtonHeight;
+            btnPreviewStart.ImageAlign = ContentAlignment.MiddleLeft;
+            btnPreviewStart.TextAlign = ContentAlignment.MiddleRight;
+            ResourceHelper.GetResourceStream(previewIcon, delegate(Stream stream) { btnPreviewStart.Image = Image.FromStream(stream); });
+            btnPreviewStart.Location = pt;
+            dlg.Controls.Add(btnPreviewStart);
             //btnPrvwStart.Click += FormHelper.OnOK_Click;
 
             //pt.Y += btnPrvwStart.Height + sSpacer.Height;
-            pt.X += btnPrvwStart.Width + sSpacer.Width;
+            pt.X += btnPreviewStart.Width + sSpacer.Width;
 
             Label lblTrack = new Label();
             lblTrack.Text = string.Format("Track {0}", 1);
-            lblTrack.Width = sForm.Width - 2 * (sOff.Width + btnPrvwStart.Width + sSpacer.Width);
-            lblTrack.Height = btnPrvwStart.Height;
+            lblTrack.Width = sForm.Width - 2 * (sOff.Width + btnPreviewStart.Width + sSpacer.Width);
+            lblTrack.Height = fatButtonHeight;
             lblTrack.TextAlign = ContentAlignment.MiddleCenter;
             lblTrack.Location = pt;
             Output.ToScriptWindow("pt.y {0}", pt.Y);
@@ -132,21 +161,21 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 
             pt.X += sSpacer.Width + lblTrack.Width;
 
-            Button btnPrvwEnd = new Button();
-            btnPrvwEnd.Width = btnPrvwStart.Width;
-            btnPrvwEnd.Height = btnPrvwStart.Height;
-            btnPrvwEnd.TabStop = true;
+            Button btnPreviewEnd = new Button();
+            btnPreviewEnd.Width = btnPreviewStart.Width;
+            btnPreviewEnd.Height = fatButtonHeight;
+            btnPreviewEnd.TabStop = true;
             //btnPrvwEnd.TabIndex = 4;
-            btnPrvwEnd.Text = "End";
-            btnPrvwEnd.ImageAlign = ContentAlignment.MiddleLeft;
-            btnPrvwEnd.TextAlign = ContentAlignment.MiddleRight;
-            ResourceHelper.GetResourceStream(previewIcon, delegate(Stream stream) { btnPrvwEnd.Image = Image.FromStream(stream); });
-            btnPrvwEnd.Location = pt;
-            dlg.Controls.Add(btnPrvwEnd);
+            btnPreviewEnd.Text = "End";
+            btnPreviewEnd.ImageAlign = ContentAlignment.MiddleLeft;
+            btnPreviewEnd.TextAlign = ContentAlignment.MiddleRight;
+            ResourceHelper.GetResourceStream(previewIcon, delegate(Stream stream) { btnPreviewEnd.Image = Image.FromStream(stream); });
+            btnPreviewEnd.Location = pt;
+            dlg.Controls.Add(btnPreviewEnd);
             //btnPrvwEnd.Click += FormHelper.OnOK_Click;
 
             pt.X = sOff.Width;
-            pt.Y += btnPrvwEnd.Height + sSpacer.Height;
+            pt.Y += btnPreviewEnd.Height + sSpacer.Height;
 
             Button btnPrevious = new Button();
             //btnNext.Width = btnPrvwStart.Width;
@@ -158,7 +187,22 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             btnPrevious.Location = pt;
             dlg.Controls.Add(btnPrevious);
 
-            pt.X += sSpacer.Width + btnPrevious.Width;
+            Button btnDelete = new Button();
+            btnDelete.TabStop = true;
+            //btnDelete.TabIndex = 4;
+            btnDelete.Width = 80; 
+            btnDelete.Text = "DELETE";
+            btnDelete.ForeColor = Color.Crimson;
+            btnDelete.Font = new Font(btnDelete.Font.Name, btnDelete.Font.Size, FontStyle.Bold);
+            btnDelete.TextAlign = ContentAlignment.MiddleCenter;
+            dlg.Controls.Add(btnDelete);
+
+            int bottomRowGapWidth = (lblPrompt.Width - (2 * btnPrevious.Width) - btnDelete.Width) / 2;
+            pt.X += bottomRowGapWidth + btnPrevious.Width;
+
+            btnDelete.Location = pt;
+
+            pt.X += bottomRowGapWidth + btnDelete.Width;
 
             Button btnNext = new Button();
             btnNext.Width = btnPrevious.Width;
@@ -168,6 +212,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             btnNext.TextAlign = ContentAlignment.MiddleCenter;
             btnNext.Location = pt;
             dlg.Controls.Add(btnNext);
+
             //btnNext.Click += FormHelper.OnOK_Click;
 
             //btnNext.Click += FormHelper.OnOK_Click;
