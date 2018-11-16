@@ -7,11 +7,6 @@ namespace SoundForgeScriptsLib.VinylRip
         private readonly SplitTrackList _splitTrackList;
         private readonly ISfFileHost _originalFile;
 
-        public int Number;
-        public SfAudioSelection Selection;
-        public SfAudioMarker RegionFound;
-        public long FadeInLength;
-        public long FadeOutStartPosition;
 
         public SplitTrackDefinition(SplitTrackList splitTrackList, ISfFileHost file)
         {
@@ -21,12 +16,54 @@ namespace SoundForgeScriptsLib.VinylRip
 
         public bool CanAddFadeIn
         {
-            get { return FadeInLength > 0; }
+            get { return _fadeInLength > 0; }
         }
 
         public bool CanAddFadeOut
         {
-            get { return FadeOutStartPosition < Selection.Length; }
+            get { return _fadeOutStartPosition < _selection.Length; }
+        }
+
+        private int _number;
+        public int Number
+        {
+            get { return _number; }
+            set { _number = value; }
+        }
+
+        private SfAudioSelection _selection;
+        public SfAudioSelection Selection
+        {
+            get { return _selection; }
+            set { _selection = value; }
+        }
+
+        private SfAudioMarker _regionFound;
+        public SfAudioMarker RegionFound
+        {
+            get { return _regionFound; }
+            set { _regionFound = value; }
+        }
+
+        private long _fadeInLength;
+        public long FadeInLength
+        {
+            get { return _fadeInLength; }
+            set { _fadeInLength = value; }
+        }
+
+        private long _fadeOutStartPosition;
+        public long FadeOutStartPosition
+        {
+            get { return _fadeOutStartPosition; }
+            set { _fadeOutStartPosition = value; }
+        }
+
+        private long _fadeOutLength;
+        public long FadeOutLength
+        {
+            get { return _fadeOutLength; }
+            set { _fadeOutLength = value; }
         }
     }
 }
