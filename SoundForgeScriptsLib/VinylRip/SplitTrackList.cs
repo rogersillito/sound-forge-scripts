@@ -45,7 +45,7 @@ namespace SoundForgeScriptsLib.VinylRip
             return RegionNameRegex.IsMatch(markerName);
         }
 
-        public SplitTrackList InitTracks(long trackFadeInLengthInSamples, long defaultTrackFadeOutLengthInSamples)
+        public SplitTrackList InitTracks(long defaultTrackFadeInLengthInSamples, long defaultTrackFadeOutLengthInSamples)
         {
             List<SfAudioMarker> trackMarkers = GetTrackRegions();
 
@@ -65,7 +65,7 @@ namespace SoundForgeScriptsLib.VinylRip
                 SplitTrackDefinition track = AddNew();
                 track.RegionFound = marker;
                 track.Selection = new SfAudioSelection(marker.Start, lengthWithFadeOut);
-                track.FadeInLength = trackFadeInLengthInSamples;
+                track.FadeInLength = defaultTrackFadeInLengthInSamples;
                 track.FadeOutStartPosition = marker.Length;
             }
             return this;

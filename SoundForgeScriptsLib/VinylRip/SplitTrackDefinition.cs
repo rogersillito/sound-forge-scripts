@@ -62,8 +62,8 @@ namespace SoundForgeScriptsLib.VinylRip
         private long _fadeOutLength;
         public long FadeOutLength
         {
-            get { return _fadeOutLength; }
-            set { _fadeOutLength = value; }
+            get { return Selection.Length - FadeOutStartPosition; }
+            set { Selection.Length = FadeOutStartPosition + value; }
         }
     }
 }
