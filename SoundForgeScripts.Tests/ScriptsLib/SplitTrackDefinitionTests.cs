@@ -62,13 +62,13 @@ namespace SoundForgeScripts.Tests.ScriptsLib
             Because of = () => sut.FadeOutLength = 400;
 
             private It should_update_selection_to_max_length_permitted_by_next_track = () =>
-                sut.Selection.Length.ShouldEqual(10299);
+                sut.Selection.Length.ShouldEqual(10300);
 
             private It should_not_change_update_fade_out_start = () =>
                 sut.FadeOutStartPosition.ShouldEqual(10000);
 
             private It should_return_value_set_permitted_fade_length = () =>
-                sut.FadeOutLength.ShouldEqual(299);
+                sut.FadeOutLength.ShouldEqual(300);
         }
     }
 }

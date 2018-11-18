@@ -41,7 +41,7 @@ namespace SoundForgeScripts.Tests.ScriptsLib
         }
 
         [Subject(typeof(SplitTrackList))]
-        public class when_getting_list_of_tracks : SplitTrackListContext
+        public class when_initializing_list_of_tracks : SplitTrackListContext
         {
             Because of = () => { _tracks =  sut.InitTracks(30, 7000); };
 
@@ -51,8 +51,16 @@ namespace SoundForgeScripts.Tests.ScriptsLib
             It should_set_fade_in_length_to_each_track = () =>
                 _tracks.All(t => t.FadeInLength == 30).ShouldBeTrue();
 
+            It should_set_fade_in_end_marker = () =>
+            {
+                _tracks[0].FadeInEnd.Start.ShouldEqual(130);
+                _tracks[1].FadeInEnd.Start.ShouldEqual(600030);
+                _tracks[2].FadeInEnd.Start.ShouldEqual(701030);
+                _tracks.All(t => t.FadeInEnd.HasLength == false).ShouldBeTrue();
+            };
+
             It should_set_start_to_be_same_as_original_marker = () =>
-                _tracks.All(t => t.Selection.Start == t.RegionFound.Start).ShouldBeTrue();
+                _tracks.All(t => t.Selection.Start == t.Marker.Start).ShouldBeTrue();
 
             It should_return_true_when_checking_add_fade_in_outs = () =>
             {
@@ -66,9 +74,9 @@ namespace SoundForgeScripts.Tests.ScriptsLib
                 _tracks[2].Selection.Length.ShouldEqual(107000);
             };
 
-            It should_set_fadeout_to_before_next_track_start_when_gap_too_short_for_requested_fade = () =>
+            It should_set_fadeout_to_end_on_next_track_start_when_gap_too_short_for_requested_fade = () =>
             {
-                _tracks[1].Selection.Length.ShouldEqual(100999);
+                _tracks[1].Selection.Length.ShouldEqual(101000);
             };
 
             It should_set_incremental_track_numbers = () =>
@@ -80,9 +88,9 @@ namespace SoundForgeScripts.Tests.ScriptsLib
 
             It should_set_found_region_on_each_track = () =>
             {
-                _tracks[0].RegionFound.ShouldEqual(ExistingMarkers[0]);
-                _tracks[1].RegionFound.ShouldEqual(ExistingMarkers[2]);
-                _tracks[2].RegionFound.ShouldEqual(ExistingMarkers[4]);
+                _tracks[0].Marker.ShouldEqual(ExistingMarkers[0]);
+                _tracks[1].Marker.ShouldEqual(ExistingMarkers[2]);
+                _tracks[2].Marker.ShouldEqual(ExistingMarkers[4]);
             };
 
             private static SplitTrackList _tracks;
@@ -97,7 +105,7 @@ namespace SoundForgeScripts.Tests.ScriptsLib
                 _tracks.All(t => t.FadeInLength == 0).ShouldBeTrue();
 
             It should_set_length_to_be_same_as_original_marker = () =>
-                _tracks.All(t => t.Selection.Length == t.RegionFound.Length).ShouldBeTrue();
+                _tracks.All(t => t.Selection.Length == t.Marker.Length).ShouldBeTrue();
 
             It should_return_false_when_checking_add_fade_in_outs = () =>
             {

@@ -14,14 +14,19 @@ namespace SoundForgeScriptsLib.VinylRip
             _originalFile = file;
         }
 
+        public override int GetHashCode()
+        {
+            return Marker.Ident;
+        }
+
         public bool CanAddFadeIn
         {
-            get { return _fadeInLength > 0; }
+            get { return FadeInLength > 0; }
         }
 
         public bool CanAddFadeOut
         {
-            get { return _fadeOutStartPosition < _selection.Length; }
+            get { return FadeOutStartPosition < Selection.Length; }
         }
 
         private int _number;
@@ -38,11 +43,18 @@ namespace SoundForgeScriptsLib.VinylRip
             set { _selection = value; }
         }
 
-        private SfAudioMarker _regionFound;
-        public SfAudioMarker RegionFound
+        private SfAudioMarker _marker;
+        public SfAudioMarker Marker
         {
-            get { return _regionFound; }
-            set { _regionFound = value; }
+            get { return _marker; }
+            set { _marker = value; }
+        }
+
+        private SfAudioMarker _fadeInEndMarker;
+        public SfAudioMarker FadeInEnd
+        {
+            get { return _fadeInEndMarker; }
+            set { _fadeInEndMarker = value; }
         }
 
         private long _fadeInLength;
@@ -52,18 +64,21 @@ namespace SoundForgeScriptsLib.VinylRip
             set { _fadeInLength = value; }
         }
 
-        private long _fadeOutStartPosition;
         public long FadeOutStartPosition
         {
-            get { return _fadeOutStartPosition; }
-            set { _fadeOutStartPosition = value; }
+            get { return Marker.Start + Marker.Length; }
+            set { Marker.Length = Marker.Start + value; }
         }
 
-        private long _fadeOutLength;
         public long FadeOutLength
         {
             get { return Selection.Length - FadeOutStartPosition; }
-            set { Selection.Length = FadeOutStartPosition + value; }
+            set
+            {
+                Selection.Length = FadeOutStartPosition + value;
+                //TODO: implement once we have fadeinEndmarker,fadeoutendmarker
+                _splitTrackList.Constrain(this);
+            }
         }
     }
 }

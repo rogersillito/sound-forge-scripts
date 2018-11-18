@@ -55,7 +55,7 @@ namespace SoundForgeScriptsLib.VinylRip
                 long maxEndPosition = _file.Length; // cannot be past end of file
                 if (i < trackMarkers.Count - 1)
                 {
-                    maxEndPosition = trackMarkers[i + 1].Start - 1; // cannot overlap next track
+                    maxEndPosition = trackMarkers[i + 1].Start; // cannot overlap next track
                 }
                 long maxLength = maxEndPosition - marker.Start;
                 long lengthWithFadeOut = marker.Length + defaultTrackFadeOutLengthInSamples;
@@ -63,12 +63,29 @@ namespace SoundForgeScriptsLib.VinylRip
                     lengthWithFadeOut = maxLength;
 
                 SplitTrackDefinition track = AddNew();
-                track.RegionFound = marker;
+                track.Marker = marker;
                 track.Selection = new SfAudioSelection(marker.Start, lengthWithFadeOut);
+                track.FadeInEnd = new SfAudioMarker(); // TODO!
+                //track.FadeOutEnd = new SfAudioMarker(); // TODO!
                 track.FadeInLength = defaultTrackFadeInLengthInSamples;
-                track.FadeOutStartPosition = marker.Length;
             }
             return this;
+        }
+
+        public void Constrain(SplitTrackDefinition constrainedTrack)
+        {
+//            int idx =  IndexOf(constrainedTrack);
+//            if (idx < Count - 1)
+//            {
+//                SplitTrackDefinition next = this[idx + 1];
+//                if (constrainedTrack.Marker.Start + constrainedTrack.Selection.Length > next.Marker.Start)
+//                {
+//constrainedTrack.Selection
+
+//                }
+//            }
+
+//            throw new System.NotImplementedException();
         }
     }
 }
