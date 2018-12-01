@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using SoundForge;
+using SoundForgeScriptsLib.Utils;
 
 namespace SoundForgeScriptsLib.VinylRip
 {
@@ -45,29 +46,52 @@ namespace SoundForgeScriptsLib.VinylRip
             return RegionNameRegex.IsMatch(markerName);
         }
 
+        public class asdfsd : SfAudioMarker
+        {
+
+        }
+
         public SplitTrackList InitTracks(long defaultTrackFadeInLengthInSamples, long defaultTrackFadeOutLengthInSamples)
         {
             List<SfAudioMarker> trackMarkers = GetTrackRegions();
-
-            for (int i = 0; i < trackMarkers.Count; i++)
+            foreach (SfAudioMarker trackRegionMarker in trackMarkers)
             {
-                SfAudioMarker marker = trackMarkers[i];
-                long maxEndPosition = _file.Length; // cannot be past end of file
-                if (i < trackMarkers.Count - 1)
-                {
-                    maxEndPosition = trackMarkers[i + 1].Start; // cannot overlap next track
-                }
-                long maxLength = maxEndPosition - marker.Start;
-                long lengthWithFadeOut = marker.Length + defaultTrackFadeOutLengthInSamples;
-                if (lengthWithFadeOut > maxLength)
-                    lengthWithFadeOut = maxLength;
-
                 SplitTrackDefinition track = AddNew();
-                track.Marker = marker;
-                track.Selection = new SfAudioSelection(marker.Start, lengthWithFadeOut);
-                track.FadeInEnd = new SfAudioMarker(); // TODO!
-                //track.FadeOutEnd = new SfAudioMarker(); // TODO!
+                track.TrackRegion = trackRegionMarker;
+            }
+
+            foreach (SplitTrackDefinition track in this)
+            //for (int i = 0; i < trackMarkers.Count; i++)
+            {
+                //long maxEndPosition = _file.Length; // cannot be past end of file
+                //if (i < trackMarkers.Count - 1)
+                //{
+                //    maxEndPosition = trackMarkers[i + 1].Start; // cannot overlap next track
+                //}
+                //long maxLength = maxEndPosition - track.TrackRegion.Start;
+                //long lengthWithFadeOut = track.TrackRegion.Length + defaultTrackFadeOutLengthInSamples;
+                //if (lengthWithFadeOut > maxLength)
+                //    lengthWithFadeOut = maxLength;
+
+        
+
+
+                //TODO: what if a marker exists already? use it..
+                //TODO: and set the 2 marker names.. which will be how we'l identify pre-existing ones
+                track.FadeInEndMarker.Name = "TODO"; 
+
+                //TODO: where i left this: ****************************
+                // have tried moving the logic for init tracks (setting fade in/out) onto the track definition
+                // this has broken some tests...
+                // I'm thinking we'll need a different method for synching gui-originating changes when we move between tracks in the vinyl 2 UI.
+                track.FadeOutLength = defaultTrackFadeOutLengthInSamples;
                 track.FadeInLength = defaultTrackFadeInLengthInSamples;
+
+                // TODO:do we need this - or should we be creating it on demand when we need a selction?
+                track.Selection = new SfAudioSelection(track.TrackRegion.Start, track.FadeOutStartPosition + track.FadeInLength);
+
+                //track.FadeOutEndMarker = new SfAudioMarker(trackRegionMarker.Start + lengthWithFadeOut); // TODO!
+                //track.FadeInLength = defaultTrackFadeInLengthInSamples;
             }
             return this;
         }

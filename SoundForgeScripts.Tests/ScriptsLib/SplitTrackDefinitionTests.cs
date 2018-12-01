@@ -40,6 +40,7 @@ namespace SoundForgeScripts.Tests.ScriptsLib
 
             protected static List<SfAudioMarker> ExistingMarkers;
         }
+        // TODO: when marker deleted..
 
         [Subject(typeof(SplitTrackDefinition))]
         public class when_setting_fade_out_length : SplitTrackDefinitionContext
@@ -54,6 +55,9 @@ namespace SoundForgeScripts.Tests.ScriptsLib
 
             private It should_return_value_set = () =>
                 sut.FadeOutLength.ShouldEqual(200);
+
+            private It should_move_fade_out_end_marker = () =>
+                sut.FadeOutEndMarker.Start.ShouldEqual(10200);
         }
 
         [Subject(typeof(SplitTrackDefinition))]

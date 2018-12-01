@@ -1,4 +1,5 @@
 using SoundForge;
+using SoundForgeScriptsLib.Utils;
 
 namespace SoundForgeScriptsLib.VinylRip
 {
@@ -12,11 +13,10 @@ namespace SoundForgeScriptsLib.VinylRip
         {
             _splitTrackList = splitTrackList;
             _originalFile = file;
-        }
-
-        public override int GetHashCode()
-        {
-            return Marker.Ident;
+            _trackRegionMarker = new SfAudioMarker();
+            _trackRegionMarker.Type = MarkerType.Region;
+            _fadeInEndMarker = new SfAudioMarker();
+            _fadeOutEndMarker = new SfAudioMarker();
         }
 
         public bool CanAddFadeIn
@@ -26,7 +26,12 @@ namespace SoundForgeScriptsLib.VinylRip
 
         public bool CanAddFadeOut
         {
-            get { return FadeOutStartPosition < Selection.Length; }
+            get { return FadeOutStartPosition < FadeOutEndMarker.Start; }
+        }
+
+        public bool IsLastTrack
+        {
+            get { return _number == _splitTrackList.Count; }
         }
 
         private int _number;
@@ -43,31 +48,48 @@ namespace SoundForgeScriptsLib.VinylRip
             set { _selection = value; }
         }
 
-        private SfAudioMarker _marker;
-        public SfAudioMarker Marker
+        private SfAudioMarker _trackRegionMarker;
+        public SfAudioMarker TrackRegion
         {
-            get { return _marker; }
-            set { _marker = value; }
+            get { return _trackRegionMarker; }
+            set { _trackRegionMarker = value; }
         }
 
         private SfAudioMarker _fadeInEndMarker;
-        public SfAudioMarker FadeInEnd
+        public SfAudioMarker FadeInEndMarker
         {
             get { return _fadeInEndMarker; }
             set { _fadeInEndMarker = value; }
         }
 
-        private long _fadeInLength;
+        private SfAudioMarker _fadeOutEndMarker;
+        public SfAudioMarker FadeOutEndMarker
+        {
+            get { return _fadeOutEndMarker; }
+            set { _fadeOutEndMarker = value; }
+        }
+
         public long FadeInLength
         {
-            get { return _fadeInLength; }
-            set { _fadeInLength = value; }
+            get
+            {
+                //TODO: handle marker deleted.. ALSO SETTER
+                //if (_fadeInEndMarker == null) return TrackRegion.Start;
+                return FadeInEndMarker.Start - TrackRegion.Start;
+            }
+            set
+            {
+                long fadeInEnd = TrackRegion.Start + value;
+                if (fadeInEnd > FadeOutStartPosition)
+                    fadeInEnd = FadeOutStartPosition;
+                FadeInEndMarker.Start = fadeInEnd;
+            }
         }
 
         public long FadeOutStartPosition
         {
-            get { return Marker.Start + Marker.Length; }
-            set { Marker.Length = Marker.Start + value; }
+            get { return MarkerHelper.GetMarkerEnd(TrackRegion); }
+            set { MarkerHelper.SetMarkerEnd(TrackRegion, value); }
         }
 
         public long FadeOutLength
@@ -75,10 +97,23 @@ namespace SoundForgeScriptsLib.VinylRip
             get { return Selection.Length - FadeOutStartPosition; }
             set
             {
-                Selection.Length = FadeOutStartPosition + value;
-                //TODO: implement once we have fadeinEndmarker,fadeoutendmarker
-                _splitTrackList.Constrain(this);
+                long maxEndPosition = _originalFile.Length; // cannot be past end of file
+                if (!IsLastTrack)
+                {
+                    int nextIdx = _splitTrackList.IndexOf(this) + 1;
+                    maxEndPosition = _splitTrackList[nextIdx].TrackRegion.Start; // cannot overlap next track
+                }
+                long maxLength = maxEndPosition - FadeOutStartPosition;
+                if (value > maxLength)
+                    value = maxLength;
+                FadeOutEndMarker.Start = FadeOutStartPosition + value;
+
+                //Selection.Length = FadeOutStartPosition + value;
+                //FadeOutEndMarker.Start = Selection.Start + Selection.Length;
+                //_splitTrackList.Constrain(this);
             }
         }
+        
+        // todo: synchronize- ensure fadeend markers have no length, internal values match marker/regions
     }
 }
