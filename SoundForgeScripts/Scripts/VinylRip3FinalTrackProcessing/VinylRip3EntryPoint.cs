@@ -270,7 +270,7 @@ namespace SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing
             //tracks.Clear();
             foreach (SplitTrackDefinition track in tracks)
             {
-                ISfFileHost trackFile = _file.NewFile(track.Selection);
+                ISfFileHost trackFile = _file.NewFile(track.GetSelectionWithFades());
                 trackFile.Markers.Clear();
                 trackFile.Summary.Album = _tbxAlbum.Text;
                 trackFile.Summary.Artist = _tbxArtist.Text;
@@ -285,7 +285,7 @@ namespace SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing
                 }
                 if (track.CanAddFadeOut)
                 {
-                    Output.ToScriptWindow("Track {0}: Fade Out {1} Samples", track.Number, track.Selection.Length - track.FadeOutStartPosition);
+                    Output.ToScriptWindow("Track {0}: Fade Out {1} Samples", track.Number, track.FadeOutLength);
                     trackFile.Window.SetSelectionAndScroll(track.FadeOutStartPosition, trackFile.Length, DataWndScrollTo.NoMove);
                     App.DoMenuAndWait("Process.FadeOut", false);
                 }

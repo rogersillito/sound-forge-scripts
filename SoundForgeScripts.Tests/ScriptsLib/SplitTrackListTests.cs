@@ -68,7 +68,7 @@ namespace SoundForgeScripts.Tests.ScriptsLib
             };
 
             It should_set_start_to_be_same_as_original_marker = () =>
-                _tracks.All(t => t.Selection.Start == t.TrackRegion.Start).ShouldBeTrue();
+                _tracks.All(t => t.GetSelectionWithFades().Start == t.TrackRegion.Start).ShouldBeTrue();
 
             It should_return_true_when_checking_add_fade_in_outs = () =>
             {
@@ -78,13 +78,13 @@ namespace SoundForgeScripts.Tests.ScriptsLib
 
             It should_set_requested_fadeout_when_possible = () =>
             {
-                _tracks[0].Selection.Length.ShouldEqual(507000);
-                _tracks[2].Selection.Length.ShouldEqual(107000);
+                _tracks[0].GetSelectionWithFades().Length.ShouldEqual(507000);
+                _tracks[2].GetSelectionWithFades().Length.ShouldEqual(107000);
             };
 
             It should_set_fadeout_to_end_on_next_track_start_when_gap_too_short_for_requested_fade = () =>
             {
-                _tracks[1].Selection.Length.ShouldEqual(101000);
+                _tracks[1].GetSelectionWithFades().Length.ShouldEqual(101000);
             };
 
             It should_set_incremental_track_numbers = () =>
@@ -113,7 +113,7 @@ namespace SoundForgeScripts.Tests.ScriptsLib
                 _tracks.All(t => t.FadeInLength == 0).ShouldBeTrue();
 
             It should_set_length_to_be_same_as_original_marker = () =>
-                _tracks.All(t => t.Selection.Length == t.TrackRegion.Length).ShouldBeTrue();
+                _tracks.All(t => t.GetSelectionWithFades().Length == t.TrackRegion.Length).ShouldBeTrue();
 
             It should_return_false_when_checking_add_fade_in_outs = () =>
             {

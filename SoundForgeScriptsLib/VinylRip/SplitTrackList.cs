@@ -5,7 +5,7 @@ using SoundForgeScriptsLib.Utils;
 
 namespace SoundForgeScriptsLib.VinylRip
 {
-    public class SplitTrackList: List<SplitTrackDefinition>
+    public class SplitTrackList : List<SplitTrackDefinition>
     {
         private readonly ISfFileHost _file;
         private static readonly Regex RegionNameRegex = new Regex(string.Concat("^", TrackRegionPrefix, "[0-9]{4}$"));
@@ -19,10 +19,11 @@ namespace SoundForgeScriptsLib.VinylRip
             _file = file;
         }
 
-        public SplitTrackDefinition AddNew()
+        public SplitTrackDefinition AddNew(SfAudioMarker trackRegionMarker)
         {
             SplitTrackDefinition track = new SplitTrackDefinition(this, _file);
             track.Number = _trackCount++;
+            track.TrackRegion = trackRegionMarker;
             Add(track);
             return track;
         }
@@ -46,70 +47,25 @@ namespace SoundForgeScriptsLib.VinylRip
             return RegionNameRegex.IsMatch(markerName);
         }
 
-        public class asdfsd : SfAudioMarker
-        {
-
-        }
-
         public SplitTrackList InitTracks(long defaultTrackFadeInLengthInSamples, long defaultTrackFadeOutLengthInSamples)
         {
-            List<SfAudioMarker> trackMarkers = GetTrackRegions();
-            foreach (SfAudioMarker trackRegionMarker in trackMarkers)
-            {
-                SplitTrackDefinition track = AddNew();
-                track.TrackRegion = trackRegionMarker;
-            }
+            // TODO: I'm thinking we'll need a different method for synching gui-originating changes when we move between tracks in the vinyl 2 UI.
+            // TODO: on synchronize - ensure fade end markers have no length, internal values match marker/regions
+
+            GetTrackRegions().ForEach(tm => AddNew(tm)); ;
 
             foreach (SplitTrackDefinition track in this)
-            //for (int i = 0; i < trackMarkers.Count; i++)
             {
-                //long maxEndPosition = _file.Length; // cannot be past end of file
-                //if (i < trackMarkers.Count - 1)
-                //{
-                //    maxEndPosition = trackMarkers[i + 1].Start; // cannot overlap next track
-                //}
-                //long maxLength = maxEndPosition - track.TrackRegion.Start;
-                //long lengthWithFadeOut = track.TrackRegion.Length + defaultTrackFadeOutLengthInSamples;
-                //if (lengthWithFadeOut > maxLength)
-                //    lengthWithFadeOut = maxLength;
-
-        
-
-
                 //TODO: what if a marker exists already? use it..
-                //TODO: and set the 2 marker names.. which will be how we'l identify pre-existing ones
-                track.FadeInEndMarker.Name = "TODO"; 
 
-                //TODO: where i left this: ****************************
-                // have tried moving the logic for init tracks (setting fade in/out) onto the track definition
-                // this has broken some tests...
-                // I'm thinking we'll need a different method for synching gui-originating changes when we move between tracks in the vinyl 2 UI.
                 track.FadeOutLength = defaultTrackFadeOutLengthInSamples;
                 track.FadeInLength = defaultTrackFadeInLengthInSamples;
 
-                // TODO:do we need this - or should we be creating it on demand when we need a selction?
-                track.Selection = new SfAudioSelection(track.TrackRegion.Start, track.FadeOutStartPosition + track.FadeInLength);
-
-                //track.FadeOutEndMarker = new SfAudioMarker(trackRegionMarker.Start + lengthWithFadeOut); // TODO!
-                //track.FadeInLength = defaultTrackFadeInLengthInSamples;
+                //TODO: and set the 2 marker names.. which will be how we'll identify pre-existing ones
+                track.FadeInEndMarker.Name = "TODO";
+                track.FadeOutEndMarker.Name = "TODO";
             }
             return this;
-        }
-
-        public void Constrain(SplitTrackDefinition constrainedTrack)
-        {
-//            int idx =  IndexOf(constrainedTrack);
-//            if (idx < Count - 1)
-//            {
-//                SplitTrackDefinition next = this[idx + 1];
-//                if (constrainedTrack.Marker.Start + constrainedTrack.Selection.Length > next.Marker.Start)
-//                {
-//constrainedTrack.Selection
-
-//                }
-//            }
-
-//            throw new System.NotImplementedException();
         }
     }
 }

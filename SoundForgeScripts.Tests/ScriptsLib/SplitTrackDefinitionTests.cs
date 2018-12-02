@@ -26,7 +26,7 @@ namespace SoundForgeScripts.Tests.ScriptsLib
                 };
 
                 _file = depends.@on<ISfFileHost>();
-                _file.setup(x => x.Length).Return(20000);
+                _file.setup(x => x.Length).Return(30500);
 
                 _file.setup(x => x.Markers).Return(
                     new SfAudioMarkerList(ExistingMarkers.ToArray())
@@ -40,15 +40,15 @@ namespace SoundForgeScripts.Tests.ScriptsLib
 
             protected static List<SfAudioMarker> ExistingMarkers;
         }
-        // TODO: when marker deleted..
 
         [Subject(typeof(SplitTrackDefinition))]
         public class when_setting_fade_out_length : SplitTrackDefinitionContext
         {
-            Because of = () => sut.FadeOutLength = 200;
-
+            Because of = () => 
+                sut.FadeOutLength = 200;
+            
             private It should_update_selection = () =>
-                sut.Selection.Length.ShouldEqual(10200);
+                sut.GetSelectionWithFades().Length.ShouldEqual(10200);
 
             private It should_not_change_update_fade_out_start = () =>
                 sut.FadeOutStartPosition.ShouldEqual(10000);
@@ -66,7 +66,7 @@ namespace SoundForgeScripts.Tests.ScriptsLib
             Because of = () => sut.FadeOutLength = 400;
 
             private It should_update_selection_to_max_length_permitted_by_next_track = () =>
-                sut.Selection.Length.ShouldEqual(10300);
+                sut.GetSelectionWithFades().Length.ShouldEqual(10300);
 
             private It should_not_change_update_fade_out_start = () =>
                 sut.FadeOutStartPosition.ShouldEqual(10000);
@@ -74,5 +74,11 @@ namespace SoundForgeScripts.Tests.ScriptsLib
             private It should_return_value_set_permitted_fade_length = () =>
                 sut.FadeOutLength.ShouldEqual(300);
         }
+
+        //TODO: negative values - NO!
+        //TODO: fade in length > trackregion - NO!
+        //TODO: fade out length overlaps next track - NO!
+        //TODO: deleted marker (in/out end)
+        //TODO: deleted region ?/
     }
 }

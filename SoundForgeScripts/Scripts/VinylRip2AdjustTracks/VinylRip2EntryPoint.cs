@@ -60,8 +60,8 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             foreach (SplitTrackDefinition track in tracks)
             {
                 Output.ToScriptWindow("{0}:\t{1}\t{2}\t(Start fade @ {3})", track.Number,
-                    OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(track.Selection.Start)),
-                    OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(track.Selection.Length)),
+                    OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(track.TrackRegion.Start)),
+                    OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(track.GetSelectionWithFades().Length)),
                     OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(track.FadeOutStartPosition)));
                 
             }

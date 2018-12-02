@@ -8,15 +8,12 @@ namespace SoundForgeScriptsLib.VinylRip
         private readonly SplitTrackList _splitTrackList;
         private readonly ISfFileHost _originalFile;
 
-
         public SplitTrackDefinition(SplitTrackList splitTrackList, ISfFileHost file)
         {
             _splitTrackList = splitTrackList;
             _originalFile = file;
             _trackRegionMarker = new SfAudioMarker();
             _trackRegionMarker.Type = MarkerType.Region;
-            _fadeInEndMarker = new SfAudioMarker();
-            _fadeOutEndMarker = new SfAudioMarker();
         }
 
         public bool CanAddFadeIn
@@ -41,11 +38,9 @@ namespace SoundForgeScriptsLib.VinylRip
             set { _number = value; }
         }
 
-        private SfAudioSelection _selection;
-        public SfAudioSelection Selection
+        public SfAudioSelection GetSelectionWithFades()
         {
-            get { return _selection; }
-            set { _selection = value; }
+            return new SfAudioSelection(TrackRegion.Start, FadeOutEndMarker.Start - TrackRegion.Start);
         }
 
         private SfAudioMarker _trackRegionMarker;
@@ -58,23 +53,40 @@ namespace SoundForgeScriptsLib.VinylRip
         private SfAudioMarker _fadeInEndMarker;
         public SfAudioMarker FadeInEndMarker
         {
-            get { return _fadeInEndMarker; }
-            set { _fadeInEndMarker = value; }
+            get
+            {
+                if (_fadeInEndMarker == null) _fadeInEndMarker = new SfAudioMarker(TrackRegion.Start);
+                //TODO: for these null checks - add to track region list?  I think so..
+                return _fadeInEndMarker;
+            }
+            set
+            {
+                if (_fadeInEndMarker == null) _fadeInEndMarker = new SfAudioMarker(TrackRegion.Start);
+                _fadeInEndMarker = value;
+            }
         }
 
         private SfAudioMarker _fadeOutEndMarker;
         public SfAudioMarker FadeOutEndMarker
         {
-            get { return _fadeOutEndMarker; }
-            set { _fadeOutEndMarker = value; }
+            get
+            {
+                if (_fadeOutEndMarker == null) _fadeOutEndMarker = new SfAudioMarker(FadeOutStartPosition);
+                return _fadeOutEndMarker;
+            }
+            set
+            {
+                if (_fadeOutEndMarker == null) _fadeOutEndMarker = new SfAudioMarker(FadeOutStartPosition);
+                _fadeOutEndMarker = value;
+            }
         }
 
         public long FadeInLength
         {
             get
             {
-                //TODO: handle marker deleted.. ALSO SETTER
-                //if (_fadeInEndMarker == null) return TrackRegion.Start;
+                if (FadeInEndMarker.Start < TrackRegion.Start)
+                    return 0;
                 return FadeInEndMarker.Start - TrackRegion.Start;
             }
             set
@@ -94,7 +106,12 @@ namespace SoundForgeScriptsLib.VinylRip
 
         public long FadeOutLength
         {
-            get { return Selection.Length - FadeOutStartPosition; }
+            get
+            {
+                if (FadeOutEndMarker.Start < FadeOutStartPosition)
+                    return 0;
+                return FadeOutEndMarker.Start - FadeOutStartPosition;
+            }
             set
             {
                 long maxEndPosition = _originalFile.Length; // cannot be past end of file
@@ -107,13 +124,7 @@ namespace SoundForgeScriptsLib.VinylRip
                 if (value > maxLength)
                     value = maxLength;
                 FadeOutEndMarker.Start = FadeOutStartPosition + value;
-
-                //Selection.Length = FadeOutStartPosition + value;
-                //FadeOutEndMarker.Start = Selection.Start + Selection.Length;
-                //_splitTrackList.Constrain(this);
             }
         }
-        
-        // todo: synchronize- ensure fadeend markers have no length, internal values match marker/regions
     }
 }
