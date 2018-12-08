@@ -5,23 +5,48 @@ using SoundForgeScriptsLib.Utils;
 
 namespace SoundForgeScriptsLib.VinylRip
 {
+    public class TrackMarkerFactory
+    {
+        SfAudioMarker CreateRegion(int track, long startPosition, long length)
+        {
+            var name = string.Format("{0}{1:D4}", TrackRegionPrefix, track);
+            return new SfAudioMarker(startPosition, length) { Name = name };
+        }
+
+        SfAudioMarker CreateFadeInEnd(int track, long startPosition)
+        {
+            var name = string.Format("{0}{1:D4}", TrackFadeInEndPrefix, track);
+            return new SfAudioMarker(startPosition) { Name = name };
+        }
+
+        SfAudioMarker CreateFadeOutEnd(int track, long startPosition)
+        {
+            var name = string.Format("{0}{1:D4}", TrackFadeOutEndPrefix, track);
+            return new SfAudioMarker(startPosition) { Name = name };
+        }
+
+        public const string TrackRegionPrefix = @"__TRACK__";
+        public const string TrackFadeInEndPrefix = @"_FadeInEnd_";
+        public const string TrackFadeOutEndPrefix = @"_FadeOutEnd_";
+    }
+
     public class SplitTrackList : List<SplitTrackDefinition>
     {
         private readonly ISfFileHost _file;
-        private static readonly Regex RegionNameRegex = new Regex(string.Concat("^", TrackRegionPrefix, "[0-9]{4}$"));
+        private readonly TrackMarkerFactory _markerFactory;
+        private static readonly Regex RegionNameRegex = new Regex(string.Concat("^", TrackMarkerFactory.TrackRegionPrefix, "[0-9]{4}$"));
 
         private int _trackCount = 1;
 
-        public const string TrackRegionPrefix = @"__TRACK__";
-
-        public SplitTrackList(ISfFileHost file)
+        public SplitTrackList(ISfFileHost file, TrackMarkerFactory markerFactory)
         {
             _file = file;
+            _markerFactory = markerFactory;
         }
 
         public SplitTrackDefinition AddNew(SfAudioMarker trackRegionMarker)
         {
-            SplitTrackDefinition track = new SplitTrackDefinition(this, _file);
+            SplitTrackDefinition track = new SplitTrackDefinition(this, _file, _markerFactory);
             track.Number = _trackCount++;
             track.TrackRegion = trackRegionMarker;
             Add(track);

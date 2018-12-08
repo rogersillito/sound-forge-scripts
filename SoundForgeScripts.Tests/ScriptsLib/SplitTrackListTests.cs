@@ -21,11 +21,11 @@ namespace SoundForgeScripts.Tests.ScriptsLib
             {
                 ExistingMarkers = new List<SfAudioMarker>
                 {
-                    new SfAudioMarker(100, 500000) { Name = $"{SplitTrackList.TrackRegionPrefix}0001" },
+                    new SfAudioMarker(100, 500000) { Name = $"{TrackMarkerFactory.TrackRegionPrefix}0001" },
                     new SfAudioMarker(500500), // ignore - marker
-                    new SfAudioMarker(600000, 100000) { Name = $"{SplitTrackList.TrackRegionPrefix}0002" }, // too close to next for full fade!
+                    new SfAudioMarker(600000, 100000) { Name = $"{TrackMarkerFactory.TrackRegionPrefix}0002" }, // too close to next for full fade!
                     new SfAudioMarker(700500), // ignore - marker
-                    new SfAudioMarker(701000, 100000) { Name = $"{SplitTrackList.TrackRegionPrefix}0003" },
+                    new SfAudioMarker(701000, 100000) { Name = $"{TrackMarkerFactory.TrackRegionPrefix}0003" },
                     new SfAudioMarker(900000, 100000) { Name = $"NOT_A_TRACK!" }, // name not expected format
                 };
 

@@ -65,7 +65,7 @@ namespace SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing
 
         private static string CreateTrackName(int number)
         {
-            return string.Format("{0}{1:D4}", SplitTrackList.TrackRegionPrefix, number);
+            return string.Format("{0}{1:D4}", TrackMarkerFactory.TrackRegionPrefix, number);
         }
 
         private void CleanVinylRecording(string presetName, int noiseReductionPasses, SfAudioSelection noiseprintSelection)

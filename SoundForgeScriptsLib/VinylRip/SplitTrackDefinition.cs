@@ -3,15 +3,19 @@ using SoundForgeScriptsLib.Utils;
 
 namespace SoundForgeScriptsLib.VinylRip
 {
+    //public class Fad
+
     public class SplitTrackDefinition
     {
         private readonly SplitTrackList _splitTrackList;
         private readonly ISfFileHost _originalFile;
+        private readonly TrackMarkerFactory _markerFactory;
 
-        public SplitTrackDefinition(SplitTrackList splitTrackList, ISfFileHost file)
+        public SplitTrackDefinition(SplitTrackList splitTrackList, ISfFileHost file, TrackMarkerFactory markerFactory)
         {
             _splitTrackList = splitTrackList;
             _originalFile = file;
+            _markerFactory = markerFactory;
             _trackRegionMarker = new SfAudioMarker();
             _trackRegionMarker.Type = MarkerType.Region;
         }
