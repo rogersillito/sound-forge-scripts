@@ -48,7 +48,7 @@ namespace SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing
             _fileTasks.EnforceStereoFileOpen();
 
             TrackMarkerFactory markerAndRegionFactory = new TrackMarkerFactory(_file);
-            _splitTrackList = new SplitTrackList(_file, markerAndRegionFactory, markerAndRegionFactory);
+            _splitTrackList = new SplitTrackList(_file, markerAndRegionFactory, markerAndRegionFactory, new TrackMarkerSpecifications());
             const int noiseprintLengthSeconds = 2;
             _noiseprintSelection = _fileTasks.EnforceNoisePrintSelection(App, noiseprintLengthSeconds);
             _findTracksOptions = new FindTracksOptions();

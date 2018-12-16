@@ -3,11 +3,9 @@ using System.Linq;
 using Machine.Specifications;
 using developwithpassion.specifications.moq;
 using developwithpassion.specifications.extensions;
-using developwithpassion.specifications.faking;
 using Moq;
 using Should;
 using SoundForge;
-using SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing;
 using SoundForgeScriptsLib.VinylRip;
 using It = Machine.Specifications.It;
 
@@ -39,7 +37,7 @@ namespace SoundForgeScripts.Tests.ScriptsLib
                 fileMock.Setup(x => x.Markers).Returns(new Mock<SfAudioMarkerList>(MockBehavior.Default, fileMock.Object).Object);
                 var markerAndRegionFactory = new TrackMarkerFactory(fileMock.Object);
 
-                var splitTrackList = new SplitTrackList(_file, markerAndRegionFactory, markerAndRegionFactory);
+                var splitTrackList = new SplitTrackList(_file, markerAndRegionFactory, markerAndRegionFactory, new TrackMarkerSpecifications());
                 splitTrackList.InitTracks(10, 100);
 
                 sut_factory.create_using(() => splitTrackList.First());
@@ -86,6 +84,6 @@ namespace SoundForgeScripts.Tests.ScriptsLib
         //TODO: fade in length > trackregion - NO!
         //TODO: fade out length overlaps next track - NO!
         //TODO: deleted marker (in/out end)
-        //TODO: deleted region ?/
+        //TODO: deleted region ??? code will throw Null ref...
     }
 }

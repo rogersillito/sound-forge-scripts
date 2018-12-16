@@ -38,20 +38,26 @@ namespace SoundForgeScriptsLib.VinylRip
 
         public SfAudioMarker CreateRegion(int track, long startPosition, long length)
         {
-            var name = string.Format("{0}{1:D4}", TrackRegionPrefix, track);
-            return AddMarkerToFile(new SfAudioMarker(startPosition, length) { Name = name });
+            string name = string.Format("{0}{1:D4}", TrackRegionPrefix, track);
+            SfAudioMarker marker = new SfAudioMarker(startPosition, length);
+            marker.Name = name;
+            return AddMarkerToFile(marker);
         }
 
         public SfAudioMarker CreateFadeInEnd(int track, long startPosition)
         {
-            var name = string.Format("{0}{1:D4}", TrackFadeInEndPrefix, track);
-            return AddMarkerToFile(new SfAudioMarker(startPosition) { Name = name });
+            string name = string.Format("{0}{1:D4}", TrackFadeInEndPrefix, track);
+            SfAudioMarker marker = new SfAudioMarker(startPosition);
+            marker.Name = name;
+            return AddMarkerToFile(marker);
         }
 
         public SfAudioMarker CreateFadeOutEnd(int track, long startPosition)
         {
-            var name = string.Format("{0}{1:D4}", TrackFadeOutEndPrefix, track);
-            return AddMarkerToFile(new SfAudioMarker(startPosition) { Name = name });
+            string name = string.Format("{0}{1:D4}", TrackFadeOutEndPrefix, track);
+            SfAudioMarker marker = new SfAudioMarker(startPosition);
+            marker.Name = name;
+            return AddMarkerToFile(marker);
         }
 
         public const string TrackRegionPrefix = @"__TRACK__";

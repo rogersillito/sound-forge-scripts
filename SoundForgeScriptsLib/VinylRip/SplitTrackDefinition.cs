@@ -3,8 +3,6 @@ using SoundForgeScriptsLib.Utils;
 
 namespace SoundForgeScriptsLib.VinylRip
 {
-    //public class Fad
-
     public class SplitTrackDefinition
     {
         private readonly SplitTrackList _splitTrackList;
@@ -62,7 +60,6 @@ namespace SoundForgeScriptsLib.VinylRip
             get
             {
                 return _fadeInEndMarker ?? (_fadeInEndMarker = _markerFactory.CreateFadeInEnd(Number, TrackRegion.Start));
-                //TODO: for these null checks - add to file's region list?  I think so..
             }
             set
             {
