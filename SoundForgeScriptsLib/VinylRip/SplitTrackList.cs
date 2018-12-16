@@ -5,50 +5,29 @@ using SoundForgeScriptsLib.Utils;
 
 namespace SoundForgeScriptsLib.VinylRip
 {
-    public class TrackMarkerFactory
-    {
-        SfAudioMarker CreateRegion(int track, long startPosition, long length)
-        {
-            var name = string.Format("{0}{1:D4}", TrackRegionPrefix, track);
-            return new SfAudioMarker(startPosition, length) { Name = name };
-        }
-
-        SfAudioMarker CreateFadeInEnd(int track, long startPosition)
-        {
-            var name = string.Format("{0}{1:D4}", TrackFadeInEndPrefix, track);
-            return new SfAudioMarker(startPosition) { Name = name };
-        }
-
-        SfAudioMarker CreateFadeOutEnd(int track, long startPosition)
-        {
-            var name = string.Format("{0}{1:D4}", TrackFadeOutEndPrefix, track);
-            return new SfAudioMarker(startPosition) { Name = name };
-        }
-
-        public const string TrackRegionPrefix = @"__TRACK__";
-        public const string TrackFadeInEndPrefix = @"_FadeInEnd_";
-        public const string TrackFadeOutEndPrefix = @"_FadeOutEnd_";
-    }
-
     public class SplitTrackList : List<SplitTrackDefinition>
     {
         private readonly ISfFileHost _file;
-        private readonly TrackMarkerFactory _markerFactory;
+        private readonly ICreateFadeMarkers _markerFactory;
+        private readonly ICreateTrackRegions _regionFactory;
         private static readonly Regex RegionNameRegex = new Regex(string.Concat("^", TrackMarkerFactory.TrackRegionPrefix, "[0-9]{4}$"));
 
         private int _trackCount = 1;
 
-        public SplitTrackList(ISfFileHost file, TrackMarkerFactory markerFactory)
+        public SplitTrackList(ISfFileHost file, ICreateFadeMarkers markerFactory, ICreateTrackRegions regionFactory)
         {
             _file = file;
             _markerFactory = markerFactory;
+            _regionFactory = regionFactory;
         }
 
-        public SplitTrackDefinition AddNew(SfAudioMarker trackRegionMarker)
+        public SplitTrackDefinition AddNew(SfAudioMarker trackRegionMarker, long fadeInLength, long fadeOutLength)
         {
-            SplitTrackDefinition track = new SplitTrackDefinition(this, _file, _markerFactory);
+            SplitTrackDefinition track = new SplitTrackDefinition(this, _file, _markerFactory, _regionFactory);
             track.Number = _trackCount++;
             track.TrackRegion = trackRegionMarker;
+            track.FadeInEndMarker = _markerFactory.CreateFadeInEnd(track.Number, trackRegionMarker.Start + fadeInLength);
+            track.FadeOutEndMarker = _markerFactory.CreateFadeOutEnd(track.Number, MarkerHelper.GetMarkerEnd(track.TrackRegion) + fadeOutLength);
             Add(track);
             return track;
         }
@@ -77,18 +56,14 @@ namespace SoundForgeScriptsLib.VinylRip
             // TODO: I'm thinking we'll need a different method for synching gui-originating changes when we move between tracks in the vinyl 2 UI.
             // TODO: on synchronize - ensure fade end markers have no length, internal values match marker/regions
 
-            GetTrackRegions().ForEach(tm => AddNew(tm)); ;
+            GetTrackRegions().ForEach(tm => 
+                AddNew(tm, defaultTrackFadeInLengthInSamples, defaultTrackFadeOutLengthInSamples)); ;
 
             foreach (SplitTrackDefinition track in this)
             {
                 //TODO: what if a marker exists already? use it..
-
                 track.FadeOutLength = defaultTrackFadeOutLengthInSamples;
                 track.FadeInLength = defaultTrackFadeInLengthInSamples;
-
-                //TODO: and set the 2 marker names.. which will be how we'll identify pre-existing ones
-                track.FadeInEndMarker.Name = "TODO";
-                track.FadeOutEndMarker.Name = "TODO";
             }
             return this;
         }

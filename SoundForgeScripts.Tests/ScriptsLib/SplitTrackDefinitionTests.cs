@@ -32,7 +32,8 @@ namespace SoundForgeScripts.Tests.ScriptsLib
                     new SfAudioMarkerList(ExistingMarkers.ToArray())
                 );
 
-                var splitTrackList = new SplitTrackList(_file);
+                var markerAndRegionFactory = new TrackMarkerFactory(_file);
+                var splitTrackList = new SplitTrackList(_file, markerAndRegionFactory, markerAndRegionFactory);
                 splitTrackList.InitTracks(10, 100);
 
                 sut_factory.create_using(() => splitTrackList.First());

@@ -9,13 +9,15 @@ namespace SoundForgeScriptsLib.VinylRip
     {
         private readonly SplitTrackList _splitTrackList;
         private readonly ISfFileHost _originalFile;
-        private readonly TrackMarkerFactory _markerFactory;
+        private readonly ICreateFadeMarkers _markerFactory;
+        private readonly ICreateTrackRegions _regionFactory;
 
-        public SplitTrackDefinition(SplitTrackList splitTrackList, ISfFileHost file, TrackMarkerFactory markerFactory)
+        public SplitTrackDefinition(SplitTrackList splitTrackList, ISfFileHost file, ICreateFadeMarkers markerFactory, ICreateTrackRegions regionFactory)
         {
             _splitTrackList = splitTrackList;
             _originalFile = file;
             _markerFactory = markerFactory;
+            _regionFactory = regionFactory;
             _trackRegionMarker = new SfAudioMarker();
             _trackRegionMarker.Type = MarkerType.Region;
         }
@@ -59,13 +61,11 @@ namespace SoundForgeScriptsLib.VinylRip
         {
             get
             {
-                if (_fadeInEndMarker == null) _fadeInEndMarker = new SfAudioMarker(TrackRegion.Start);
-                //TODO: for these null checks - add to track region list?  I think so..
-                return _fadeInEndMarker;
+                return _fadeInEndMarker ?? (_fadeInEndMarker = _markerFactory.CreateFadeInEnd(Number, TrackRegion.Start));
+                //TODO: for these null checks - add to file's region list?  I think so..
             }
             set
             {
-                if (_fadeInEndMarker == null) _fadeInEndMarker = new SfAudioMarker(TrackRegion.Start);
                 _fadeInEndMarker = value;
             }
         }
@@ -75,12 +75,10 @@ namespace SoundForgeScriptsLib.VinylRip
         {
             get
             {
-                if (_fadeOutEndMarker == null) _fadeOutEndMarker = new SfAudioMarker(FadeOutStartPosition);
-                return _fadeOutEndMarker;
+                return _fadeOutEndMarker ?? (_fadeOutEndMarker = _markerFactory.CreateFadeOutEnd(Number, TrackRegion.Start));
             }
             set
             {
-                if (_fadeOutEndMarker == null) _fadeOutEndMarker = new SfAudioMarker(FadeOutStartPosition);
                 _fadeOutEndMarker = value;
             }
         }

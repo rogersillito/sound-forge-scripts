@@ -41,7 +41,8 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             _fileTasks.EnforceStereoFileOpen();
             _fileTasks.ZoomOutFull();
 
-            _splitTrackList = new SplitTrackList(_file);
+            TrackMarkerFactory markerAndRegionFactory = new TrackMarkerFactory(_file);
+            _splitTrackList = new SplitTrackList(_file, markerAndRegionFactory, markerAndRegionFactory);
 
             //TODO: initial dialog to configure these:
             _findTracksOptions = new FindTracksOptions();

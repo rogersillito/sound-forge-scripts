@@ -32,6 +32,9 @@ namespace SoundForgeScripts.Tests.ScriptsLib
                 _file = depends.@on<ISfFileHost>();
                 _file.setup(x => x.Length).Return(1100000);
 
+                var markerAndRegionFactory = new TrackMarkerFactory(_file);
+                sut_factory.create_using(() => new SplitTrackList(_file, markerAndRegionFactory, markerAndRegionFactory));
+
                 _file.setup(x => x.Markers).Return(
                     new SfAudioMarkerList(ExistingMarkers.ToArray())
                     );
@@ -54,16 +57,22 @@ namespace SoundForgeScripts.Tests.ScriptsLib
             It should_set_fade_in_end_marker = () =>
             {
                 _tracks[0].FadeInEndMarker.Start.ShouldEqual(130);
+                _tracks[0].FadeInEndMarker.Name.ShouldEqual($"{TrackMarkerFactory.TrackFadeInEndPrefix}0001");
                 _tracks[1].FadeInEndMarker.Start.ShouldEqual(600030);
+                _tracks[1].FadeInEndMarker.Name.ShouldEqual($"{TrackMarkerFactory.TrackFadeInEndPrefix}0002");
                 _tracks[2].FadeInEndMarker.Start.ShouldEqual(701030);
+                _tracks[2].FadeInEndMarker.Name.ShouldEqual($"{TrackMarkerFactory.TrackFadeInEndPrefix}0003");
                 _tracks.All(t => t.FadeInEndMarker.HasLength == false).ShouldBeTrue();
             };
 
             It should_set_fade_out_end_marker = () =>
             {
                 _tracks[0].FadeOutEndMarker.Start.ShouldEqual(507100);
+                _tracks[0].FadeOutEndMarker.Name.ShouldEqual($"{TrackMarkerFactory.TrackFadeOutEndPrefix}0001");
                 _tracks[1].FadeOutEndMarker.Start.ShouldEqual(701000);
+                _tracks[1].FadeOutEndMarker.Name.ShouldEqual($"{TrackMarkerFactory.TrackFadeOutEndPrefix}0002");
                 _tracks[2].FadeOutEndMarker.Start.ShouldEqual(808000);
+                _tracks[2].FadeOutEndMarker.Name.ShouldEqual($"{TrackMarkerFactory.TrackFadeOutEndPrefix}0003");
                 _tracks.All(t => t.FadeOutEndMarker.HasLength == false).ShouldBeTrue();
             };
 
