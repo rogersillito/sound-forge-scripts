@@ -4,10 +4,12 @@ using Machine.Specifications;
 using developwithpassion.specifications.moq;
 using developwithpassion.specifications.extensions;
 using developwithpassion.specifications.faking;
+using Moq;
 using Should;
 using SoundForge;
 using SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing;
 using SoundForgeScriptsLib.VinylRip;
+using It = Machine.Specifications.It;
 
 namespace SoundForgeScripts.Tests.ScriptsLib
 {   
@@ -32,7 +34,11 @@ namespace SoundForgeScripts.Tests.ScriptsLib
                     new SfAudioMarkerList(ExistingMarkers.ToArray())
                 );
 
-                var markerAndRegionFactory = new TrackMarkerFactory(_file);
+                // we need to avoid the real concrete SfAudioMarkerList in factory, so stub it:
+                var fileMock = new Mock<ISfFileHost>();
+                fileMock.Setup(x => x.Markers).Returns(new Mock<SfAudioMarkerList>(MockBehavior.Default, fileMock.Object).Object);
+                var markerAndRegionFactory = new TrackMarkerFactory(fileMock.Object);
+
                 var splitTrackList = new SplitTrackList(_file, markerAndRegionFactory, markerAndRegionFactory);
                 splitTrackList.InitTracks(10, 100);
 

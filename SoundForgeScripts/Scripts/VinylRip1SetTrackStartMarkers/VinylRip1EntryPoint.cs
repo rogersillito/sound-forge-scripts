@@ -18,6 +18,7 @@ using SoundForge;
 using SoundForgeScriptsLib;
 using SoundForgeScriptsLib.EntryPoints;
 using SoundForgeScriptsLib.Utils;
+using SoundForgeScriptsLib.VinylRip;
 
 namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
 {
@@ -66,15 +67,11 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
 
             App.DoMenuAndWait("Edit.UndoAll", false);
 
+            TrackMarkerFactory regionFactory = new TrackMarkerFactory(_file, Output);
             foreach (TrackDefinition track in _trackList)
             {
-                _file.Markers.AddRegion(track.StartPosition, track.Length, CreateMarkerName(track.Number));
+                regionFactory.CreateRegion(track.Number, track.StartPosition, track.Length);
             }
-        }
-
-        private static string CreateMarkerName(int number)
-        {
-            return string.Format("{0}{1:D4}", TrackRegionPrefix, number);
         }
 
         private void OutputTrackDetails(TrackList tracks)

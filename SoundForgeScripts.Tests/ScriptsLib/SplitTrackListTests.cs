@@ -4,10 +4,12 @@ using Machine.Specifications;
 using developwithpassion.specifications.moq;
 using developwithpassion.specifications.extensions;
 using developwithpassion.specifications.faking;
+using Moq;
 using Should;
 using SoundForge;
 using SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing;
 using SoundForgeScriptsLib.VinylRip;
+using It = Machine.Specifications.It;
 
 namespace SoundForgeScripts.Tests.ScriptsLib
 {   
@@ -32,16 +34,31 @@ namespace SoundForgeScripts.Tests.ScriptsLib
                 _file = depends.@on<ISfFileHost>();
                 _file.setup(x => x.Length).Return(1100000);
 
-                var markerAndRegionFactory = new TrackMarkerFactory(_file);
-                sut_factory.create_using(() => new SplitTrackList(_file, markerAndRegionFactory, markerAndRegionFactory));
-
                 _file.setup(x => x.Markers).Return(
-                    new SfAudioMarkerList(ExistingMarkers.ToArray())
-                    );
+                    new SfAudioMarkerList(ExistingMarkers.ToArray()));
+
+                // we need to avoid the real concrete SfAudioMarkerList in factory, so stub it:
+                var fileMock = new Mock<ISfFileHost>();
+                fileMock.Setup(x => x.Markers).Returns(new Mock<SfAudioMarkerList>(MockBehavior.Default, fileMock.Object).Object);
+                var markerAndRegionFactory = new TrackMarkerFactory(fileMock.Object);
+
+                sut_factory.create_using(() => new SplitTrackList(_file, markerAndRegionFactory, markerAndRegionFactory));
             };
 
             protected static List<SfAudioMarker> ExistingMarkers;
         }
+
+        public class MarkerListStub : SfAudioMarkerList
+        {
+            public MarkerListStub(ISfFileHost hostIn) : base(hostIn)
+            {
+            }
+
+            public MarkerListStub(SfAudioMarker[] listIn) : base(listIn)
+            {
+            }
+        }
+
 
         [Subject(typeof(SplitTrackList))]
         public class when_initializing_list_of_tracks : SplitTrackListContext
