@@ -38,7 +38,7 @@ namespace SoundForgeScriptsLib.VinylRip
 
         public SfAudioMarker CreateRegion(int track, long startPosition, long length)
         {
-            string name = string.Format("{0}{1:D4}", TrackRegionPrefix, track);
+            string name = string.Format("{0:D4}{1}", track, TrackRegionSuffix);
             SfAudioMarker marker = new SfAudioMarker(startPosition, length);
             marker.Name = name;
             return AddMarkerToFile(marker);
@@ -46,7 +46,7 @@ namespace SoundForgeScriptsLib.VinylRip
 
         public SfAudioMarker CreateFadeInEnd(int track, long startPosition)
         {
-            string name = string.Format("{0}{1:D4}", TrackFadeInEndPrefix, track);
+            string name = string.Format("{0:D4}{1}", track, TrackFadeInEndSuffix);
             SfAudioMarker marker = new SfAudioMarker(startPosition);
             marker.Name = name;
             return AddMarkerToFile(marker);
@@ -54,14 +54,14 @@ namespace SoundForgeScriptsLib.VinylRip
 
         public SfAudioMarker CreateFadeOutEnd(int track, long startPosition)
         {
-            string name = string.Format("{0}{1:D4}", TrackFadeOutEndPrefix, track);
+            string name = string.Format("{0:D4}{1}", track, TrackFadeOutEndSuffix);
             SfAudioMarker marker = new SfAudioMarker(startPosition);
             marker.Name = name;
             return AddMarkerToFile(marker);
         }
 
-        public const string TrackRegionPrefix = @"__TRACK__";
-        public const string TrackFadeInEndPrefix = @"_FadeInEnd_";
-        public const string TrackFadeOutEndPrefix = @"_FadeOutEnd_";
+        public const string TrackRegionSuffix = @"__TRACK__";
+        public const string TrackFadeInEndSuffix = @"_FadeInEnd_";
+        public const string TrackFadeOutEndSuffix = @"_FadeOutEnd_";
     }
 }

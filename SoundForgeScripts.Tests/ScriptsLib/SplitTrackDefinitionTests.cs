@@ -22,8 +22,8 @@ namespace SoundForgeScripts.Tests.ScriptsLib
             {
                 ExistingMarkers = new List<SfAudioMarker>
                 {
-                    new SfAudioMarker(0, 10000) { Name = $"{TrackMarkerFactory.TrackRegionPrefix}0001" },
-                    new SfAudioMarker(10300, 20000) { Name = $"{TrackMarkerFactory.TrackRegionPrefix}0002" }
+                    new SfAudioMarker(0, 10000) { Name = $"0001{TrackMarkerFactory.TrackRegionSuffix}" },
+                    new SfAudioMarker(10300, 20000) { Name = $"0002{TrackMarkerFactory.TrackRegionSuffix}" }
                 };
 
                 _file = depends.@on<ISfFileHost>();

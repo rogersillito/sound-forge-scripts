@@ -21,15 +21,15 @@ namespace SoundForgeScripts.Tests.ScriptsLib
             {
                 ExistingMarkers = new List<SfAudioMarker>
                 {
-                    new SfAudioMarker(100, 500000) { Name = $"{TrackMarkerFactory.TrackRegionPrefix}0001" },
-                    new SfAudioMarker(105) { Name = $"{TrackMarkerFactory.TrackFadeInEndPrefix}0001"},
-                    new SfAudioMarker(500333) { Name = $"{TrackMarkerFactory.TrackFadeOutEndPrefix}0001"},
+                    new SfAudioMarker(100, 500000) { Name = $"0001{TrackMarkerFactory.TrackRegionSuffix}" },
+                    new SfAudioMarker(105) { Name = $"0001{TrackMarkerFactory.TrackFadeInEndSuffix}"},
+                    new SfAudioMarker(500333) { Name = $"0001{TrackMarkerFactory.TrackFadeOutEndSuffix}"},
                     new SfAudioMarker(500500), // ignore - unnamed marker
-                    new SfAudioMarker(600000, 100000) { Name = $"{TrackMarkerFactory.TrackRegionPrefix}0002" }, // too close to next for full fade!
+                    new SfAudioMarker(600000, 100000) { Name = $"0002{TrackMarkerFactory.TrackRegionSuffix}" }, // too close to next for full fade!
                     new SfAudioMarker(700500) { Name = "BOB" }, // ignore - named marker not fade-related
-                    new SfAudioMarker(701000, 100000) { Name = $"{TrackMarkerFactory.TrackRegionPrefix}0003" },
+                    new SfAudioMarker(701000, 100000) { Name = $"0003{TrackMarkerFactory.TrackRegionSuffix}" },
                     new SfAudioMarker(900000, 100000) { Name = $"NOT_A_TRACK!" }, // name not expected format
-                    new SfAudioMarker(100123) { Name = $"{TrackMarkerFactory.TrackFadeOutEndPrefix}0003"},
+                    new SfAudioMarker(100123) { Name = $"0003{TrackMarkerFactory.TrackFadeOutEndSuffix}"},
                 };
 
                 _file = depends.@on<ISfFileHost>();
@@ -63,20 +63,20 @@ namespace SoundForgeScripts.Tests.ScriptsLib
             It should_create_missing_fade_in_end_marker = () =>
             {
                 _tracks[1].FadeInEndMarker.Start.ShouldEqual(600030);
-                _tracks[1].FadeInEndMarker.Name.ShouldEqual($"{TrackMarkerFactory.TrackFadeInEndPrefix}0002");
+                _tracks[1].FadeInEndMarker.Name.ShouldEqual($"0002{TrackMarkerFactory.TrackFadeInEndSuffix}");
                 _tracks[2].FadeInEndMarker.Start.ShouldEqual(701030);
-                _tracks[2].FadeInEndMarker.Name.ShouldEqual($"{TrackMarkerFactory.TrackFadeInEndPrefix}0003");
+                _tracks[2].FadeInEndMarker.Name.ShouldEqual($"0003{TrackMarkerFactory.TrackFadeInEndSuffix}");
                 _tracks.All(t => t.FadeInEndMarker.HasLength == false).ShouldBeTrue();
             };
 
             It should_create_missing_fade_out_end_marker = () =>
             {
                 _tracks[0].FadeOutEndMarker.Start.ShouldEqual(507100);
-                _tracks[0].FadeOutEndMarker.Name.ShouldEqual($"{TrackMarkerFactory.TrackFadeOutEndPrefix}0001");
+                _tracks[0].FadeOutEndMarker.Name.ShouldEqual($"0001{TrackMarkerFactory.TrackFadeOutEndSuffix}");
                 _tracks[1].FadeOutEndMarker.Start.ShouldEqual(701000);
-                _tracks[1].FadeOutEndMarker.Name.ShouldEqual($"{TrackMarkerFactory.TrackFadeOutEndPrefix}0002");
+                _tracks[1].FadeOutEndMarker.Name.ShouldEqual($"0002{TrackMarkerFactory.TrackFadeOutEndSuffix}");
                 _tracks[2].FadeOutEndMarker.Start.ShouldEqual(808000);
-                _tracks[2].FadeOutEndMarker.Name.ShouldEqual($"{TrackMarkerFactory.TrackFadeOutEndPrefix}0003");
+                _tracks[2].FadeOutEndMarker.Name.ShouldEqual($"0003{TrackMarkerFactory.TrackFadeOutEndSuffix}");
                 _tracks.All(t => t.FadeOutEndMarker.HasLength == false).ShouldBeTrue();
             };
 
