@@ -22,10 +22,11 @@ namespace SoundForgeScriptsLib.VinylRip
             _markerSpecifications = markerSpecifications;
         }
 
-        public SplitTrackDefinition AddNew(SfAudioMarker trackRegionMarker, long fadeInLength, long fadeOutLength)
+        public SplitTrackDefinition AddNew(SfAudioMarker trackRegionMarker, int trackNumber, long fadeInLength, long fadeOutLength)
         {
             SplitTrackDefinition track = new SplitTrackDefinition(this, _file, _markerFactory, _regionFactory);
-            track.Number = _trackCount++;
+            //track.Number = _trackCount++;
+            track.Number = trackNumber;
             track.TrackRegion = trackRegionMarker;
             track.FadeInEndMarker = GetTrackFadeInEndMarker(track.Number, trackRegionMarker.Start + fadeInLength);
             track.FadeOutEndMarker = GetTrackFadeOutEndMarker(track.Number, MarkerHelper.GetMarkerEnd(track.TrackRegion) + fadeOutLength);
@@ -70,16 +71,20 @@ namespace SoundForgeScriptsLib.VinylRip
             // TODO: I'm thinking we'll need a different method for synching gui-originating changes when we move between tracks in the vinyl 2 UI.
             // TODO: on synchronize - ensure fade end markers have no length, internal values match marker/regions
 
+            // TODO: !!!!!!!!!!!!!!!!!!!!!!!
+            // TODO: the plan here is to try setting the tracks in reverse order so overlapping fade out markers are properly constrained..
+            // TODO: !!!!!!!!!!!!!!!!!!!!!!!
+            var count = 1;
             foreach (SfAudioMarker trackRegion in GetTrackRegions())
             {
-                AddNew(trackRegion, defaultTrackFadeInLengthInSamples, defaultTrackFadeOutLengthInSamples);
+                AddNew(trackRegion, count++, defaultTrackFadeInLengthInSamples, defaultTrackFadeOutLengthInSamples);
             }
 
-            foreach (SplitTrackDefinition track in this)
-            {
-                track.FadeOutLength = defaultTrackFadeOutLengthInSamples;
-                track.FadeInLength = defaultTrackFadeInLengthInSamples;
-            }
+            //foreach (SplitTrackDefinition track in this)
+            //{
+            //    track.FadeOutLength = defaultTrackFadeOutLengthInSamples;
+            //    track.FadeInLength = defaultTrackFadeInLengthInSamples;
+            //}
             return this;
         }
     }
