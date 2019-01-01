@@ -90,6 +90,7 @@ namespace SoundForgeScriptsLib.VinylRip
             }
             set
             {
+                if (value < 0) value = 0;
                 long fadeInEnd = TrackRegion.Start + value;
                 if (fadeInEnd > FadeOutStartPosition)
                     fadeInEnd = FadeOutStartPosition;
@@ -113,6 +114,7 @@ namespace SoundForgeScriptsLib.VinylRip
             }
             set
             {
+                if (value < 0) value = 0;
                 long maxEndPosition = _originalFile.Length; // cannot be past end of file
                 if (!IsLastTrack)
                 {
