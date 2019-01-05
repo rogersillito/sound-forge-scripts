@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
-using System.Text.RegularExpressions;
 using SoundForge;
+using SoundForgeScriptsLib.Utils;
 
 namespace SoundForgeScriptsLib.VinylRip
 {
@@ -11,18 +10,20 @@ namespace SoundForgeScriptsLib.VinylRip
         private readonly ICreateFadeMarkers _markerFactory;
         private readonly ICreateTrackRegions _regionFactory;
         private readonly ITrackMarkerSpecifications _markerSpecifications;
+        private readonly IOutputHelper _output;
 
-        public SplitTrackList(ISfFileHost file, ICreateFadeMarkers markerFactory, ICreateTrackRegions regionFactory, ITrackMarkerSpecifications markerSpecifications)
+        public SplitTrackList(ISfFileHost file, ICreateFadeMarkers markerFactory, ICreateTrackRegions regionFactory, ITrackMarkerSpecifications markerSpecifications, IOutputHelper output)
         {
             _file = file;
             _markerFactory = markerFactory;
             _regionFactory = regionFactory;
             _markerSpecifications = markerSpecifications;
+            _output = output;
         }
 
         public SplitTrackDefinition AddNew(SfAudioMarker trackRegionMarker, int trackNumber, long fadeInLength, long fadeOutLength)
         {
-            SplitTrackDefinition track = new SplitTrackDefinition(this, _file, _markerFactory, _regionFactory);
+            SplitTrackDefinition track = new SplitTrackDefinition(this, _file, _markerFactory, _regionFactory, _output);
             this[trackNumber - 1] = track;
             track.Number = trackNumber;
             track.TrackRegion = trackRegionMarker;
@@ -82,30 +83,24 @@ namespace SoundForgeScriptsLib.VinylRip
         public SplitTrackList InitTracks(long defaultTrackFadeInLengthInSamples, long defaultTrackFadeOutLengthInSamples)
         {
             // TODO: I'm thinking we'll need a different method for synching gui-originating changes when we move between tracks in the vinyl 2 UI.
-            // TODO: on synchronize - ensure fade end markers have no length, internal values match marker/regions
-
-            // TODO: !!!!!!!!!!!!!!!!!!!!!!!
-            // TODO: the plan here is to try setting the tracks in reverse order so overlapping fade out markers are properly constrained..
-            // TODO: !!!!!!!!!!!!!!!!!!!!!!!
             List<SfAudioMarker> trackRegions = GetTrackRegions();
-            Capacity = trackRegions.Count;
+            SetListBounds(trackRegions.Count);
+            for (int trackNumber = trackRegions.Count; trackNumber > 0; trackNumber--)
+            {
+                SfAudioMarker trackRegion = trackRegions[trackNumber - 1];
+                SplitTrackDefinition track = AddNew(trackRegion, trackNumber, defaultTrackFadeInLengthInSamples, defaultTrackFadeOutLengthInSamples);
+            }
+            return this;
+        }
+
+        private void SetListBounds(int trackCount)
+        {
+            Capacity = trackCount;
             for (int i = 0; i < Capacity; i++)
             {
                 if (Count == i)
                     Insert(i, null);
             }
-            for (int trackNumber = trackRegions.Count; trackNumber > 0; trackNumber--)
-            {
-                SfAudioMarker trackRegion = trackRegions[trackNumber - 1];
-                AddNew(trackRegion, trackNumber, defaultTrackFadeInLengthInSamples, defaultTrackFadeOutLengthInSamples);
-            }
-
-            //foreach (SplitTrackDefinition track in this)
-            //{
-            //    track.FadeOutLength = defaultTrackFadeOutLengthInSamples;
-            //    track.FadeInLength = defaultTrackFadeInLengthInSamples;
-            //}
-            return this;
         }
     }
 }

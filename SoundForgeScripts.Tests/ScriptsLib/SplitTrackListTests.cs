@@ -6,6 +6,7 @@ using developwithpassion.specifications.extensions;
 using Moq;
 using Should;
 using SoundForge;
+using SoundForgeScriptsLib.Utils;
 using SoundForgeScriptsLib.VinylRip;
 using It = Machine.Specifications.It;
 
@@ -22,12 +23,10 @@ namespace SoundForgeScripts.Tests.ScriptsLib
                 _file = depends.@on<ISfFileHost>();
                 _file.setup(x => x.Length).Return(1100000);
 
-                // we need to avoid the real concrete SfAudioMarkerList in factory, so stub it:
-                var fileMock = new Mock<ISfFileHost>();
-                fileMock.Setup(x => x.Markers).Returns(new Mock<SfAudioMarkerList>(MockBehavior.Default, fileMock.Object).Object);
-                var markerAndRegionFactory = new TrackMarkerFactory(fileMock.Object);
+                var markerList = FileMarkersHelper.CreateStubMarkerList();
+                var markerAndRegionFactory = new TrackMarkerFactory(markerList.Object);
 
-                sut_factory.create_using(() => new SplitTrackList(_file, markerAndRegionFactory, markerAndRegionFactory, new TrackMarkerSpecifications()));
+                sut_factory.create_using(() => new SplitTrackList(_file, markerAndRegionFactory, markerAndRegionFactory, new TrackMarkerSpecifications(), depends.@on<IOutputHelper>()));
             };
 
             protected static List<SfAudioMarker> ExistingMarkers;

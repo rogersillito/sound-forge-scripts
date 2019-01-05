@@ -9,13 +9,15 @@ namespace SoundForgeScriptsLib.VinylRip
         private readonly ISfFileHost _originalFile;
         private readonly ICreateFadeMarkers _markerFactory;
         private readonly ICreateTrackRegions _regionFactory;
+        private readonly IOutputHelper _output;
 
-        public SplitTrackDefinition(SplitTrackList splitTrackList, ISfFileHost file, ICreateFadeMarkers markerFactory, ICreateTrackRegions regionFactory)
+        public SplitTrackDefinition(SplitTrackList splitTrackList, ISfFileHost file, ICreateFadeMarkers markerFactory, ICreateTrackRegions regionFactory, IOutputHelper output)
         {
             _splitTrackList = splitTrackList;
             _originalFile = file;
             _markerFactory = markerFactory;
             _regionFactory = regionFactory;
+            _output = output;
             _trackRegionMarker = new SfAudioMarker();
             _trackRegionMarker.Type = MarkerType.Region;
         }
@@ -59,7 +61,9 @@ namespace SoundForgeScriptsLib.VinylRip
         {
             get
             {
-                return _fadeInEndMarker ?? (_fadeInEndMarker = _markerFactory.CreateFadeInEnd(Number, TrackRegion.Start));
+                if (_fadeInEndMarker == null)
+                    _fadeInEndMarker = _markerFactory.CreateFadeInEnd(Number, TrackRegion.Start);
+                return _fadeInEndMarker;
             }
             set
             {
@@ -72,7 +76,9 @@ namespace SoundForgeScriptsLib.VinylRip
         {
             get
             {
-                return _fadeOutEndMarker ?? (_fadeOutEndMarker = _markerFactory.CreateFadeOutEnd(Number, TrackRegion.Start));
+                if (_fadeOutEndMarker == null)
+                    _fadeOutEndMarker = _markerFactory.CreateFadeOutEnd(Number, TrackRegion.Start);
+                return _fadeOutEndMarker;
             }
             set
             {

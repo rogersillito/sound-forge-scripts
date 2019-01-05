@@ -18,6 +18,7 @@ using System.Windows.Forms;
 using SoundForge;
 using SoundForgeScriptsLib;
 using SoundForgeScriptsLib.EntryPoints;
+using SoundForgeScriptsLib.Utils;
 using SoundForgeScriptsLib.VinylRip;
 
 namespace SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing
@@ -47,8 +48,9 @@ namespace SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing
             _fileTasks = new FileTasks(_file);
             _fileTasks.EnforceStereoFileOpen();
 
-            TrackMarkerFactory markerAndRegionFactory = new TrackMarkerFactory(_file);
-            _splitTrackList = new SplitTrackList(_file, markerAndRegionFactory, markerAndRegionFactory, new TrackMarkerSpecifications());
+            FileMarkersWrapper markers = new FileMarkersWrapper(_file);
+            TrackMarkerFactory markerAndRegionFactory = new TrackMarkerFactory(markers);
+            _splitTrackList = new SplitTrackList(_file, markerAndRegionFactory, markerAndRegionFactory, new TrackMarkerSpecifications(), Output);
             const int noiseprintLengthSeconds = 2;
             _noiseprintSelection = _fileTasks.EnforceNoisePrintSelection(App, noiseprintLengthSeconds);
             _findTracksOptions = new FindTracksOptions();

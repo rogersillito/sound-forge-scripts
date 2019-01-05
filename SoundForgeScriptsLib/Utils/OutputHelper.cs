@@ -5,7 +5,21 @@ using SoundForgeScriptsLib.EntryPoints;
 
 namespace SoundForgeScriptsLib.Utils
 {
-    public class OutputHelper
+    public interface IOutputHelper
+    {
+        DialogResult ToMessageBox(string caption, MessageBoxIcon icon, MessageBoxButtons buttons, string fmt, params object[] args);
+        DialogResult ToMessageBox(MessageBoxIcon icon, MessageBoxButtons buttons, string fmt, params object[] args);
+        DialogResult ToMessageBox(MessageBoxIcon icon, string fmt, params object[] args);
+        DialogResult ToMessageBox(string fmt, params object[] args);
+        void ToScriptWindow(object obj);
+        void ToScriptWindow(string fmt, params object[] args);
+        void LineBreakToScriptWindow();
+        void ToStatusBar(string fmt, params object[] args);
+        void ToStatusField1(string fmt, params object[] args);
+        void ToStatusField2(string fmt, params object[] args);
+    }
+
+    public class OutputHelper : IOutputHelper
     {
         private readonly IEntryPoint _entryPoint;
         private readonly IScriptableApp _app;

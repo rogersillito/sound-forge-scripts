@@ -79,6 +79,7 @@
     <Compile Include="Helpers\ResourceHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScriptFileProcessor\ScriptProcessorTests.cs" />
+    <Compile Include="ScriptsLib\FileMarkersHelper.cs" />
     <Compile Include="ScriptsLib\SplitTrackDefinitionTests.cs" />
     <Compile Include="ScriptsLib\SplitTrackListTests.cs" />
     <Compile Include="Scripts\VinylRip1SetTrackStartMarkers\TrackListTests.cs" />

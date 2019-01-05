@@ -35,14 +35,13 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
         protected override void Execute()
         {
             _file = App.CurrentFile;
-            ISfFileHost file = _file;
-
-            _fileTasks = new FileTasks(file);
+            _fileTasks = new FileTasks(_file);
             _fileTasks.EnforceStereoFileOpen();
             _fileTasks.ZoomOutFull();
 
-            TrackMarkerFactory markerAndRegionFactory = new TrackMarkerFactory(_file);
-            _splitTrackList = new SplitTrackList(_file, markerAndRegionFactory, markerAndRegionFactory, new TrackMarkerSpecifications());
+            FileMarkersWrapper markers = new FileMarkersWrapper(_file);
+            TrackMarkerFactory markerAndRegionFactory = new TrackMarkerFactory(markers, Output);
+            _splitTrackList = new SplitTrackList(_file, markerAndRegionFactory, markerAndRegionFactory, new TrackMarkerSpecifications(), Output);
 
             //TODO: initial dialog to configure these:
             _findTracksOptions = new FindTracksOptions();

@@ -63,6 +63,7 @@
     <Compile Include="Utils\ResourceHelpers.cs" />
     <Compile Include="Utils\ScriptTimer.cs" />
     <Compile Include="Utils\SelectionHelper.cs" />
+    <Compile Include="Utils\FileMarkersWrapper.cs" />
     <Compile Include="VinylRip\SplitTrackDefinition.cs" />
     <Compile Include="VinylRip\SplitTrackList.cs" />
     <Compile Include="VinylRip\TrackMarkerFactory.cs" />

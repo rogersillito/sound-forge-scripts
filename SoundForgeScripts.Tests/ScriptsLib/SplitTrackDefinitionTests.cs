@@ -33,12 +33,10 @@ namespace SoundForgeScripts.Tests.ScriptsLib
                     new SfAudioMarkerList(ExistingMarkers.ToArray())
                 );
 
-                // we need to avoid the real concrete SfAudioMarkerList in factory, so stub it:
-                var fileMock = new Mock<ISfFileHost>();
-                fileMock.Setup(x => x.Markers).Returns(new Mock<SfAudioMarkerList>(MockBehavior.Default, fileMock.Object).Object);
-                var markerAndRegionFactory = new TrackMarkerFactory(fileMock.Object);
+                var markerList = FileMarkersHelper.CreateStubMarkerList();
+                var markerAndRegionFactory = new TrackMarkerFactory(markerList.Object);
 
-                SplitTrackList = new SplitTrackList(_file, markerAndRegionFactory, markerAndRegionFactory, new TrackMarkerSpecifications());
+                SplitTrackList = new SplitTrackList(_file, markerAndRegionFactory, markerAndRegionFactory, new TrackMarkerSpecifications(), depends.on<IOutputHelper>());
                 SplitTrackList.InitTracks(10, 100);
             };
 

@@ -16,23 +16,24 @@ namespace SoundForgeScriptsLib.VinylRip
 
     public class TrackMarkerFactory : ICreateFadeMarkers, ICreateTrackRegions
     {
-        readonly ISfFileHost _file;
+        readonly IFileMarkersWrapper _markers;
         private readonly OutputHelper _outputHelper;
 
-        public TrackMarkerFactory(ISfFileHost file, OutputHelper outputHelper)
+        public TrackMarkerFactory(IFileMarkersWrapper markers, OutputHelper outputHelper)
         {
-            _file = file;
+            _markers = markers;
             _outputHelper = outputHelper;
         }
 
-        public TrackMarkerFactory(ISfFileHost file): this (file, null)
+        public TrackMarkerFactory(IFileMarkersWrapper markers): this (markers, null)
         {
         }
 
         private SfAudioMarker AddMarkerToFile(SfAudioMarker marker)
         {
-            int idx = _file.Markers.Add(marker);
-            if (_outputHelper != null) _outputHelper.ToScriptWindow("Added Marker idx=" + idx);
+            int idx = _markers.Add(marker);
+            marker = _markers[idx];
+            if (_outputHelper != null) _outputHelper.ToScriptWindow("Added Marker idx={0} ({1} '{2}')", idx, marker.Start, marker.Name);
             return marker;
         }
 
