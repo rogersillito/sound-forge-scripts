@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using SoundForge;
-using SoundForgeScriptsLib.Utils;
 
 namespace SoundForgeScriptsLib.VinylRip
 {
@@ -23,34 +23,48 @@ namespace SoundForgeScriptsLib.VinylRip
         public SplitTrackDefinition AddNew(SfAudioMarker trackRegionMarker, int trackNumber, long fadeInLength, long fadeOutLength)
         {
             SplitTrackDefinition track = new SplitTrackDefinition(this, _file, _markerFactory, _regionFactory);
-            //track.Number = _trackCount++;
+            this[trackNumber - 1] = track;
             track.Number = trackNumber;
             track.TrackRegion = trackRegionMarker;
-            track.FadeInEndMarker = GetTrackFadeInEndMarker(track.Number, trackRegionMarker.Start + fadeInLength);
-            track.FadeOutEndMarker = GetTrackFadeOutEndMarker(track.Number, MarkerHelper.GetMarkerEnd(track.TrackRegion) + fadeOutLength);
-            this[trackNumber - 1] = track;
-            //Add(track);
+            track.FadeInEndMarker = GetTrackFadeInEndMarker(track.Number, fadeInLength);
+            track.FadeOutEndMarker = GetTrackFadeOutEndMarker(track.Number, fadeOutLength);
             return track;
         }
 
-        private SfAudioMarker GetTrackFadeInEndMarker(int track, long position)
+        private SfAudioMarker GetTrackFadeInEndMarker(int track, long fadeLength)
         {
             foreach (SfAudioMarker marker in _file.Markers)
             {
                 if (_markerSpecifications.IsTrackFadeInEndMarker(marker, track))
                     return marker;
             }
-            return _markerFactory.CreateFadeInEnd(track, position);
+            SplitTrackDefinition thisTrack = GetTrack(track);
+            thisTrack.FadeInLength = fadeLength;
+            return thisTrack.FadeInEndMarker;
         }
 
-        private SfAudioMarker GetTrackFadeOutEndMarker(int track, long position)
+        private SfAudioMarker GetTrackFadeOutEndMarker(int track, long fadeLength)
         {
             foreach (SfAudioMarker marker in _file.Markers)
             {
                 if (_markerSpecifications.IsTrackFadeOutEndMarker(marker, track))
                     return marker;
             }
-            return _markerFactory.CreateFadeOutEnd(track, position);
+            SplitTrackDefinition thisTrack = GetTrack(track);
+            thisTrack.FadeOutLength = fadeLength;
+            return thisTrack.FadeOutEndMarker;
+        }
+
+        public SplitTrackDefinition GetTrack(int number)
+        {
+            foreach (var track in this)
+            {
+                if (track == null)
+                    continue;
+                if (track.Number == number)
+                    return track;
+            }
+            return null;
         }
 
         private List<SfAudioMarker> GetTrackRegions()

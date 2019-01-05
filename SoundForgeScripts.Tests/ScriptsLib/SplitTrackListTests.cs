@@ -46,7 +46,7 @@ namespace SoundForgeScripts.Tests.ScriptsLib
                     new SfAudioMarker(100, 500000) { Name = $"0001{TrackMarkerFactory.TrackRegionSuffix}" },
                     new SfAudioMarker(500500), // ignore - unnamed marker
                     new SfAudioMarker(600000, 100000) { Name = $"0002{TrackMarkerFactory.TrackRegionSuffix}" }, // too close to next for full fade!
-                    new SfAudioMarker(700500) { Name = "BOB" }, // ignore - named marker not fade-related
+                    new SfAudioMarker(700500) { Name = "RUBBISH" }, // ignore - named marker not fade-related
                     new SfAudioMarker(701000, 100000) { Name = $"0003{TrackMarkerFactory.TrackRegionSuffix}" },
                     new SfAudioMarker(900000, 100000) { Name = $"NOT_A_TRACK!" }, // name not expected format
                 };
