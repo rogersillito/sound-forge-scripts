@@ -12,8 +12,6 @@ namespace SoundForgeScriptsLib.VinylRip
         private readonly ICreateTrackRegions _regionFactory;
         private readonly ITrackMarkerSpecifications _markerSpecifications;
 
-        private int _trackCount = 1;
-
         public SplitTrackList(ISfFileHost file, ICreateFadeMarkers markerFactory, ICreateTrackRegions regionFactory, ITrackMarkerSpecifications markerSpecifications)
         {
             _file = file;
@@ -30,7 +28,8 @@ namespace SoundForgeScriptsLib.VinylRip
             track.TrackRegion = trackRegionMarker;
             track.FadeInEndMarker = GetTrackFadeInEndMarker(track.Number, trackRegionMarker.Start + fadeInLength);
             track.FadeOutEndMarker = GetTrackFadeOutEndMarker(track.Number, MarkerHelper.GetMarkerEnd(track.TrackRegion) + fadeOutLength);
-            Add(track);
+            this[trackNumber - 1] = track;
+            //Add(track);
             return track;
         }
 
@@ -74,10 +73,17 @@ namespace SoundForgeScriptsLib.VinylRip
             // TODO: !!!!!!!!!!!!!!!!!!!!!!!
             // TODO: the plan here is to try setting the tracks in reverse order so overlapping fade out markers are properly constrained..
             // TODO: !!!!!!!!!!!!!!!!!!!!!!!
-            var count = 1;
-            foreach (SfAudioMarker trackRegion in GetTrackRegions())
+            List<SfAudioMarker> trackRegions = GetTrackRegions();
+            Capacity = trackRegions.Count;
+            for (int i = 0; i < Capacity; i++)
             {
-                AddNew(trackRegion, count++, defaultTrackFadeInLengthInSamples, defaultTrackFadeOutLengthInSamples);
+                if (Count == i)
+                    Insert(i, null);
+            }
+            for (int trackNumber = trackRegions.Count; trackNumber > 0; trackNumber--)
+            {
+                SfAudioMarker trackRegion = trackRegions[trackNumber - 1];
+                AddNew(trackRegion, trackNumber, defaultTrackFadeInLengthInSamples, defaultTrackFadeOutLengthInSamples);
             }
 
             //foreach (SplitTrackDefinition track in this)

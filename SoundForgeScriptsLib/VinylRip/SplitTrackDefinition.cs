@@ -20,12 +20,12 @@ namespace SoundForgeScriptsLib.VinylRip
             _trackRegionMarker.Type = MarkerType.Region;
         }
 
-        public bool CanAddFadeIn
+        public bool AddFadeIn
         {
             get { return FadeInLength > 0; }
         }
 
-        public bool CanAddFadeOut
+        public bool AddFadeOut
         {
             get { return FadeOutStartPosition < FadeOutEndMarker.Start; }
         }

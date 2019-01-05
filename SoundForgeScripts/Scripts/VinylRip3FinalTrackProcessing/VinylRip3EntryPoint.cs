@@ -279,13 +279,13 @@ namespace SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing
                 trackFile.Summary.TrackNo = string.Concat(track.Number, "/", tracks.Count);
 
                 FileTasks trackTasks = new FileTasks(trackFile);
-                if (track.CanAddFadeIn)
+                if (track.AddFadeIn)
                 {
                     Output.ToScriptWindow("Track {0}: Fade In {1} Samples", track.Number, track.FadeInLength);
                     trackFile.Window.SetSelectionAndScroll(0, track.FadeInLength, DataWndScrollTo.NoMove);
                     App.DoMenuAndWait("Process.FadeIn", false);
                 }
-                if (track.CanAddFadeOut)
+                if (track.AddFadeOut)
                 {
                     Output.ToScriptWindow("Track {0}: Fade Out {1} Samples", track.Number, track.FadeOutLength);
                     trackFile.Window.SetSelectionAndScroll(track.FadeOutStartPosition, trackFile.Length, DataWndScrollTo.NoMove);
