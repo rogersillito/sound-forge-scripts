@@ -18,13 +18,19 @@ namespace SoundForgeScriptsLib
             return EnforceNoisePrintSelection(app, 2.0d);
         }
 
-        public SfAudioSelection EnforceNoisePrintSelection(IScriptableApp app, double noiseprintLength)
+        public bool IsCurrentSelectionGreaterThan(IScriptableApp app, double minimumLengthInSeconds)
         {
             ISfDataWnd window = _file.Window;
             double selectionLengthSeconds = _file.PositionToSeconds(window.Selection.Length);
-            if (selectionLengthSeconds < noiseprintLength)
+            return selectionLengthSeconds >= minimumLengthInSeconds;
+        }
+
+        public SfAudioSelection EnforceNoisePrintSelection(IScriptableApp app, double noiseprintLength)
+        {
+            if (!IsCurrentSelectionGreaterThan(app, noiseprintLength))
                 throw new ScriptAbortedException("A noise selection of {0} seconds or more must be made before running this script.", noiseprintLength);
 
+            ISfDataWnd window = _file.Window;
             WindowTasks.SelectBothChannels(window);
 
             long noiseprintSampleLength = _file.SecondsToPosition(noiseprintLength);

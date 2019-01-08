@@ -12,6 +12,7 @@
  *
  * ==================================================================================================== */
 
+using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
@@ -31,11 +32,13 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
         private FindTracksOptions _findTracksOptions;
         private FileTasks _fileTasks;
         private SplitTrackList _splitTrackList;
+        private WindowTasks _windowTasks;
 
         protected override void Execute()
         {
             _file = App.CurrentFile;
             _fileTasks = new FileTasks(_file);
+            _windowTasks = new WindowTasks();
             _fileTasks.EnforceStereoFileOpen();
             _fileTasks.ZoomOutFull();
 
@@ -47,9 +50,10 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             _findTracksOptions = new FindTracksOptions();
             _findTracksOptions.TrackAddFadeOutLengthInSeconds = 3;
             _findTracksOptions.TrackFadeInLengthInSamples = 20;
+            _findTracksOptions.MinimumTrackLengthInSeconds = 10;
 
             SplitTrackList tracks = GetSplitTrackDefinitions();
-            ConfirmTrackSplitsForm(App.Win32Window, tracks);
+            EditTracksForm(App.Win32Window, tracks);
         }
 
         private SplitTrackList GetSplitTrackDefinitions()
@@ -68,12 +72,91 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             Output.LineBreakToScriptWindow();
             return tracks;
         }
+
+        public class EditTracksFormController
+        {
+            private readonly SplitTrackList _tracks;
+            private readonly OutputHelper _output;
+            private readonly WindowTasks _windowTasks;
+            private readonly FileTasks _fileTasks;
+            private readonly FindTracksOptions _findTracksOptions;
+            private readonly IScriptableApp _app;
+
+            private SplitTrackDefinition _currentTrack;
+
+            public EditTracksFormController(SplitTrackList tracks, OutputHelper output, WindowTasks windowTasks, FileTasks fileTasks, FindTracksOptions findTracksOptions, IScriptableApp app)
+            {
+                _tracks = tracks;
+                _output = output;
+                _windowTasks = windowTasks;
+                _fileTasks = fileTasks;
+                _findTracksOptions = findTracksOptions;
+                _app = app;
+                if (HasTracks)
+                    CurrentTrack = _tracks.GetTrack(1);
+            }
+
+            public void PreviousTrack()
+            {
+                if (!CanNavigatePrevious) return;
+                int n = _currentTrack.Number;
+                CurrentTrack = _tracks.GetTrack(n - 1);
+            }
+
+            public void NextTrack()
+            {
+                if (!CanNavigateNext) return;
+                int n = _currentTrack.Number;
+                CurrentTrack = _tracks.GetTrack(n + 1);
+            }
+
+            public bool CanAddTrack
+            {
+                get
+                {
+                    bool selectionLongEnough =  _fileTasks.IsCurrentSelectionGreaterThan(_app, _findTracksOptions.MinimumTrackLengthInSeconds);
+                    //TODO: check it doesn't overlap with existing track? or just adjust existing tracks to suit new track??
+                    return selectionLongEnough;
+                }
+            }
+
+            public bool CanNavigatePrevious
+            {
+                get { return HasTracks && CurrentTrack.Number > 1; }
+            }
+
+            public bool CanNavigateNext
+            {
+                get { return HasTracks && !CurrentTrack.IsLastTrack; }
+            }
+
+            private bool HasTracks
+            {
+                get { return _tracks.Count > 0; }
+            }
+
+            public SplitTrackDefinition CurrentTrack
+            {
+                get { return _currentTrack; }
+                private set
+                {
+                    _output.ToStatusBar("Editing Track {0}...", value.Number);
+                    _currentTrack = value;
+                }
+            }
+
+            public int CurrentTrackIndex
+            {
+                get { return HasTracks && _currentTrack != null ? _tracks.IndexOf(_currentTrack) : -1; }
+            }
+        }
         
         #region Edit Form
-        public void ConfirmTrackSplitsForm(IWin32Window hOwner, SplitTrackList tracks)
+        public void EditTracksForm(IWin32Window hOwner, SplitTrackList tracks)
         {
             //TODO: I think it's ok, but check it's ok to interact with the file window while the script window is active...
             //TODO: and figure out the layout...!
+
             Form dlg = new Form();
             Size sForm = new Size(520, 160);
 
