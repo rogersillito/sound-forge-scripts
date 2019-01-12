@@ -60,6 +60,9 @@
     <Compile Include="Scripts\VinylRip1SetTrackStartMarkers\TrackDefinition.cs" />
     <Compile Include="Scripts\VinylRip1SetTrackStartMarkers\TrackList.cs" />
     <Compile Include="Scripts\VinylRip1SetTrackStartMarkers\VinylRip1EntryPoint.cs" />
+    <Compile Include="Scripts\VinylRip2AdjustTracks\EditTracksController.cs" />
+    <Compile Include="Scripts\VinylRip2AdjustTracks\EditTracksForm.cs" />
+    <Compile Include="Scripts\VinylRip2AdjustTracks\EditTracksViewModel.cs" />
     <Compile Include="Scripts\VinylRip2AdjustTracks\FindTracksOptions.cs" />
     <Compile Include="Scripts\VinylRip2AdjustTracks\VinylRip2EntryPoint.cs" />
     <Compile Include="Scripts\VinylRip3FinalTrackProcessing\FindTracksOptions.cs" />

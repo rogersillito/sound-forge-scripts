@@ -80,6 +80,7 @@ namespace SoundForgeScriptsLib.VinylRip
             return trackMarkers;
         }
 
+        //TODO: no need to return here... void?
         public SplitTrackList InitTracks(long defaultTrackFadeInLengthInSamples, long defaultTrackFadeOutLengthInSamples)
         {
             // TODO: I'm thinking we'll need a different method for synching gui-originating changes when we move between tracks in the vinyl 2 UI.
