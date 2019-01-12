@@ -50,7 +50,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 
             GetSplitTrackDefinitions(_splitTrackList);
 
-            EditTracksViewModel viewModel = new EditTracksViewModel();
+            EditTracksViewModel viewModel = new EditTracksViewModel(_fileTasks);
 
             EditTracksController controller = new EditTracksController(App, new EditTracksForm(), this, Output, _fileTasks);
             controller.Edit(viewModel, _splitTrackList, _findTracksOptions);

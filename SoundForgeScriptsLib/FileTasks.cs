@@ -63,6 +63,11 @@ namespace SoundForgeScriptsLib
             return statistics;
         }
 
+        public void SetSelection(SfAudioSelection selection)
+        {
+            _file.Window.SetSelectionAndScroll(selection.Start, selection.Length, DataWndScrollTo.NoMove);
+        }
+
         public SfAudioSelection SelectAll()
         {
             SfAudioSelection selection = new SfAudioSelection(_file);

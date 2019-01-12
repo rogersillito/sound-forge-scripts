@@ -67,6 +67,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             if (!_vm.CanNavigatePrevious) return;
             int n = _vm.CurrentTrack.Number;
             _vm.CurrentTrack = _tracks.GetTrack(n - 1);
+            SelectCurrentTrack();
         }
 
         public void NextTrack()
@@ -74,6 +75,12 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             if (!_vm.CanNavigateNext) return;
             int n = _vm.CurrentTrack == null ? 0 : _vm.CurrentTrack.Number;
             _vm.CurrentTrack = _tracks.GetTrack(n + 1);
+            SelectCurrentTrack();
+        }
+
+        private void SelectCurrentTrack()
+        {
+            _fileTasks.SetSelection(_vm.CurrentTrack.GetSelectionWithFades());
         }
     }
 }

@@ -1,11 +1,19 @@
 using SoundForgeScriptsLib.VinylRip;
 using System.ComponentModel;
+using SoundForgeScriptsLib;
 
 namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 {
     public class EditTracksViewModel : INotifyPropertyChanged
     {
+        private readonly FileTasks _fileTasks;
+
         private SplitTrackList _tracks;
+
+        public EditTracksViewModel(FileTasks fileTasks)
+        {
+            _fileTasks = fileTasks;
+        }
 
         public void Build(SplitTrackList tracks, string scriptTitle)
         {
@@ -25,6 +33,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             set
             {
                 _currentTrack = value;
+                _fileTasks.SetSelection(_currentTrack.GetSelectionWithFades());
                 OnPropertyChanged("TrackName");
                 OnPropertyChanged("CanNavigateNext");
                 OnPropertyChanged("CanNavigatePrevious");
