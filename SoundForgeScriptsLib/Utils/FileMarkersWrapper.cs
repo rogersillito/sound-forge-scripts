@@ -23,14 +23,8 @@ namespace SoundForgeScriptsLib.Utils
             return File.Markers.Add(marker);
         }
 
-        public SfAudioMarker this[int idx]
-        {
-            get { return File.Markers[idx]; }
-        }
+        public SfAudioMarker this[int idx] => File.Markers[idx];
 
-        public ISfFileHost File
-        {
-            get { return _file; }
-        }
+        public ISfFileHost File => _file;
     }
 }

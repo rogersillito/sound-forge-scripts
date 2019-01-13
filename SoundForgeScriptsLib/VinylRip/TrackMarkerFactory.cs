@@ -25,7 +25,7 @@ namespace SoundForgeScriptsLib.VinylRip
             _outputHelper = outputHelper;
         }
 
-        public TrackMarkerFactory(IFileMarkersWrapper markers): this (markers, null)
+        public TrackMarkerFactory(IFileMarkersWrapper markers) : this(markers, null)
         {
         }
 
@@ -33,31 +33,28 @@ namespace SoundForgeScriptsLib.VinylRip
         {
             int idx = _markers.Add(marker);
             marker = _markers[idx];
-            if (_outputHelper != null) _outputHelper.ToScriptWindow("Added Marker idx={0} ({1} '{2}')", idx, marker.Start, marker.Name);
+            _outputHelper?.ToScriptWindow($"Added Marker idx={idx} ({marker.Start} '{marker.Name}', type={marker.Type})");
             return marker;
         }
 
         public SfAudioMarker CreateRegion(int track, long startPosition, long length)
         {
-            string name = string.Format("{0:D4}{1}", track, TrackRegionSuffix);
-            SfAudioMarker marker = new SfAudioMarker(startPosition, length);
-            marker.Name = name;
+            string name = $"{track:D4}{TrackRegionSuffix}";
+            SfAudioMarker marker = new SfAudioMarker(startPosition, length) { Name = name };
             return AddMarkerToFile(marker);
         }
 
         public SfAudioMarker CreateFadeInEnd(int track, long startPosition)
         {
-            string name = string.Format("{0:D4}{1}", track, TrackFadeInEndSuffix);
-            SfAudioMarker marker = new SfAudioMarker(startPosition);
-            marker.Name = name;
+            string name = $"{track:D4}{TrackFadeInEndSuffix}";
+            SfAudioMarker marker = new SfAudioMarker(startPosition) { Name = name };
             return AddMarkerToFile(marker);
         }
 
         public SfAudioMarker CreateFadeOutEnd(int track, long startPosition)
         {
-            string name = string.Format("{0:D4}{1}", track, TrackFadeOutEndSuffix);
-            SfAudioMarker marker = new SfAudioMarker(startPosition);
-            marker.Name = name;
+            string name = $"{track:D4}{TrackFadeOutEndSuffix}";
+            SfAudioMarker marker = new SfAudioMarker(startPosition) { Name = name };
             return AddMarkerToFile(marker);
         }
 
