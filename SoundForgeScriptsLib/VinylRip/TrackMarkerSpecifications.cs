@@ -12,9 +12,9 @@ namespace SoundForgeScriptsLib.VinylRip
 
     public class TrackMarkerSpecifications : ITrackMarkerSpecifications
     {
-        private static readonly Regex RegionNameRegex = new Regex(string.Concat("^([0-9]{4})", TrackMarkerFactory.TrackRegionSuffix, "$"));
-        private static readonly Regex FadeInEndNameRegex = new Regex(string.Concat("^([0-9]{4})", TrackMarkerFactory.TrackFadeInEndSuffix, "$"));
-        private static readonly Regex FadeOutEndNameRegex = new Regex(string.Concat("^([0-9]{4})", TrackMarkerFactory.TrackFadeOutEndSuffix, "$"));
+        private static readonly Regex RegionNameRegex = new Regex(string.Concat("^([0-9]{4})", TrackMarkerNameBuilder.TrackRegionSuffix, "$"));
+        private static readonly Regex FadeInEndNameRegex = new Regex(string.Concat("^([0-9]{4})", TrackMarkerNameBuilder.TrackFadeInEndSuffix, "$"));
+        private static readonly Regex FadeOutEndNameRegex = new Regex(string.Concat("^([0-9]{4})", TrackMarkerNameBuilder.TrackFadeOutEndSuffix, "$"));
 
         public bool IsTrackRegion(SfAudioMarker marker)
         {

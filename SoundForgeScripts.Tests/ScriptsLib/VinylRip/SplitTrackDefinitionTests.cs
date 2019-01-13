@@ -1,16 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Machine.Specifications;
-using developwithpassion.specifications.moq;
 using developwithpassion.specifications.extensions;
-using Moq;
+using developwithpassion.specifications.moq;
+using Machine.Specifications;
 using Should;
 using SoundForge;
+using SoundForgeScripts.Tests.Helpers;
 using SoundForgeScriptsLib.Utils;
 using SoundForgeScriptsLib.VinylRip;
 using It = Machine.Specifications.It;
 
-namespace SoundForgeScripts.Tests.ScriptsLib
+namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
 {   
     public class SplitTrackDefinitionTests
     {
@@ -22,8 +22,8 @@ namespace SoundForgeScripts.Tests.ScriptsLib
             {
                 ExistingMarkers = new List<SfAudioMarker>
                 {
-                    new SfAudioMarker(0, 10000) { Name = $"0001{TrackMarkerFactory.TrackRegionSuffix}" },
-                    new SfAudioMarker(10300, 20000) { Name = $"0002{TrackMarkerFactory.TrackRegionSuffix}" }
+                    new SfAudioMarker(0, 10000) { Name = $"0001{TrackMarkerNameBuilder.TrackRegionSuffix}" },
+                    new SfAudioMarker(10300, 20000) { Name = $"0002{TrackMarkerNameBuilder.TrackRegionSuffix}" }
                 };
 
                 _file = depends.@on<ISfFileHost>();
@@ -33,10 +33,12 @@ namespace SoundForgeScripts.Tests.ScriptsLib
                     new SfAudioMarkerList(ExistingMarkers.ToArray())
                 );
 
-                var markerList = FileMarkersHelper.CreateStubMarkerList();
+                var fileMarkersHelper = new FileMarkersTestHelper();
+                var markerList = fileMarkersHelper.CreateStubMarkerList(_file);
+                fileMarkersHelper.RealMarkerList.AddRange(ExistingMarkers);
                 var markerAndRegionFactory = new TrackMarkerFactory(markerList.Object);
 
-                SplitTrackList = new SplitTrackList(_file, markerAndRegionFactory, markerAndRegionFactory, new TrackMarkerSpecifications(), depends.on<IOutputHelper>());
+                SplitTrackList = new SplitTrackList(markerAndRegionFactory, markerAndRegionFactory, new TrackMarkerNameBuilder(), markerList.Object, new TrackMarkerSpecifications(), depends.@on<IOutputHelper>());
                 SplitTrackList.InitTracks(10, 100);
             };
 

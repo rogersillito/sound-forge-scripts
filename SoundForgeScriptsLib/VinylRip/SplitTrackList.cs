@@ -9,14 +9,20 @@ namespace SoundForgeScriptsLib.VinylRip
         private readonly ISfFileHost _file;
         private readonly ICreateFadeMarkers _markerFactory;
         private readonly ICreateTrackRegions _regionFactory;
+        private readonly ICreateTrackMarkerNames _trackMarkerNameBuilder;
+        private readonly IFileMarkersWrapper _fileMarkers;
         private readonly ITrackMarkerSpecifications _markerSpecifications;
         private readonly IOutputHelper _output;
+        private long _defaultFadeInLength;
+        private long _defaultFadeOutLength;
 
-        public SplitTrackList(ISfFileHost file, ICreateFadeMarkers markerFactory, ICreateTrackRegions regionFactory, ITrackMarkerSpecifications markerSpecifications, IOutputHelper output)
+        public SplitTrackList(ICreateFadeMarkers markerFactory, ICreateTrackRegions regionFactory, ICreateTrackMarkerNames trackMarkerNameBuilder, IFileMarkersWrapper fileMarkers, ITrackMarkerSpecifications markerSpecifications, IOutputHelper output)
         {
-            _file = file;
             _markerFactory = markerFactory;
             _regionFactory = regionFactory;
+            _trackMarkerNameBuilder = trackMarkerNameBuilder;
+            _fileMarkers = fileMarkers;
+            _file = fileMarkers.File;
             _markerSpecifications = markerSpecifications;
             _output = output;
         }
@@ -34,7 +40,7 @@ namespace SoundForgeScriptsLib.VinylRip
 
         private SfAudioMarker GetTrackFadeInEndMarker(int track, long fadeLength)
         {
-            foreach (SfAudioMarker marker in _file.Markers)
+            foreach (SfAudioMarker marker in _fileMarkers)
             {
                 if (_markerSpecifications.IsTrackFadeInEndMarker(marker, track))
                     return marker;
@@ -46,7 +52,7 @@ namespace SoundForgeScriptsLib.VinylRip
 
         private SfAudioMarker GetTrackFadeOutEndMarker(int track, long fadeLength)
         {
-            foreach (SfAudioMarker marker in _file.Markers)
+            foreach (SfAudioMarker marker in _fileMarkers)
             {
                 if (_markerSpecifications.IsTrackFadeOutEndMarker(marker, track))
                     return marker;
@@ -70,8 +76,8 @@ namespace SoundForgeScriptsLib.VinylRip
 
         private List<SfAudioMarker> GetTrackRegions()
         {
-            List<SfAudioMarker> trackMarkers = new List<SfAudioMarker>();
-            foreach (SfAudioMarker marker in _file.Markers)
+            var trackMarkers = new List<SfAudioMarker>();
+            foreach (var marker in _fileMarkers)
             {
                 if (!_markerSpecifications.IsTrackRegion(marker))
                     continue;
@@ -80,16 +86,17 @@ namespace SoundForgeScriptsLib.VinylRip
             return trackMarkers;
         }
 
-        //TODO: no need to return here... void?
         public SplitTrackList InitTracks(long defaultTrackFadeInLengthInSamples, long defaultTrackFadeOutLengthInSamples)
         {
+            _defaultFadeInLength = defaultTrackFadeInLengthInSamples;
+            _defaultFadeOutLength = defaultTrackFadeOutLengthInSamples;
             // TODO: I'm thinking we'll need a different method for synching gui-originating changes when we move between tracks in the vinyl 2 UI.
             List<SfAudioMarker> trackRegions = GetTrackRegions();
             SetListBounds(trackRegions.Count);
             for (int trackNumber = trackRegions.Count; trackNumber > 0; trackNumber--)
             {
                 SfAudioMarker trackRegion = trackRegions[trackNumber - 1];
-                SplitTrackDefinition track = AddNew(trackRegion, trackNumber, defaultTrackFadeInLengthInSamples, defaultTrackFadeOutLengthInSamples);
+                AddNew(trackRegion, trackNumber, defaultTrackFadeInLengthInSamples, defaultTrackFadeOutLengthInSamples);
             }
             return this;
         }
@@ -102,6 +109,29 @@ namespace SoundForgeScriptsLib.VinylRip
                 if (Count == i)
                     Insert(i, null);
             }
+        }
+
+        private void RenumberMarkers()
+        {
+            var n = 1;
+            Sort();
+            foreach (var track in this)
+            {
+                track.Number = n;
+                track.TrackRegion.Name = _trackMarkerNameBuilder.GetRegionMarkerName(n);
+                track.FadeInEndMarker.Name = _trackMarkerNameBuilder.GetFadeInEndMarkerName(n);
+                track.FadeOutEndMarker.Name = _trackMarkerNameBuilder.GetFadeOutEndMarkerName(n);
+                n++;
+            }
+        }
+
+        public void Delete(SplitTrackDefinition splitTrackDefinition)
+        {
+            _fileMarkers.Remove(splitTrackDefinition.TrackRegion);
+            _fileMarkers.Remove(splitTrackDefinition.FadeInEndMarker);
+            _fileMarkers.Remove(splitTrackDefinition.FadeOutEndMarker);
+            Remove(splitTrackDefinition);
+            RenumberMarkers();
         }
     }
 }

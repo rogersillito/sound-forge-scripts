@@ -68,7 +68,7 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
             App.DoMenuAndWait("Edit.UndoAll", false);
 
             FileMarkersWrapper markers = new FileMarkersWrapper(_file);
-            TrackMarkerFactory regionFactory = new TrackMarkerFactory(markers, Output);
+            TrackMarkerFactory regionFactory = new TrackMarkerFactory(markers, Output, new TrackMarkerNameBuilder());
             foreach (TrackDefinition track in _trackList)
             {
                 regionFactory.CreateRegion(track.Number, track.StartPosition, track.Length);

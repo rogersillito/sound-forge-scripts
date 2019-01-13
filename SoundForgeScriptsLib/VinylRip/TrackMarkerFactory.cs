@@ -18,14 +18,16 @@ namespace SoundForgeScriptsLib.VinylRip
     {
         readonly IFileMarkersWrapper _markers;
         private readonly OutputHelper _outputHelper;
+        private readonly ICreateTrackMarkerNames _markerNameBuilder;
 
-        public TrackMarkerFactory(IFileMarkersWrapper markers, OutputHelper outputHelper)
+        public TrackMarkerFactory(IFileMarkersWrapper markers, OutputHelper outputHelper, ICreateTrackMarkerNames markerNameBuilder)
         {
             _markers = markers;
             _outputHelper = outputHelper;
+            _markerNameBuilder = markerNameBuilder;
         }
 
-        public TrackMarkerFactory(IFileMarkersWrapper markers) : this(markers, null)
+        public TrackMarkerFactory(IFileMarkersWrapper markers) : this(markers, null, new TrackMarkerNameBuilder())
         {
         }
 
@@ -39,27 +41,23 @@ namespace SoundForgeScriptsLib.VinylRip
 
         public SfAudioMarker CreateRegion(int track, long startPosition, long length)
         {
-            string name = $"{track:D4}{TrackRegionSuffix}";
+            string name = _markerNameBuilder.GetRegionMarkerName(track);
             SfAudioMarker marker = new SfAudioMarker(startPosition, length) { Name = name };
             return AddMarkerToFile(marker);
         }
 
         public SfAudioMarker CreateFadeInEnd(int track, long startPosition)
         {
-            string name = $"{track:D4}{TrackFadeInEndSuffix}";
+            string name = _markerNameBuilder.GetFadeInEndMarkerName(track);
             SfAudioMarker marker = new SfAudioMarker(startPosition) { Name = name };
             return AddMarkerToFile(marker);
         }
 
         public SfAudioMarker CreateFadeOutEnd(int track, long startPosition)
         {
-            string name = $"{track:D4}{TrackFadeOutEndSuffix}";
+            string name = _markerNameBuilder.GetFadeOutEndMarkerName(track);
             SfAudioMarker marker = new SfAudioMarker(startPosition) { Name = name };
             return AddMarkerToFile(marker);
         }
-
-        public const string TrackRegionSuffix = @"__TRACK__";
-        public const string TrackFadeInEndSuffix = @"_FadeInEnd_";
-        public const string TrackFadeOutEndSuffix = @"_FadeOutEnd_";
     }
 }

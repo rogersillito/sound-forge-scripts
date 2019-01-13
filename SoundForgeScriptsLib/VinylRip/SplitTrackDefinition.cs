@@ -1,9 +1,10 @@
+using System;
 using SoundForge;
 using SoundForgeScriptsLib.Utils;
 
 namespace SoundForgeScriptsLib.VinylRip
 {
-    public class SplitTrackDefinition
+    public class SplitTrackDefinition: IComparable<SplitTrackDefinition>
     {
         private readonly SplitTrackList _splitTrackList;
         private readonly ISfFileHost _originalFile;
@@ -52,6 +53,7 @@ namespace SoundForgeScriptsLib.VinylRip
         private SfAudioMarker _trackRegionMarker;
         public SfAudioMarker TrackRegion
         {
+            //TODO: test deleted track region marker... should try and recreate in an appropriate location..
             get { return _trackRegionMarker; }
             set { _trackRegionMarker = value; }
         }
@@ -59,12 +61,7 @@ namespace SoundForgeScriptsLib.VinylRip
         private SfAudioMarker _fadeInEndMarker;
         public SfAudioMarker FadeInEndMarker
         {
-            get
-            {
-                if (_fadeInEndMarker == null)
-                    _fadeInEndMarker = _markerFactory.CreateFadeInEnd(Number, TrackRegion.Start);
-                return _fadeInEndMarker;
-            }
+            get { return _fadeInEndMarker ?? (_fadeInEndMarker = _markerFactory.CreateFadeInEnd(Number, TrackRegion.Start)); }
             set
             {
                 _fadeInEndMarker = value;
@@ -74,12 +71,7 @@ namespace SoundForgeScriptsLib.VinylRip
         private SfAudioMarker _fadeOutEndMarker;
         public SfAudioMarker FadeOutEndMarker
         {
-            get
-            {
-                if (_fadeOutEndMarker == null)
-                    _fadeOutEndMarker = _markerFactory.CreateFadeOutEnd(Number, TrackRegion.Start);
-                return _fadeOutEndMarker;
-            }
+            get { return _fadeOutEndMarker ?? (_fadeOutEndMarker = _markerFactory.CreateFadeOutEnd(Number, TrackRegion.Start)); }
             set
             {
                 _fadeOutEndMarker = value;
@@ -133,5 +125,7 @@ namespace SoundForgeScriptsLib.VinylRip
                 FadeOutEndMarker.Start = FadeOutStartPosition + value;
             }
         }
+
+        public int CompareTo(SplitTrackDefinition other) => TrackRegion.Start.CompareTo(other.TrackRegion.Start);
     }
 }

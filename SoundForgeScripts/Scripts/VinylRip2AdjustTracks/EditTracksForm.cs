@@ -1,10 +1,8 @@
 ﻿using System;
 using SoundForgeScriptsLib.Utils;
-using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using SoundForgeScriptsLib.VinylRip;
 
 namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 {

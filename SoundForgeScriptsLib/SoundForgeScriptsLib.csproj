@@ -67,6 +67,7 @@
     <Compile Include="VinylRip\SplitTrackDefinition.cs" />
     <Compile Include="VinylRip\SplitTrackList.cs" />
     <Compile Include="VinylRip\TrackMarkerFactory.cs" />
+    <Compile Include="VinylRip\TrackMarkerNameBuilder.cs" />
     <Compile Include="VinylRip\TrackMarkerSpecifications.cs" />
     <Compile Include="WindowTasks.cs" />
   </ItemGroup>

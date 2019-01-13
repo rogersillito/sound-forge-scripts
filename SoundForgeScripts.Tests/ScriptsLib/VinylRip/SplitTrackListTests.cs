@@ -1,16 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Machine.Specifications;
-using developwithpassion.specifications.moq;
 using developwithpassion.specifications.extensions;
-using Moq;
+using developwithpassion.specifications.moq;
+using Machine.Specifications;
 using Should;
 using SoundForge;
+using SoundForgeScripts.Tests.Helpers;
 using SoundForgeScriptsLib.Utils;
 using SoundForgeScriptsLib.VinylRip;
 using It = Machine.Specifications.It;
 
-namespace SoundForgeScripts.Tests.ScriptsLib
+namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
 {   
     public class SplitTrackListTests
     {
@@ -23,13 +23,15 @@ namespace SoundForgeScripts.Tests.ScriptsLib
                 _file = depends.@on<ISfFileHost>();
                 _file.setup(x => x.Length).Return(1100000);
 
-                var markerList = FileMarkersHelper.CreateStubMarkerList();
+                FileMarkersHelper = new FileMarkersTestHelper();
+                var markerList = FileMarkersHelper.CreateStubMarkerList(_file);
                 var markerAndRegionFactory = new TrackMarkerFactory(markerList.Object);
 
-                sut_factory.create_using(() => new SplitTrackList(_file, markerAndRegionFactory, markerAndRegionFactory, new TrackMarkerSpecifications(), depends.@on<IOutputHelper>()));
+                sut_factory.create_using(() => new SplitTrackList(markerAndRegionFactory, markerAndRegionFactory, new TrackMarkerNameBuilder(), markerList.Object, new TrackMarkerSpecifications(), depends.@on<IOutputHelper>()));
             };
 
             protected static List<SfAudioMarker> ExistingMarkers;
+            protected internal static FileMarkersTestHelper FileMarkersHelper;
         }
 
         [Subject(typeof(SplitTrackList))]
@@ -39,19 +41,17 @@ namespace SoundForgeScripts.Tests.ScriptsLib
             {
                 ExistingMarkers = new List<SfAudioMarker>
                 {
-                    //TODO: may be some DODGY TEST CASES HERE!! check all are relevant after I copied/pasted this whole test class
-                    //TODO: add fade in/end markers for each track
-                    //TODO: ensure we have coverage for overlapping fades!
-                    new SfAudioMarker(100, 500000) { Name = $"0001{TrackMarkerFactory.TrackRegionSuffix}" },
+                    new SfAudioMarker(100, 500000) { Name = $"0001{TrackMarkerNameBuilder.TrackRegionSuffix}" },
                     new SfAudioMarker(500500), // ignore - unnamed marker
-                    new SfAudioMarker(600000, 100000) { Name = $"0002{TrackMarkerFactory.TrackRegionSuffix}" }, // too close to next for full fade!
+                    new SfAudioMarker(600000, 100000) { Name = $"0002{TrackMarkerNameBuilder.TrackRegionSuffix}" }, // too close to next for full fade!
                     new SfAudioMarker(700500) { Name = "RUBBISH" }, // ignore - named marker not fade-related
-                    new SfAudioMarker(701000, 100000) { Name = $"0003{TrackMarkerFactory.TrackRegionSuffix}" },
+                    new SfAudioMarker(701000, 100000) { Name = $"0003{TrackMarkerNameBuilder.TrackRegionSuffix}" },
                     new SfAudioMarker(900000, 100000) { Name = $"NOT_A_TRACK!" }, // name not expected format
                 };
 
                 _file.setup(x => x.Markers).Return(
                     new SfAudioMarkerList(ExistingMarkers.ToArray()));
+                FileMarkersHelper.RealMarkerList.AddRange(ExistingMarkers);
             };
 
             Because of = () => { _tracks =  sut.InitTracks(30, 7000); };
@@ -66,11 +66,11 @@ namespace SoundForgeScripts.Tests.ScriptsLib
             {
                 _tracks.All(t => t.FadeInEndMarker != null).ShouldBeTrue();
                 _tracks[0].FadeInEndMarker.Start.ShouldEqual(130);
-                _tracks[0].FadeInEndMarker.Name.ShouldEqual($"0001{TrackMarkerFactory.TrackFadeInEndSuffix}");
+                _tracks[0].FadeInEndMarker.Name.ShouldEqual($"0001{TrackMarkerNameBuilder.TrackFadeInEndSuffix}");
                 _tracks[1].FadeInEndMarker.Start.ShouldEqual(600030);
-                _tracks[1].FadeInEndMarker.Name.ShouldEqual($"0002{TrackMarkerFactory.TrackFadeInEndSuffix}");
+                _tracks[1].FadeInEndMarker.Name.ShouldEqual($"0002{TrackMarkerNameBuilder.TrackFadeInEndSuffix}");
                 _tracks[2].FadeInEndMarker.Start.ShouldEqual(701030);
-                _tracks[2].FadeInEndMarker.Name.ShouldEqual($"0003{TrackMarkerFactory.TrackFadeInEndSuffix}");
+                _tracks[2].FadeInEndMarker.Name.ShouldEqual($"0003{TrackMarkerNameBuilder.TrackFadeInEndSuffix}");
                 _tracks.All(t => t.FadeInEndMarker.HasLength == false).ShouldBeTrue();
             };
 
@@ -78,11 +78,11 @@ namespace SoundForgeScripts.Tests.ScriptsLib
             {
                 _tracks.All(t => t.FadeOutEndMarker != null).ShouldBeTrue();
                 _tracks[0].FadeOutEndMarker.Start.ShouldEqual(507100);
-                _tracks[0].FadeOutEndMarker.Name.ShouldEqual($"0001{TrackMarkerFactory.TrackFadeOutEndSuffix}");
+                _tracks[0].FadeOutEndMarker.Name.ShouldEqual($"0001{TrackMarkerNameBuilder.TrackFadeOutEndSuffix}");
                 _tracks[1].FadeOutEndMarker.Start.ShouldEqual(701000);
-                _tracks[1].FadeOutEndMarker.Name.ShouldEqual($"0002{TrackMarkerFactory.TrackFadeOutEndSuffix}");
+                _tracks[1].FadeOutEndMarker.Name.ShouldEqual($"0002{TrackMarkerNameBuilder.TrackFadeOutEndSuffix}");
                 _tracks[2].FadeOutEndMarker.Start.ShouldEqual(808000);
-                _tracks[2].FadeOutEndMarker.Name.ShouldEqual($"0003{TrackMarkerFactory.TrackFadeOutEndSuffix}");
+                _tracks[2].FadeOutEndMarker.Name.ShouldEqual($"0003{TrackMarkerNameBuilder.TrackFadeOutEndSuffix}");
                 _tracks.All(t => t.FadeOutEndMarker.HasLength == false).ShouldBeTrue();;
             };
 
@@ -131,23 +131,21 @@ namespace SoundForgeScripts.Tests.ScriptsLib
             {
                 ExistingMarkers = new List<SfAudioMarker>
                 {
-                    //TODO: may be some DODGY TEST CASES HERE!! check all are relevant after I copied/pasted this whole test class
-                    //TODO: add fade in/end markers for each track
-                    //TODO: ensure we have coverage for overlapping fades!
-                    new SfAudioMarker(100, 500000) { Name = $"0001{TrackMarkerFactory.TrackRegionSuffix}" },
-                    new SfAudioMarker(105) { Name = $"0001{TrackMarkerFactory.TrackFadeInEndSuffix}"},
-                    new SfAudioMarker(500333) { Name = $"0001{TrackMarkerFactory.TrackFadeOutEndSuffix}"},
+                    new SfAudioMarker(100, 500000) { Name = $"0001{TrackMarkerNameBuilder.TrackRegionSuffix}" },
+                    new SfAudioMarker(105) { Name = $"0001{TrackMarkerNameBuilder.TrackFadeInEndSuffix}"},
+                    new SfAudioMarker(500333) { Name = $"0001{TrackMarkerNameBuilder.TrackFadeOutEndSuffix}"},
                     new SfAudioMarker(500500), // ignore - unnamed marker
-                    new SfAudioMarker(600000, 100000) { Name = $"0002{TrackMarkerFactory.TrackRegionSuffix}" }, // too close to next for full fade!
-                    new SfAudioMarker(601050) { Name = $"0002{TrackMarkerFactory.TrackFadeInEndSuffix}"},
+                    new SfAudioMarker(600000, 100000) { Name = $"0002{TrackMarkerNameBuilder.TrackRegionSuffix}" }, // too close to next for full fade!
+                    new SfAudioMarker(601050) { Name = $"0002{TrackMarkerNameBuilder.TrackFadeInEndSuffix}"},
                     new SfAudioMarker(700500) { Name = "BOB" }, // ignore - named marker not fade-related
-                    new SfAudioMarker(701000, 100000) { Name = $"0003{TrackMarkerFactory.TrackRegionSuffix}" },
+                    new SfAudioMarker(701000, 100000) { Name = $"0003{TrackMarkerNameBuilder.TrackRegionSuffix}" },
                     new SfAudioMarker(900000, 100000) { Name = $"NOT_A_TRACK!" }, // name not expected format
-                    new SfAudioMarker(801123) { Name = $"0003{TrackMarkerFactory.TrackFadeOutEndSuffix}"},
+                    new SfAudioMarker(801123) { Name = $"0003{TrackMarkerNameBuilder.TrackFadeOutEndSuffix}"},
                 };
 
                 _file.setup(x => x.Markers).Return(
                     new SfAudioMarkerList(ExistingMarkers.ToArray()));
+                FileMarkersHelper.RealMarkerList.AddRange(ExistingMarkers);
             };
 
             Because of = () => { _tracks =  sut.InitTracks(30, 7000); };
@@ -166,7 +164,7 @@ namespace SoundForgeScripts.Tests.ScriptsLib
             {
                 _tracks.All(t => t.FadeInEndMarker != null).ShouldBeTrue();
                 _tracks[2].FadeInEndMarker.Start.ShouldEqual(701030);
-                _tracks[2].FadeInEndMarker.Name.ShouldEqual($"0003{TrackMarkerFactory.TrackFadeInEndSuffix}");
+                _tracks[2].FadeInEndMarker.Name.ShouldEqual($"0003{TrackMarkerNameBuilder.TrackFadeInEndSuffix}");
                 _tracks.All(t => t.FadeInEndMarker.HasLength == false).ShouldBeTrue();
             };
 
@@ -174,7 +172,7 @@ namespace SoundForgeScripts.Tests.ScriptsLib
             {
                 _tracks.All(t => t.FadeOutEndMarker != null).ShouldBeTrue();
                 _tracks[1].FadeOutEndMarker.Start.ShouldEqual(701000);
-                _tracks[1].FadeOutEndMarker.Name.ShouldEqual($"0002{TrackMarkerFactory.TrackFadeOutEndSuffix}");
+                _tracks[1].FadeOutEndMarker.Name.ShouldEqual($"0002{TrackMarkerNameBuilder.TrackFadeOutEndSuffix}");
                 _tracks.All(t => t.FadeOutEndMarker.HasLength == false).ShouldBeTrue();;
             };
 
@@ -235,15 +233,16 @@ namespace SoundForgeScripts.Tests.ScriptsLib
             {
                 ExistingMarkers = new List<SfAudioMarker>
                 {
-                    new SfAudioMarker(100, 500000) { Name = $"0001{TrackMarkerFactory.TrackRegionSuffix}" },
-                    new SfAudioMarker(100) { Name = $"0001{TrackMarkerFactory.TrackFadeInEndSuffix}"},
-                    new SfAudioMarker(500100) { Name = $"0001{TrackMarkerFactory.TrackFadeOutEndSuffix}"},
-                    new SfAudioMarker(600000, 100000) { Name = $"0002{TrackMarkerFactory.TrackRegionSuffix}" }, // too close to next for full fade!
-                    new SfAudioMarker(701000, 100000) { Name = $"0003{TrackMarkerFactory.TrackRegionSuffix}" },
+                    new SfAudioMarker(100, 500000) { Name = $"0001{TrackMarkerNameBuilder.TrackRegionSuffix}" },
+                    new SfAudioMarker(100) { Name = $"0001{TrackMarkerNameBuilder.TrackFadeInEndSuffix}"},
+                    new SfAudioMarker(500100) { Name = $"0001{TrackMarkerNameBuilder.TrackFadeOutEndSuffix}"},
+                    new SfAudioMarker(600000, 100000) { Name = $"0002{TrackMarkerNameBuilder.TrackRegionSuffix}" },
+                    new SfAudioMarker(701000, 100000) { Name = $"0003{TrackMarkerNameBuilder.TrackRegionSuffix}" },
                 };
 
                 _file.setup(x => x.Markers).Return(
                     new SfAudioMarkerList(ExistingMarkers.ToArray()));
+                FileMarkersHelper.RealMarkerList.AddRange(ExistingMarkers);
             };
 
             Because of = () => { _tracks =  sut.InitTracks(0,0); };
@@ -258,6 +257,59 @@ namespace SoundForgeScripts.Tests.ScriptsLib
             {
                 _tracks.All(t => t.AddFadeIn).ShouldBeFalse();
                 _tracks.All(t => t.AddFadeOut).ShouldBeFalse();
+            };
+
+            private static SplitTrackList _tracks;
+        }
+
+        [Subject(typeof(SplitTrackList))]
+        public class when_deleting_a_track : SplitTrackListContext
+        {
+            Establish context = () =>
+            {
+                ExistingMarkers = new List<SfAudioMarker>
+                {
+                    new SfAudioMarker(100, 500000) { Name = $"0001{TrackMarkerNameBuilder.TrackRegionSuffix}" },
+                    new SfAudioMarker(600000, 100000) { Name = $"0002{TrackMarkerNameBuilder.TrackRegionSuffix}" },
+                    new SfAudioMarker(701000, 100000) { Name = $"0003{TrackMarkerNameBuilder.TrackRegionSuffix}" },
+                };
+                
+                FileMarkersHelper.RealMarkerList.AddRange(ExistingMarkers);
+
+                _file.setup(x => x.Markers).Return(
+                    new SfAudioMarkerList(ExistingMarkers.ToArray()));
+            };
+
+            private Because of = () =>
+            {
+                _tracks = sut.InitTracks(0,0);
+                sut.Delete(sut[1]);
+            };
+
+            private It should_leave_2_tracks = () =>
+                _tracks.Count.ShouldEqual(2);
+
+            private It should_renumber_remaining_regions_and_markers = () =>
+            {
+                _tracks.First().Number.ShouldEqual(1);
+                _tracks.Last().Number.ShouldEqual(2);
+            };
+
+            private It should_rename_remaining_regions_and_markers = () =>
+            {
+                _tracks.First().TrackRegion.Name.ShouldEqual($"0001{TrackMarkerNameBuilder.TrackRegionSuffix}");
+                _tracks.First().FadeInEndMarker.Name.ShouldEqual($"0001{TrackMarkerNameBuilder.TrackFadeInEndSuffix}");
+                _tracks.First().FadeOutEndMarker.Name.ShouldEqual($"0001{TrackMarkerNameBuilder.TrackFadeOutEndSuffix}");
+                _tracks.Last().TrackRegion.Name.ShouldEqual($"0002{TrackMarkerNameBuilder.TrackRegionSuffix}");
+                _tracks.Last().FadeInEndMarker.Name.ShouldEqual($"0002{TrackMarkerNameBuilder.TrackFadeInEndSuffix}");
+                _tracks.Last().FadeOutEndMarker.Name.ShouldEqual($"0002{TrackMarkerNameBuilder.TrackFadeOutEndSuffix}");
+                _tracks.Last().TrackRegion.Start.ShouldEqual(ExistingMarkers[2].Start);
+            };
+
+            private It should_remove_regions_and_fade_markers_from_file = () =>
+            {
+                FileMarkersHelper.RealMarkerList.Count(m => m.Type == MarkerType.Region).ShouldEqual(2);
+                FileMarkersHelper.RealMarkerList.Count(m => m.Type == MarkerType.Marker).ShouldEqual(4);
             };
 
             private static SplitTrackList _tracks;
