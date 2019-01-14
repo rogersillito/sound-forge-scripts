@@ -2,9 +2,9 @@
 
 Scripts for automation of Sound Forge, along with a build pipeline to allow script development in the slightly more forgiving environment of Visual Studio.
 
-* Vinyl Rip 1 - Find Tracks (applies temporary, heavy noise reduction - then finds music tracks, creating regions for them)
-* Vinyl Rip 2 - Adjust Tracks (allows regions found in Vinyl Rip 1 to be edited/auditioned, add/delete tracks, and adjust track fades)
-* Vinyl Rip 3 - Find Tracks (extract found tracks to be extracted with fade in/out as per Vinyl Rip 1 & 2)
+* *Vinyl Rip 1 - Find Tracks* (applies temporary, heavy noise reduction - then finds music tracks, creating regions for them)
+* *Vinyl Rip 2 - Adjust Tracks* (allows regions found in Vinyl Rip 1 to be edited/auditioned, add/delete tracks, and adjust track fades)
+* *Vinyl Rip 3 - Find Tracks* (extract found tracks to be extracted with fade in/out as per Vinyl Rip 1 & 2)
 
 The SoundForgeScriptsLib project (which compiles to a dll) can use modern C# features (6.0), while SoundForgeScripts use C# 2.0 as required by Sound Forge.
 
