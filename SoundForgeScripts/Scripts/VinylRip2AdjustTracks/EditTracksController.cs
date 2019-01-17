@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
 using System.Windows.Forms;
 using SoundForge;
 using SoundForgeScriptsLib;
@@ -27,6 +30,12 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             _fileTasks = fileTasks;
         }
 
+        private DeleteMarker _markerDeleteCallback;
+        public DeleteMarker MarkerDeleteCallback
+        {
+            set { _markerDeleteCallback = value; }
+        }
+
         public void Edit(EditTracksViewModel viewModel, SplitTrackList tracks, FindTracksOptions options)
         {
             _options = options;
@@ -45,9 +54,49 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             //_form.PreviewAllClicked = delegate { AddTrack(); };
             //_form.PreviewStartClicked = delegate {  };
             //_form.PreviewEndClicked = delegate {  };
+            _form.DeleteClicked = delegate { DeleteTrack(); };
             _form.NextClicked = delegate { NextTrack(); };
             _form.PreviousClicked = delegate { PreviousTrack(); };
             _form.AddTrackClicked = delegate { AddTrack(); };
+        }
+
+        public void DeleteTrack()
+        {
+            _form.Close();
+            Thread.Sleep(1500);
+            SplitTrackDefinition deleteTrack = _vm.CurrentTrack;
+
+            List<int> idents = new List<int>();
+            idents.Add(deleteTrack.FadeInEndMarker.Ident);
+            idents.Add(deleteTrack.FadeOutEndMarker.Ident);
+            idents.Add(deleteTrack.TrackRegion.Ident);
+            _output.ToScriptWindow("DT: {0} FadeInEndMarker.Ident {1}, {2}, {3}", deleteTrack.Number, deleteTrack.FadeInEndMarker.Ident, deleteTrack.FadeOutEndMarker.Ident, deleteTrack.TrackRegion.Ident);
+            int n = _vm.CurrentTrack.Number;
+
+            SplitTrackDefinition nextCurrent = _tracks.GetTrack(n + 1);
+            if (nextCurrent == null)
+            {
+                nextCurrent = _tracks.GetTrack(n - 1);
+            }
+            _tracks.Delete(deleteTrack);
+
+            //delete_testy();
+            //_markerDeleteCallback(deleteTrack.TrackRegion);
+            foreach (int ident in idents)
+            {
+                _markerDeleteCallback(ident);
+            }
+            //_markerDeleteCallback(deleteTrack.FadeOutEndMarker);
+            //SfAudioMarker trackRegion = deleteTrack.TrackRegion;
+            //SfAudioMarker fadeInEndMarker = deleteTrack.FadeInEndMarker;
+            //SfAudioMarker fadeOutEndMarker = deleteTrack.FadeOutEndMarker;
+            _vm.CurrentTrack = nextCurrent;
+        }
+
+        private void delete_testy()
+        {
+            SfAudioMarkerList markers = _app.CurrentFile.Markers;
+            _output.ToMessageBox(string.Format("marker count = {0}", markers.Count));
         }
 
         public void AddTrack()
@@ -67,7 +116,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             if (!_vm.CanNavigatePrevious) return;
             int n = _vm.CurrentTrack.Number;
             _vm.CurrentTrack = _tracks.GetTrack(n - 1);
-            SelectCurrentTrack();
+            //SelectCurrentTrack();
         }
 
         public void NextTrack()
@@ -75,12 +124,13 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             if (!_vm.CanNavigateNext) return;
             int n = _vm.CurrentTrack == null ? 0 : _vm.CurrentTrack.Number;
             _vm.CurrentTrack = _tracks.GetTrack(n + 1);
-            SelectCurrentTrack();
+            //SelectCurrentTrack();
         }
 
-        private void SelectCurrentTrack()
-        {
-            _fileTasks.SetSelection(_vm.CurrentTrack.GetSelectionWithFades());
-        }
+        //private void SelectCurrentTrack()
+        //{
+        //    if (_vm.CurrentTrack == null) return;
+        //    _fileTasks.SetSelection(_vm.CurrentTrack.GetSelectionWithFades());
+        //}
     }
 }

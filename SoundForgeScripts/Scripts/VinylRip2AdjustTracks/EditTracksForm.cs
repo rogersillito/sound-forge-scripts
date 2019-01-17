@@ -28,11 +28,11 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 
             _form.Text = viewModel.FormTitle;
             _form.FormBorderStyle = FormBorderStyle.FixedDialog;
-            _form.MaximizeBox = true;
-            _form.MinimizeBox = true;
+            _form.MaximizeBox = false;
+            _form.MinimizeBox = false;
             _form.StartPosition = FormStartPosition.CenterScreen;
             _form.ClientSize = sForm;
-            _form.AutoScroll = true;
+            _form.AutoScroll = false;
 
             Point pt = new Point(10, 10);
             Size sOff = new Size(10, 10);
@@ -199,6 +199,13 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
         public void Show(IWin32Window hOwner)
         {
             _form.Show(hOwner);
+        }
+
+        public void Close()
+        {
+            _form.Hide();
+            _form.Close();
+            _form.Dispose();
         }
     }
 }

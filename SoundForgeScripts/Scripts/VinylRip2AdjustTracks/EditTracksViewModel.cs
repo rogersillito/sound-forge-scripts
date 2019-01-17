@@ -33,7 +33,10 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             set
             {
                 _currentTrack = value;
-                _fileTasks.SetSelection(_currentTrack.GetSelectionWithFades());
+                if (_currentTrack != null)
+                {
+                    _fileTasks.SetSelection(_currentTrack.GetSelectionWithFades());
+                }
                 OnPropertyChanged("TrackName");
                 OnPropertyChanged("CanNavigateNext");
                 OnPropertyChanged("CanNavigatePrevious");

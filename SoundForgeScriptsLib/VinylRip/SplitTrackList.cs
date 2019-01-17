@@ -40,7 +40,7 @@ namespace SoundForgeScriptsLib.VinylRip
 
         private SfAudioMarker GetTrackFadeInEndMarker(int track, long fadeLength)
         {
-            foreach (SfAudioMarker marker in _fileMarkers)
+            foreach (SfAudioMarker marker in _file.Markers)
             {
                 if (_markerSpecifications.IsTrackFadeInEndMarker(marker, track))
                     return marker;
@@ -52,7 +52,7 @@ namespace SoundForgeScriptsLib.VinylRip
 
         private SfAudioMarker GetTrackFadeOutEndMarker(int track, long fadeLength)
         {
-            foreach (SfAudioMarker marker in _fileMarkers)
+            foreach (SfAudioMarker marker in _file.Markers)
             {
                 if (_markerSpecifications.IsTrackFadeOutEndMarker(marker, track))
                     return marker;
@@ -77,11 +77,11 @@ namespace SoundForgeScriptsLib.VinylRip
         private List<SfAudioMarker> GetTrackRegions()
         {
             var trackMarkers = new List<SfAudioMarker>();
-            foreach (var marker in _fileMarkers)
+            foreach (var marker in _file.Markers)
             {
-                if (!_markerSpecifications.IsTrackRegion(marker))
+                if (!_markerSpecifications.IsTrackRegion((SfAudioMarker)marker))
                     continue;
-                trackMarkers.Add(marker);
+                trackMarkers.Add((SfAudioMarker)marker);
             }
             return trackMarkers;
         }
@@ -127,11 +127,20 @@ namespace SoundForgeScriptsLib.VinylRip
 
         public void Delete(SplitTrackDefinition splitTrackDefinition)
         {
-            _fileMarkers.Remove(splitTrackDefinition.TrackRegion);
-            _fileMarkers.Remove(splitTrackDefinition.FadeInEndMarker);
-            _fileMarkers.Remove(splitTrackDefinition.FadeOutEndMarker);
-            Remove(splitTrackDefinition);
-            RenumberMarkers();
+            //TODO:  try remove by index?
+            //TODO:  remove from STD first?
+            Remove(splitTrackDefinition);//todo: remove std from list first??
+            //var trackRegion = splitTrackDefinition.TrackRegion;
+            //var fadeInEndMarker = splitTrackDefinition.FadeInEndMarker;
+            //var fadeOutEndMarker = splitTrackDefinition.FadeOutEndMarker;
+            splitTrackDefinition.TrackRegion = null;
+            splitTrackDefinition.FadeInEndMarker = null;
+            splitTrackDefinition.FadeOutEndMarker = null;
+
+            //_fileMarkers.Remove(trackRegion);
+            //_fileMarkers.Remove(fadeInEndMarker);
+            //_fileMarkers.Remove(fadeOutEndMarker);
+            //RenumberMarkers();
         }
     }
 }

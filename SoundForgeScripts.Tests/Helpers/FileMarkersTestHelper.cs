@@ -30,7 +30,7 @@ namespace SoundForgeScripts.Tests.Helpers
             markerList.Setup(x => x[It.IsAny<int>()])
                 .Returns<int>(idx => RealMarkerList[idx]);
 
-            markerList.Setup(x => x.GetEnumerator()).Returns(() => RealMarkerList.ToList().GetEnumerator());
+            //markerList.Setup(x => x.GetEnumerator()).Returns(() => RealMarkerList.ToList().GetEnumerator());
 
             return markerList;
         }

@@ -12,6 +12,7 @@
  *
  * ==================================================================================================== */
 
+using System.Threading;
 using SoundForge;
 using SoundForgeScriptsLib;
 using SoundForgeScriptsLib.EntryPoints;
@@ -20,6 +21,8 @@ using SoundForgeScriptsLib.VinylRip;
 
 namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 {
+    public delegate void DeleteMarker(int marker);
+
     [ScriptName("Vinyl Rip 2 - Adjust Tracks")]
     public class EntryPoint : EntryPointBase
     {
@@ -49,12 +52,44 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             _findTracksOptions.TrackFadeInLengthInSamples = 20;
             _findTracksOptions.MinimumTrackLengthInSeconds = 10;
 
+            DeleteMarker deleteCallback = delegate(int ident)
+            {
+                for (int index = _file.Markers.Count - 1; index >= 0; index--)
+                {
+                    SfAudioMarker mk = _file.Markers[index];
+                    if (mk.Ident != ident) continue;
+                    _file.Markers.Remove(mk);
+                    Output.ToScriptWindow(string.Format("{0} marker removed!", ident));
+                }
+
+                //int c = _file.Markers.Count;
+                //SfAudioMarkerList ms = _file.Markers;
+                //Output.ToScriptWindow(string.Format("{1}, marker count = {0}", ms.Count, ident));
+                //_file.Markers.Remove(ident);
+            };
+
             GetSplitTrackDefinitions(_splitTrackList);
 
             EditTracksViewModel viewModel = new EditTracksViewModel(_fileTasks);
 
             EditTracksController controller = new EditTracksController(App, new EditTracksForm(), this, Output, _fileTasks);
+            controller.MarkerDeleteCallback = deleteCallback;
             controller.Edit(viewModel, _splitTrackList, _findTracksOptions);
+            
+            // ****************************************************
+            // **** if I set the form to never show, delete works..
+            //Thread.Sleep(1500);
+            //controller.DeleteTrack();
+
+
+            //TODO: trying to figure out where accessing _file.Markers is acceptable... this works ok, and deletes...
+            // would this kind of for loop work inside the callback above???
+            //for (int index = _file.Markers.Count - 1; index >= 0; index--)
+            //{
+            //    SfAudioMarker mk = _file.Markers[index];
+            //    deleteCallback(mk.Ident);
+            //}
+            //deleteCallback(_file.Markers[4]);
         }
 
         private void GetSplitTrackDefinitions(SplitTrackList tracks)
@@ -69,6 +104,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
                     OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(track.GetSelectionWithFades().Length)),
                     OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(track.FadeOutStartPosition)));
             }
+
             Output.LineBreakToScriptWindow();
         }
     }
