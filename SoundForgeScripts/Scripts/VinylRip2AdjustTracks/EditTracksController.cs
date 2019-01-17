@@ -62,6 +62,8 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 
         public void DeleteTrack()
         {
+            // ****************************************************
+            // **** this doesn't help - the form closes, I still get the error
             _form.Close();
             Thread.Sleep(1500);
             SplitTrackDefinition deleteTrack = _vm.CurrentTrack;

@@ -77,7 +77,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             controller.Edit(viewModel, _splitTrackList, _findTracksOptions);
             
             // ****************************************************
-            // **** if I set the form to never show, delete works..
+            // **** if I set the form to NEVER show, delete works..
             //Thread.Sleep(1500);
             //controller.DeleteTrack();
 
