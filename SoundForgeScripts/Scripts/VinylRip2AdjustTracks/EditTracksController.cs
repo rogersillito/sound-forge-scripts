@@ -45,7 +45,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 
         private void Bind()
         {
-            //_form.PreviewAllClicked = delegate { AddTrack(); };
+            _form.PreviewAllClicked = delegate { PreviewAll(); };
             _form.PreviewStartClicked = delegate { PreviewStart(); };
             _form.PreviewEndClicked = delegate { PreviewEnd(); };
             _form.DeleteClicked = delegate { DeleteTrack(); };
@@ -104,26 +104,49 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 
         public void PreviewStart()
         {
-            if (_vm.CurrentTrack == null) return;
-            _fileTasks.SetSelection(new SfAudioSelection(
-                _vm.CurrentTrack.GetSelectionWithFades().Start,
-                _fileTasks.SecondsToPosition(1)));
-            _app.DoMenuAndWait("Transport.Play", false);
+            PlayStart(_vm.CurrentTrack, false);
         }
 
         private void PreviewEnd()
         {
-            if (_vm.CurrentTrack == null) return;
-            _fileTasks.SetSelection(new SfAudioSelection(
-                _vm.CurrentTrack.FadeOutStartPosition,
-                _vm.CurrentTrack.FadeOutLength));
-            _app.DoMenuAndWait("Transport.Play", false);
+            PlayEnd(_vm.CurrentTrack, false);
         }
 
         public void PreviewStop()
         {
             _app.DoMenuAndWait("Transport.Stop", false);
             _fileTasks.SetSelection(_vm.CurrentTrack.GetSelectionWithFades());
+        }
+
+        private void PreviewAll()
+        {
+            foreach (SplitTrackDefinition track in _tracks)
+            {
+                PlayStart(track, true);
+                PlayEnd(track, true);
+            }
+        }
+
+        private void PlayStart(SplitTrackDefinition track, bool wait)
+        {
+            if (track == null) return;
+            int previewLengthSeconds = 1;
+            _fileTasks.SetSelection(new SfAudioSelection(
+                track.GetSelectionWithFades().Start,
+                _fileTasks.SecondsToPosition(previewLengthSeconds)));
+            _app.DoMenuAndWait("Transport.Play", false);
+            if (wait) Thread.Sleep(1000 * previewLengthSeconds);
+        }
+
+        private void PlayEnd(SplitTrackDefinition track, bool wait)
+        {
+            if (track == null) return;
+            _fileTasks.SetSelection(new SfAudioSelection(
+                track.FadeOutStartPosition,
+                track.FadeOutLength));
+            
+            _app.DoMenuAndWait("Transport.Play", false);
+            if (wait) Thread.Sleep(Convert.ToInt32(Math.Round(1000 * _fileTasks.PositionToSeconds(track.FadeOutLength))));
         }
 
         public void ToggleLoopedPlayback()

@@ -40,6 +40,7 @@ namespace SoundForgeScriptsLib
         }
 
         public long SecondsToPosition(double seconds) => _file.SecondsToPosition(seconds);
+        public double PositionToSeconds(long position) => _file.PositionToSeconds(position);
 
         public void CopySelectionToStart(IScriptableApp app, SfAudioSelection selection)
         {
