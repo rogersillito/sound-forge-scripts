@@ -47,7 +47,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
         {
             //_form.PreviewAllClicked = delegate { AddTrack(); };
             _form.PreviewStartClicked = delegate { PreviewStart(); };
-            //_form.PreviewEndClicked = delegate { };
+            _form.PreviewEndClicked = delegate { PreviewEnd(); };
             _form.DeleteClicked = delegate { DeleteTrack(); };
             _form.NextClicked = delegate { NextTrack(); };
             _form.PreviousClicked = delegate { PreviousTrack(); };
@@ -102,8 +102,6 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             _vm.CurrentTrack = _tracks.GetTrack(n + 1);
         }
 
-
-
         public void PreviewStart()
         {
             if (_vm.CurrentTrack == null) return;
@@ -113,9 +111,19 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             _app.DoMenuAndWait("Transport.Play", false);
         }
 
+        private void PreviewEnd()
+        {
+            if (_vm.CurrentTrack == null) return;
+            _fileTasks.SetSelection(new SfAudioSelection(
+                _vm.CurrentTrack.FadeOutStartPosition,
+                _vm.CurrentTrack.FadeOutLength));
+            _app.DoMenuAndWait("Transport.Play", false);
+        }
+
         public void PreviewStop()
         {
             _app.DoMenuAndWait("Transport.Stop", false);
+            _fileTasks.SetSelection(_vm.CurrentTrack.GetSelectionWithFades());
         }
 
         public void ToggleLoopedPlayback()
