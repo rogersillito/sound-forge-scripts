@@ -30,12 +30,6 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             _fileTasks = fileTasks;
         }
 
-        private DeleteMarker _markerDeleteCallback;
-        public DeleteMarker MarkerDeleteCallback
-        {
-            set { _markerDeleteCallback = value; }
-        }
-
         public void Edit(EditTracksViewModel viewModel, SplitTrackList tracks, FindTracksOptions options)
         {
             _options = options;
@@ -64,26 +58,16 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
         {
             SplitTrackDefinition deleteTrack = _vm.CurrentTrack;
 
-            List<int> idents = new List<int>();
-            idents.Add(deleteTrack.FadeInEndMarker.Ident);
-            idents.Add(deleteTrack.FadeOutEndMarker.Ident);
-            idents.Add(deleteTrack.TrackRegion.Ident);
             _output.ToScriptWindow("DT: {0} FadeInEndMarker.Ident {1}, {2}, {3}", deleteTrack.Number, deleteTrack.FadeInEndMarker.Ident, deleteTrack.FadeOutEndMarker.Ident, deleteTrack.TrackRegion.Ident);
             int n = _vm.CurrentTrack.Number;
 
             SplitTrackDefinition nextCurrent = _tracks.GetTrack(n + 1);
             if (nextCurrent == null)
             {
+                // look for previous track instead
                 nextCurrent = _tracks.GetTrack(n - 1);
             }
-            _output.ToScriptWindow("current: {0}", nextCurrent.Number);
             _tracks.Delete(deleteTrack);
-
-            foreach (int ident in idents)
-            {
-                _markerDeleteCallback(ident);
-            }
-            _output.ToScriptWindow("current: {0}", nextCurrent.Number);
 
             _vm.CurrentTrack = nextCurrent;
         }

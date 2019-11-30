@@ -52,23 +52,11 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             _findTracksOptions.TrackFadeInLengthInSamples = 20;
             _findTracksOptions.MinimumTrackLengthInSeconds = 10;
 
-            DeleteMarker deleteCallback = delegate(int ident)
-            {
-                for (int index = _file.Markers.Count - 1; index >= 0; index--)
-                {
-                    SfAudioMarker mk = _file.Markers[index];
-                    if (mk.Ident != ident) continue;
-                    _file.Markers.Remove(mk);
-                    Output.ToScriptWindow(string.Format("{0} marker removed!", ident));
-                }
-            };
-
             GetSplitTrackDefinitions(_splitTrackList);
 
             EditTracksViewModel viewModel = new EditTracksViewModel(_fileTasks);
 
             EditTracksController controller = new EditTracksController(App, new EditTracksForm(), this, Output, _fileTasks);
-            controller.MarkerDeleteCallback = deleteCallback;
             controller.Edit(viewModel, _splitTrackList, _findTracksOptions);
         }
 
