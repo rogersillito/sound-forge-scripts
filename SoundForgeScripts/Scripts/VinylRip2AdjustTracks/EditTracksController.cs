@@ -46,12 +46,15 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
         private void Bind()
         {
             //_form.PreviewAllClicked = delegate { AddTrack(); };
-            //_form.PreviewStartClicked = delegate {  };
-            //_form.PreviewEndClicked = delegate {  };
+            _form.PreviewStartClicked = delegate { PreviewStart(); };
+            //_form.PreviewEndClicked = delegate { };
             _form.DeleteClicked = delegate { DeleteTrack(); };
             _form.NextClicked = delegate { NextTrack(); };
             _form.PreviousClicked = delegate { PreviousTrack(); };
             _form.AddTrackClicked = delegate { AddTrack(); };
+            _form.StopPreviewClicked = delegate { PreviewStop(); };
+            _form.LoopPlaybackClicked = delegate { ToggleLoopedPlayback(); };
+
         }
 
         public void DeleteTrack()
@@ -74,6 +77,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 
         public void AddTrack()
         {
+            //TODO: need this to work modally: "add before"/ "add after" ?
             bool selectionLongEnough = _fileTasks.IsCurrentSelectionGreaterThan(_app, _options.MinimumTrackLengthInSeconds);
             if (!selectionLongEnough)
             {
@@ -89,7 +93,6 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             if (!_vm.CanNavigatePrevious) return;
             int n = _vm.CurrentTrack.Number;
             _vm.CurrentTrack = _tracks.GetTrack(n - 1);
-            //SelectCurrentTrack();
         }
 
         public void NextTrack()
@@ -97,13 +100,27 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             if (!_vm.CanNavigateNext) return;
             int n = _vm.CurrentTrack == null ? 0 : _vm.CurrentTrack.Number;
             _vm.CurrentTrack = _tracks.GetTrack(n + 1);
-            //SelectCurrentTrack();
         }
 
-        //private void SelectCurrentTrack()
-        //{
-        //    if (_vm.CurrentTrack == null) return;
-        //    _fileTasks.SetSelection(_vm.CurrentTrack.GetSelectionWithFades());
-        //}
+
+
+        public void PreviewStart()
+        {
+            if (_vm.CurrentTrack == null) return;
+            _fileTasks.SetSelection(new SfAudioSelection(
+                _vm.CurrentTrack.GetSelectionWithFades().Start,
+                _fileTasks.SecondsToPosition(1)));
+            _app.DoMenuAndWait("Transport.Play", false);
+        }
+
+        public void PreviewStop()
+        {
+            _app.DoMenuAndWait("Transport.Stop", false);
+        }
+
+        public void ToggleLoopedPlayback()
+        {
+            _app.DoMenuAndWait("Options.LoopPlayback", false);
+        }
     }
 }

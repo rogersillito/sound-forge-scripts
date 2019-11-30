@@ -39,6 +39,8 @@ namespace SoundForgeScriptsLib
             return selection;
         }
 
+        public long SecondsToPosition(double seconds) => _file.SecondsToPosition(seconds);
+
         public void CopySelectionToStart(IScriptableApp app, SfAudioSelection selection)
         {
             _file.Window.SetSelectionAndScroll(selection.Start, selection.Length, DataWndScrollTo.NoMove);

@@ -15,7 +15,11 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
         protected internal EventHandler PreviousClicked;
         protected internal EventHandler DeleteClicked;
         protected internal EventHandler AddTrackClicked;
+        protected internal EventHandler StopPreviewClicked;
+        protected internal EventHandler LoopPlaybackClicked;
         private Form _form;
+        private ToolTip _toolTip;
+
         private EditTracksViewModel _vm;
 
         public void Create(EditTracksViewModel viewModel)
@@ -40,6 +44,8 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             const int lblHeight = 16;
             const int fatButtonHeight = 25;
             //const int tbxHeight = 16;
+
+            _toolTip = new ToolTip();
 
             Label lblPrompt = new Label();
             lblPrompt.Text = "Adjust track region definitions - click OK to apply changes.";
@@ -70,18 +76,20 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 
             pt.X += sSpacer.Width + btnPreviewAll.Width;
 
-            Button btnAddTrack = new Button();
-            btnAddTrack.TabStop = true;
-            btnAddTrack.Height = fatButtonHeight;
+            Button btnStopPreview = new Button();
+            btnStopPreview.TabStop = true;
+            btnStopPreview.Height = fatButtonHeight;
             //btnNext.TabIndex = 4;
-            btnAddTrack.Width = btnPreviewAll.Width;
-            btnAddTrack.Text = "Add Track From Selection";
-            btnAddTrack.TextAlign = ContentAlignment.MiddleCenter;
-            btnAddTrack.Location = pt;
-            btnAddTrack.Click += AddTrackClicked; 
-            _form.Controls.Add(btnAddTrack);
+            btnStopPreview.Width = btnPreviewAll.Width;
+            btnStopPreview.Text = "Stop Preview";
+            _toolTip.SetToolTip(btnStopPreview, "Keyboard: Space");
+            btnStopPreview.TextAlign = ContentAlignment.MiddleCenter;
+            btnStopPreview.Location = pt;
+            btnStopPreview.Click += StopPreviewClicked; 
+            _form.Controls.Add(btnStopPreview);
 
-            pt.Y += btnAddTrack.Height + sSpacer.Height;
+            // NEW ROW
+            pt.Y += btnStopPreview.Height + sSpacer.Height;
             pt.X = sOff.Width;
 
             Button btnPreviewStart = new Button();
@@ -130,6 +138,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             _form.Controls.Add(btnPreviewEnd);
             //btnPrvwEnd.Click += FormHelper.OnOK_Click;
 
+            // NEW ROW
             pt.X = sOff.Width;
             pt.Y += btnPreviewEnd.Height + sSpacer.Height;
 
@@ -175,6 +184,21 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             btnNext.DataBindings.Add("Enabled", viewModel, "CanNavigateNext", false, DataSourceUpdateMode.OnPropertyChanged);
             _form.Controls.Add(btnNext);
 
+            // NEW ROW
+            pt.Y += btnNext.Height + sSpacer.Height;
+            pt.X = sOff.Width;
+
+            Button btnAddTrack = new Button();
+            btnAddTrack.TabStop = true;
+            btnAddTrack.Height = fatButtonHeight;
+            //btnNext.TabIndex = 4;
+            btnAddTrack.Width = btnPreviewAll.Width;
+            btnAddTrack.Text = "Add Track From Selection";
+            btnAddTrack.TextAlign = ContentAlignment.MiddleCenter;
+            btnAddTrack.Location = pt;
+            btnAddTrack.Click += AddTrackClicked; 
+            _form.Controls.Add(btnAddTrack);
+
             //btnNext.Click += FormHelper.OnOK_Click;
 
             //btnNext.Click += FormHelper.OnOK_Click;
@@ -204,6 +228,30 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             if (e.KeyCode == Keys.Escape)
             {
                 _form.Close();
+                e.Handled = true;
+            }
+
+            if (e.KeyCode == Keys.Space)
+            {
+                StopPreviewClicked.Invoke(_form, e);
+                e.Handled = true;
+            }
+
+            if (e.KeyCode == Keys.Q)
+            {
+                LoopPlaybackClicked.Invoke(_form, e);
+                e.Handled = true;
+            }
+
+            if (_vm.HasTracks && e.KeyCode == Keys.Home)
+            {
+                PreviewStartClicked.Invoke(_form, e);
+                e.Handled = true;
+            }
+
+            if (_vm.HasTracks && e.KeyCode == Keys.End)
+            {
+                PreviewEndClicked.Invoke(_form, e);
                 e.Handled = true;
             }
 
