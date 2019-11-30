@@ -16,13 +16,11 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
         protected internal EventHandler DeleteClicked;
         protected internal EventHandler AddTrackClicked;
         private Form _form;
-
+        private EditTracksViewModel _vm;
 
         public void Create(EditTracksViewModel viewModel)
         {
-            //TODO: I think it's ok, but check it's ok to interact with the file window while the script window is active...
-            //TODO: and figure out the layout...!
-
+            _vm = viewModel;
             _form = new Form();
             Size sForm = new Size(520, 160);
 
@@ -33,6 +31,8 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             _form.StartPosition = FormStartPosition.CenterScreen;
             _form.ClientSize = sForm;
             _form.AutoScroll = false;
+            _form.KeyPreview = true;
+            _form.KeyDown += HandleKeyDown;
 
             Point pt = new Point(10, 10);
             Size sOff = new Size(10, 10);
@@ -199,16 +199,36 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             //dlg.AcceptButton = btn;
         }
 
+        private void HandleKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape)
+            {
+                _form.Close();
+                e.Handled = true;
+            }
+
+            if (_vm.HasTracks && e.KeyCode == Keys.Delete)
+            {
+                DeleteClicked.Invoke(_form, e);
+                e.Handled = true;
+            }
+
+            if (_vm.CanNavigatePrevious && e.KeyCode == Keys.Left)
+            {
+                PreviousClicked.Invoke(_form, e);
+                e.Handled = true;
+            }
+
+            if (_vm.CanNavigateNext && e.KeyCode == Keys.Right)
+            {
+                NextClicked.Invoke(_form, e);
+                e.Handled = true;
+            }
+        }
+
         public void Show(IWin32Window hOwner)
         {
             _form.ShowDialog(hOwner);
-        }
-
-        public void Close()
-        {
-            _form.Hide();
-            _form.Close();
-            _form.Dispose();
         }
     }
 }
