@@ -96,6 +96,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             btnPreviewStart.TabStop = true;
             //btnPreviewStart.TabIndex = 4;
             btnPreviewStart.Text = "Start";
+            _toolTip.SetToolTip(btnPreviewStart, "Keyboard: Home");
             btnPreviewStart.Height = fatButtonHeight;
             btnPreviewStart.ImageAlign = ContentAlignment.MiddleLeft;
             btnPreviewStart.TextAlign = ContentAlignment.MiddleRight;
@@ -129,6 +130,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             btnPreviewEnd.TabStop = true;
             //btnPrvwEnd.TabIndex = 4;
             btnPreviewEnd.Text = "End";
+            _toolTip.SetToolTip(btnPreviewEnd, "Keyboard: End");
             btnPreviewEnd.ImageAlign = ContentAlignment.MiddleLeft;
             btnPreviewEnd.TextAlign = ContentAlignment.MiddleRight;
             ResourceHelper.GetResourceStream(previewIcon, delegate(Stream stream) { btnPreviewEnd.Image = Image.FromStream(stream); });
@@ -148,6 +150,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             //btnNext.TabIndex = 4;
             btnPrevious.Width = 120; 
             btnPrevious.Text = "<< Previous Track";
+            _toolTip.SetToolTip(btnPrevious, "Keyboard: Ctrl + Left");
             btnPrevious.TextAlign = ContentAlignment.MiddleCenter;
             btnPrevious.Location = pt;
             btnPrevious.Click += PreviousClicked;
@@ -159,6 +162,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             //btnDelete.TabIndex = 4;
             btnDelete.Width = 80; 
             btnDelete.Text = "DELETE";
+            _toolTip.SetToolTip(btnDelete, "Keyboard: Del");
             btnDelete.ForeColor = Color.Crimson;
             btnDelete.Font = new Font(btnDelete.Font.Name, btnDelete.Font.Size, FontStyle.Bold);
             btnDelete.TextAlign = ContentAlignment.MiddleCenter;
@@ -178,6 +182,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             btnNext.TabStop = true;
             //btnNext.TabIndex = 4;
             btnNext.Text = "Next Track >>";
+            _toolTip.SetToolTip(btnNext, "Keyboard: Ctrl + Right");
             btnNext.TextAlign = ContentAlignment.MiddleCenter;
             btnNext.Location = pt;
             btnNext.Click += NextClicked; 
