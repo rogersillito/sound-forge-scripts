@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using SoundForgeScriptsLib.Utils;
 using System.Drawing;
 using System.IO;
@@ -198,7 +198,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 
         public void Show(IWin32Window hOwner)
         {
-            _form.Show(hOwner);
+            _form.ShowDialog(hOwner);
         }
 
         public void Close()

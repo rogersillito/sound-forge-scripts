@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using SoundForge;
 using SoundForgeScriptsLib.Utils;
 
@@ -127,20 +127,18 @@ namespace SoundForgeScriptsLib.VinylRip
 
         public void Delete(SplitTrackDefinition splitTrackDefinition)
         {
-            //TODO:  try remove by index?
-            //TODO:  remove from STD first?
-            Remove(splitTrackDefinition);//todo: remove std from list first??
-            //var trackRegion = splitTrackDefinition.TrackRegion;
-            //var fadeInEndMarker = splitTrackDefinition.FadeInEndMarker;
-            //var fadeOutEndMarker = splitTrackDefinition.FadeOutEndMarker;
+            Remove(splitTrackDefinition);
+            var trackRegion = splitTrackDefinition.TrackRegion;
+            var fadeInEndMarker = splitTrackDefinition.FadeInEndMarker;
+            var fadeOutEndMarker = splitTrackDefinition.FadeOutEndMarker;
             splitTrackDefinition.TrackRegion = null;
             splitTrackDefinition.FadeInEndMarker = null;
             splitTrackDefinition.FadeOutEndMarker = null;
 
-            //_fileMarkers.Remove(trackRegion);
-            //_fileMarkers.Remove(fadeInEndMarker);
-            //_fileMarkers.Remove(fadeOutEndMarker);
-            //RenumberMarkers();
+            _fileMarkers.Remove(trackRegion);
+            _fileMarkers.Remove(fadeInEndMarker);
+            _fileMarkers.Remove(fadeOutEndMarker);
+            RenumberMarkers();
         }
     }
 }

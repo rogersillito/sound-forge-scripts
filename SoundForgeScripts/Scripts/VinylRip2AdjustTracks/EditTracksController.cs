@@ -62,10 +62,6 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 
         public void DeleteTrack()
         {
-            // ****************************************************
-            // **** this doesn't help - the form closes, I still get the error
-            _form.Close();
-            Thread.Sleep(1500);
             SplitTrackDefinition deleteTrack = _vm.CurrentTrack;
 
             List<int> idents = new List<int>();
@@ -80,25 +76,16 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             {
                 nextCurrent = _tracks.GetTrack(n - 1);
             }
+            _output.ToScriptWindow("current: {0}", nextCurrent.Number);
             _tracks.Delete(deleteTrack);
 
-            //delete_testy();
-            //_markerDeleteCallback(deleteTrack.TrackRegion);
             foreach (int ident in idents)
             {
                 _markerDeleteCallback(ident);
             }
-            //_markerDeleteCallback(deleteTrack.FadeOutEndMarker);
-            //SfAudioMarker trackRegion = deleteTrack.TrackRegion;
-            //SfAudioMarker fadeInEndMarker = deleteTrack.FadeInEndMarker;
-            //SfAudioMarker fadeOutEndMarker = deleteTrack.FadeOutEndMarker;
-            _vm.CurrentTrack = nextCurrent;
-        }
+            _output.ToScriptWindow("current: {0}", nextCurrent.Number);
 
-        private void delete_testy()
-        {
-            SfAudioMarkerList markers = _app.CurrentFile.Markers;
-            _output.ToMessageBox(string.Format("marker count = {0}", markers.Count));
+            _vm.CurrentTrack = nextCurrent;
         }
 
         public void AddTrack()
