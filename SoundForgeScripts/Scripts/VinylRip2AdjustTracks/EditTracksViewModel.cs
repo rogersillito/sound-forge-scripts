@@ -1,5 +1,6 @@
 using SoundForgeScriptsLib.VinylRip;
 using System.ComponentModel;
+using SoundForge;
 using SoundForgeScriptsLib;
 
 namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
@@ -40,6 +41,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
                 OnPropertyChanged("TrackName");
                 OnPropertyChanged("CanNavigateNext");
                 OnPropertyChanged("CanNavigatePrevious");
+                OnPropertyChanged("HasTracks");
             }
         }
 

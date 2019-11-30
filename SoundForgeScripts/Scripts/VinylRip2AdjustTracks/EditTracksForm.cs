@@ -64,6 +64,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             btnPreviewAll.ImageAlign = ContentAlignment.MiddleLeft;
             btnPreviewAll.TextAlign = ContentAlignment.MiddleCenter;
             btnPreviewAll.Click += PreviewAllClicked; 
+            btnPreviewAll.DataBindings.Add("Enabled", viewModel, "HasTracks", false, DataSourceUpdateMode.OnPropertyChanged);
             ResourceHelper.GetResourceStream(previewIcon, delegate(Stream stream) { btnPreviewAll.Image = Image.FromStream(stream); });
             _form.Controls.Add(btnPreviewAll);
 
@@ -93,6 +94,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             ResourceHelper.GetResourceStream(previewIcon, delegate(Stream stream) { btnPreviewStart.Image = Image.FromStream(stream); });
             btnPreviewStart.Location = pt;
             btnPreviewStart.Click += PreviewStartClicked; 
+            btnPreviewStart.DataBindings.Add("Enabled", viewModel, "HasTracks", false, DataSourceUpdateMode.OnPropertyChanged);
             _form.Controls.Add(btnPreviewStart);
             //btnPrvwStart.Click += FormHelper.OnOK_Click;
 
@@ -105,7 +107,6 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             lblTrack.Height = fatButtonHeight;
             lblTrack.TextAlign = ContentAlignment.MiddleCenter;
             lblTrack.Location = pt;
-            //TODO: bind..
             lblTrack.DataBindings.Add("Text", viewModel, "TrackName", false, DataSourceUpdateMode.OnPropertyChanged);
             //Output.ToScriptWindow("pt.y {0}", pt.Y);
             lblTrack.BackColor = Color.LightGray;
@@ -125,6 +126,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             ResourceHelper.GetResourceStream(previewIcon, delegate(Stream stream) { btnPreviewEnd.Image = Image.FromStream(stream); });
             btnPreviewEnd.Location = pt;
             btnPreviewEnd.Click += PreviewEndClicked; 
+            btnPreviewEnd.DataBindings.Add("Enabled", viewModel, "HasTracks", false, DataSourceUpdateMode.OnPropertyChanged);
             _form.Controls.Add(btnPreviewEnd);
             //btnPrvwEnd.Click += FormHelper.OnOK_Click;
 
@@ -152,6 +154,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             btnDelete.Font = new Font(btnDelete.Font.Name, btnDelete.Font.Size, FontStyle.Bold);
             btnDelete.TextAlign = ContentAlignment.MiddleCenter;
             btnDelete.Click += DeleteClicked; 
+            btnDelete.DataBindings.Add("Enabled", viewModel, "HasTracks", false, DataSourceUpdateMode.OnPropertyChanged);
             _form.Controls.Add(btnDelete);
 
             int bottomRowGapWidth = (lblPrompt.Width - (2 * btnPrevious.Width) - btnDelete.Width) / 2;
