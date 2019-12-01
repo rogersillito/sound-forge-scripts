@@ -1,12 +1,14 @@
 using System;
-using SoundForgeScriptsLib.Utils;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Text;
 using System.Windows.Forms;
+using SoundForgeScriptsLib.Utils;
 
 namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 {
-    public class EditTracksForm
+    public class EditTracksForm : Form
     {
         protected internal EventHandler PreviewAllClicked;
         protected internal EventHandler PreviewStartClicked;
@@ -17,26 +19,34 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
         protected internal EventHandler AddTrackClicked;
         protected internal EventHandler StopPreviewClicked;
         protected internal EventHandler LoopPlaybackClicked;
-        private Form _form;
+        protected internal Button BtnPreviewAll = new Button();
+        protected internal Button BtnStopPreview = new Button();
+        protected internal Button BtnPreviewStart = new Button();
+        protected internal Button BtnPreviewEnd = new Button();
+        protected internal Button BtnPrevious = new Button();
+        protected internal Button BtnNext = new Button();
+        protected internal Button BtnAddTrack = new Button();
+        protected internal Label LblTrack = new Label();
+        protected internal Button BtnDelete = new Button();
+
         private ToolTip _toolTip;
 
-        private EditTracksViewModel _vm;
-
-        public void Create(EditTracksViewModel viewModel)
+        public EditTracksForm()
         {
-            _vm = viewModel;
-            _form = new Form();
+            InitializeComponent();
+        }
+
+        private void InitializeComponent()
+        {
             Size sForm = new Size(520, 160);
 
-            _form.Text = viewModel.FormTitle;
-            _form.FormBorderStyle = FormBorderStyle.FixedDialog;
-            _form.MaximizeBox = false;
-            _form.MinimizeBox = false;
-            _form.StartPosition = FormStartPosition.CenterScreen;
-            _form.ClientSize = sForm;
-            _form.AutoScroll = false;
-            _form.KeyPreview = true;
-            _form.KeyDown += HandleKeyDown;
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            MaximizeBox = false;
+            MinimizeBox = false;
+            StartPosition = FormStartPosition.CenterScreen;
+            ClientSize = sForm;
+            AutoScroll = false;
+            KeyPreview = true;
 
             Point pt = new Point(10, 10);
             Size sOff = new Size(10, 10);
@@ -53,156 +63,140 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             lblPrompt.Height = lblHeight;
             lblPrompt.Location = pt;
             //lblPrompt.BackColor = Color.Aqua;
-            _form.Controls.Add(lblPrompt);
+            Controls.Add(lblPrompt);
 
             pt.Y += lblPrompt.Height + sSpacer.Height;
 
             const string previewIcon = "SoundForgeScriptsLib.Resources.ionicons_android-volume-up_17.png";
 
-            Button btnPreviewAll = new Button();
-            btnPreviewAll.TabStop = true;
+            BtnPreviewAll.TabStop = true;
             //btnNext.TabIndex = 4;
-            btnPreviewAll.Width = (lblPrompt.Width - sSpacer.Width) / 2;
-            btnPreviewAll.Height = fatButtonHeight;
-            btnPreviewAll.Text = "Preview All";
-            btnPreviewAll.TextAlign = ContentAlignment.MiddleCenter;
-            btnPreviewAll.Location = pt;
-            btnPreviewAll.ImageAlign = ContentAlignment.MiddleLeft;
-            btnPreviewAll.TextAlign = ContentAlignment.MiddleCenter;
-            btnPreviewAll.Click += PreviewAllClicked; 
-            btnPreviewAll.DataBindings.Add("Enabled", viewModel, "HasTracks", false, DataSourceUpdateMode.OnPropertyChanged);
-            ResourceHelper.GetResourceStream(previewIcon, delegate(Stream stream) { btnPreviewAll.Image = Image.FromStream(stream); });
-            _form.Controls.Add(btnPreviewAll);
+            BtnPreviewAll.Width = (lblPrompt.Width - sSpacer.Width) / 2;
+            BtnPreviewAll.Height = fatButtonHeight;
+            BtnPreviewAll.Text = "Preview All";
+            BtnPreviewAll.TextAlign = ContentAlignment.MiddleCenter;
+            BtnPreviewAll.Location = pt;
+            BtnPreviewAll.ImageAlign = ContentAlignment.MiddleLeft;
+            BtnPreviewAll.TextAlign = ContentAlignment.MiddleCenter;
+            BtnPreviewAll.Click += PreviewAllClicked;
+            ResourceHelper.GetResourceStream(previewIcon, delegate (Stream stream) { BtnPreviewAll.Image = Image.FromStream(stream); });
+            Controls.Add(BtnPreviewAll);
 
-            pt.X += sSpacer.Width + btnPreviewAll.Width;
+            pt.X += sSpacer.Width + BtnPreviewAll.Width;
 
-            Button btnStopPreview = new Button();
-            btnStopPreview.TabStop = true;
-            btnStopPreview.Height = fatButtonHeight;
+            BtnStopPreview.TabStop = true;
+            BtnStopPreview.Height = fatButtonHeight;
             //btnNext.TabIndex = 4;
-            btnStopPreview.Width = btnPreviewAll.Width;
-            btnStopPreview.Text = "Stop Preview";
-            _toolTip.SetToolTip(btnStopPreview, "Keyboard: Space");
-            btnStopPreview.TextAlign = ContentAlignment.MiddleCenter;
-            btnStopPreview.Location = pt;
-            btnStopPreview.Click += StopPreviewClicked; 
-            _form.Controls.Add(btnStopPreview);
+            BtnStopPreview.Width = BtnPreviewAll.Width;
+            BtnStopPreview.Text = "Stop Preview";
+            _toolTip.SetToolTip(BtnStopPreview, "Keyboard: Space");
+            BtnStopPreview.TextAlign = ContentAlignment.MiddleCenter;
+            BtnStopPreview.Location = pt;
+            BtnStopPreview.Click += StopPreviewClicked;
+            Controls.Add(BtnStopPreview);
 
             // NEW ROW
-            pt.Y += btnStopPreview.Height + sSpacer.Height;
+            pt.Y += BtnStopPreview.Height + sSpacer.Height;
             pt.X = sOff.Width;
 
-            Button btnPreviewStart = new Button();
-            btnPreviewStart.TabStop = true;
+            BtnPreviewStart.TabStop = true;
             //btnPreviewStart.TabIndex = 4;
-            btnPreviewStart.Text = "Start";
-            _toolTip.SetToolTip(btnPreviewStart, "Keyboard: Home");
-            btnPreviewStart.Height = fatButtonHeight;
-            btnPreviewStart.ImageAlign = ContentAlignment.MiddleLeft;
-            btnPreviewStart.TextAlign = ContentAlignment.MiddleRight;
-            ResourceHelper.GetResourceStream(previewIcon, delegate(Stream stream) { btnPreviewStart.Image = Image.FromStream(stream); });
-            btnPreviewStart.Location = pt;
-            btnPreviewStart.Click += PreviewStartClicked; 
-            btnPreviewStart.DataBindings.Add("Enabled", viewModel, "HasTracks", false, DataSourceUpdateMode.OnPropertyChanged);
-            _form.Controls.Add(btnPreviewStart);
+            BtnPreviewStart.Text = "Start";
+            _toolTip.SetToolTip(BtnPreviewStart, "Keyboard: Home");
+            BtnPreviewStart.Height = fatButtonHeight;
+            BtnPreviewStart.ImageAlign = ContentAlignment.MiddleLeft;
+            BtnPreviewStart.TextAlign = ContentAlignment.MiddleRight;
+            ResourceHelper.GetResourceStream(previewIcon, delegate (Stream stream) { BtnPreviewStart.Image = Image.FromStream(stream); });
+            BtnPreviewStart.Location = pt;
+            BtnPreviewStart.Click += PreviewStartClicked;
+            Controls.Add(BtnPreviewStart);
             //btnPrvwStart.Click += FormHelper.OnOK_Click;
 
             //pt.Y += btnPrvwStart.Height + sSpacer.Height;
-            pt.X += btnPreviewStart.Width + sSpacer.Width;
+            pt.X += BtnPreviewStart.Width + sSpacer.Width;
 
-            Label lblTrack = new Label();
-            lblTrack.Text = string.Format("Track {0}", 1);
-            lblTrack.Width = sForm.Width - 2 * (sOff.Width + btnPreviewStart.Width + sSpacer.Width);
-            lblTrack.Height = fatButtonHeight;
-            lblTrack.TextAlign = ContentAlignment.MiddleCenter;
-            lblTrack.Location = pt;
-            lblTrack.DataBindings.Add("Text", viewModel, "TrackName", false, DataSourceUpdateMode.OnPropertyChanged);
+            LblTrack.Text = string.Format("Track {0}", 1);
+            LblTrack.Width = sForm.Width - 2 * (sOff.Width + BtnPreviewStart.Width + sSpacer.Width);
+            LblTrack.Height = fatButtonHeight;
+            LblTrack.TextAlign = ContentAlignment.MiddleCenter;
+            LblTrack.Location = pt;
             //Output.ToScriptWindow("pt.y {0}", pt.Y);
-            lblTrack.BackColor = Color.LightGray;
-            lblTrack.BorderStyle = BorderStyle.FixedSingle;
-            _form.Controls.Add(lblTrack);
+            LblTrack.BackColor = Color.LightGray;
+            LblTrack.BorderStyle = BorderStyle.FixedSingle;
+            Controls.Add(LblTrack);
 
-            pt.X += sSpacer.Width + lblTrack.Width;
+            pt.X += sSpacer.Width + LblTrack.Width;
 
-            Button btnPreviewEnd = new Button();
-            btnPreviewEnd.Width = btnPreviewStart.Width;
-            btnPreviewEnd.Height = fatButtonHeight;
-            btnPreviewEnd.TabStop = true;
+            BtnPreviewEnd.Width = BtnPreviewStart.Width;
+            BtnPreviewEnd.Height = fatButtonHeight;
+            BtnPreviewEnd.TabStop = true;
             //btnPrvwEnd.TabIndex = 4;
-            btnPreviewEnd.Text = "End";
-            _toolTip.SetToolTip(btnPreviewEnd, "Keyboard: End");
-            btnPreviewEnd.ImageAlign = ContentAlignment.MiddleLeft;
-            btnPreviewEnd.TextAlign = ContentAlignment.MiddleRight;
-            ResourceHelper.GetResourceStream(previewIcon, delegate(Stream stream) { btnPreviewEnd.Image = Image.FromStream(stream); });
-            btnPreviewEnd.Location = pt;
-            btnPreviewEnd.Click += PreviewEndClicked; 
-            btnPreviewEnd.DataBindings.Add("Enabled", viewModel, "HasTracks", false, DataSourceUpdateMode.OnPropertyChanged);
-            _form.Controls.Add(btnPreviewEnd);
+            BtnPreviewEnd.Text = "End";
+            _toolTip.SetToolTip(BtnPreviewEnd, "Keyboard: End");
+            BtnPreviewEnd.ImageAlign = ContentAlignment.MiddleLeft;
+            BtnPreviewEnd.TextAlign = ContentAlignment.MiddleRight;
+            ResourceHelper.GetResourceStream(previewIcon, delegate (Stream stream) { BtnPreviewEnd.Image = Image.FromStream(stream); });
+            BtnPreviewEnd.Location = pt;
+            BtnPreviewEnd.Click += PreviewEndClicked;
+            Controls.Add(BtnPreviewEnd);
             //btnPrvwEnd.Click += FormHelper.OnOK_Click;
 
             // NEW ROW
             pt.X = sOff.Width;
-            pt.Y += btnPreviewEnd.Height + sSpacer.Height;
+            pt.Y += BtnPreviewEnd.Height + sSpacer.Height;
 
-            Button btnPrevious = new Button();
             //btnNext.Width = btnPrvwStart.Width;
-            btnPrevious.TabStop = true;
+            BtnPrevious.TabStop = true;
             //btnNext.TabIndex = 4;
-            btnPrevious.Width = 120; 
-            btnPrevious.Text = "<< Previous Track";
-            _toolTip.SetToolTip(btnPrevious, "Keyboard: Ctrl + Left");
-            btnPrevious.TextAlign = ContentAlignment.MiddleCenter;
-            btnPrevious.Location = pt;
-            btnPrevious.Click += PreviousClicked;
-            btnPrevious.DataBindings.Add("Enabled", viewModel, "CanNavigatePrevious", false, DataSourceUpdateMode.OnPropertyChanged);
-            _form.Controls.Add(btnPrevious);
+            BtnPrevious.Width = 120;
+            BtnPrevious.Text = "<< Previous Track";
+            _toolTip.SetToolTip(BtnPrevious, "Keyboard: Ctrl + Left");
+            BtnPrevious.TextAlign = ContentAlignment.MiddleCenter;
+            BtnPrevious.Location = pt;
+            BtnPrevious.Click += PreviousClicked;
+            Controls.Add(BtnPrevious);
 
-            Button btnDelete = new Button();
-            btnDelete.TabStop = true;
+            BtnDelete.TabStop = true;
             //btnDelete.TabIndex = 4;
-            btnDelete.Width = 80; 
-            btnDelete.Text = "DELETE";
-            _toolTip.SetToolTip(btnDelete, "Keyboard: Del");
-            btnDelete.ForeColor = Color.Crimson;
-            btnDelete.Font = new Font(btnDelete.Font.Name, btnDelete.Font.Size, FontStyle.Bold);
-            btnDelete.TextAlign = ContentAlignment.MiddleCenter;
-            btnDelete.Click += DeleteClicked; 
-            btnDelete.DataBindings.Add("Enabled", viewModel, "HasTracks", false, DataSourceUpdateMode.OnPropertyChanged);
-            _form.Controls.Add(btnDelete);
+            BtnDelete.Width = 80;
+            BtnDelete.Text = "DELETE";
+            _toolTip.SetToolTip(BtnDelete, "Keyboard: Del");
+            BtnDelete.ForeColor = Color.Crimson;
+            BtnDelete.Font = new Font(BtnDelete.Font.Name, BtnDelete.Font.Size, FontStyle.Bold);
+            BtnDelete.TextAlign = ContentAlignment.MiddleCenter;
+            BtnDelete.Click += DeleteClicked;
+            Controls.Add(BtnDelete);
 
-            int bottomRowGapWidth = (lblPrompt.Width - (2 * btnPrevious.Width) - btnDelete.Width) / 2;
-            pt.X += bottomRowGapWidth + btnPrevious.Width;
+            int bottomRowGapWidth = (lblPrompt.Width - (2 * BtnPrevious.Width) - BtnDelete.Width) / 2;
+            pt.X += bottomRowGapWidth + BtnPrevious.Width;
 
-            btnDelete.Location = pt;
+            BtnDelete.Location = pt;
 
-            pt.X += bottomRowGapWidth + btnDelete.Width;
+            pt.X += bottomRowGapWidth + BtnDelete.Width;
 
-            Button btnNext = new Button();
-            btnNext.Width = btnPrevious.Width;
-            btnNext.TabStop = true;
+            BtnNext.Width = BtnPrevious.Width;
+            BtnNext.TabStop = true;
             //btnNext.TabIndex = 4;
-            btnNext.Text = "Next Track >>";
-            _toolTip.SetToolTip(btnNext, "Keyboard: Ctrl + Right");
-            btnNext.TextAlign = ContentAlignment.MiddleCenter;
-            btnNext.Location = pt;
-            btnNext.Click += NextClicked; 
-            btnNext.DataBindings.Add("Enabled", viewModel, "CanNavigateNext", false, DataSourceUpdateMode.OnPropertyChanged);
-            _form.Controls.Add(btnNext);
+            BtnNext.Text = "Next Track >>";
+            _toolTip.SetToolTip(BtnNext, "Keyboard: Ctrl + Right");
+            BtnNext.TextAlign = ContentAlignment.MiddleCenter;
+            BtnNext.Location = pt;
+            BtnNext.Click += NextClicked;
+            Controls.Add(BtnNext);
 
             // NEW ROW
-            pt.Y += btnNext.Height + sSpacer.Height;
+            pt.Y += BtnNext.Height + sSpacer.Height;
             pt.X = sOff.Width;
 
-            Button btnAddTrack = new Button();
-            btnAddTrack.TabStop = true;
-            btnAddTrack.Height = fatButtonHeight;
+            BtnAddTrack.TabStop = true;
+            BtnAddTrack.Height = fatButtonHeight;
             //btnNext.TabIndex = 4;
-            btnAddTrack.Width = btnPreviewAll.Width;
-            btnAddTrack.Text = "Add Track From Selection";
-            btnAddTrack.TextAlign = ContentAlignment.MiddleCenter;
-            btnAddTrack.Location = pt;
-            btnAddTrack.Click += AddTrackClicked; 
-            _form.Controls.Add(btnAddTrack);
+            BtnAddTrack.Width = BtnPreviewAll.Width;
+            BtnAddTrack.Text = "Add Track From Selection";
+            BtnAddTrack.TextAlign = ContentAlignment.MiddleCenter;
+            BtnAddTrack.Location = pt;
+            BtnAddTrack.Click += AddTrackClicked;
+            Controls.Add(BtnAddTrack);
 
             //btnNext.Click += FormHelper.OnOK_Click;
 
@@ -226,62 +220,6 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 
             //}
             //dlg.AcceptButton = btn;
-        }
-
-        private void HandleKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Escape)
-            {
-                _form.Close();
-                e.Handled = true;
-            }
-
-            if (e.KeyCode == Keys.Space)
-            {
-                StopPreviewClicked.Invoke(_form, e);
-                e.Handled = true;
-            }
-
-            if (e.KeyCode == Keys.Q)
-            {
-                LoopPlaybackClicked.Invoke(_form, e);
-                e.Handled = true;
-            }
-
-            if (_vm.HasTracks && e.KeyCode == Keys.Home)
-            {
-                PreviewStartClicked.Invoke(_form, e);
-                e.Handled = true;
-            }
-
-            if (_vm.HasTracks && e.KeyCode == Keys.End)
-            {
-                PreviewEndClicked.Invoke(_form, e);
-                e.Handled = true;
-            }
-
-            if (_vm.HasTracks && e.KeyCode == Keys.Delete)
-            {
-                DeleteClicked.Invoke(_form, e);
-                e.Handled = true;
-            }
-
-            if (_vm.CanNavigatePrevious && e.KeyCode == Keys.Left)
-            {
-                PreviousClicked.Invoke(_form, e);
-                e.Handled = true;
-            }
-
-            if (_vm.CanNavigateNext && e.KeyCode == Keys.Right)
-            {
-                NextClicked.Invoke(_form, e);
-                e.Handled = true;
-            }
-        }
-
-        public void Show(IWin32Window hOwner)
-        {
-            _form.ShowDialog(hOwner);
         }
     }
 }

@@ -56,7 +56,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 
             EditTracksViewModel viewModel = new EditTracksViewModel(_fileTasks);
 
-            EditTracksController controller = new EditTracksController(App, new EditTracksForm(), this, Output, _fileTasks);
+            EditTracksController controller = new EditTracksController(App, new EditTracksFormFactory(), this, Output, _fileTasks);
             controller.Edit(viewModel, _splitTrackList, _findTracksOptions);
         }
 

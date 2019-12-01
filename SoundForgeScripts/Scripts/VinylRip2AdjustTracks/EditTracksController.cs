@@ -15,16 +15,16 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
         private readonly OutputHelper _output;
         private readonly FileTasks _fileTasks;
         private readonly IScriptableApp _app;
-        private readonly EditTracksForm _form;
+        private readonly EditTracksFormFactory _formFactory;
         private readonly EntryPointBase _entryPoint;
         private EditTracksViewModel _vm;
         private SplitTrackList _tracks;
         private FindTracksOptions _options;
 
-        public EditTracksController(IScriptableApp app, EditTracksForm form, EntryPointBase entryPoint, OutputHelper output, FileTasks fileTasks)
+        public EditTracksController(IScriptableApp app, EditTracksFormFactory formFactory, EntryPointBase entryPoint, OutputHelper output, FileTasks fileTasks)
         {
             _app = app;
-            _form = form;
+            _formFactory = formFactory;
             _entryPoint = entryPoint;
             _output = output;
             _fileTasks = fileTasks;
@@ -36,25 +36,25 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             _tracks = tracks;
             _vm = viewModel;
             viewModel.Build(tracks, _entryPoint.ScriptTitle);
-            Bind();
-            _form.Create(viewModel);
+            EditTracksForm form = _formFactory.Create(viewModel);
+            BindFormActions(form);
             if (_vm.HasTracks)
                 _vm.CurrentTrack = tracks.GetTrack(1);
-            _form.Show(_app.Win32Window);
+            form.ShowDialog(_app.Win32Window);
         }
 
-        private void Bind()
+        private void BindFormActions(EditTracksForm form)
         {
-            _form.PreviewAllClicked = delegate { PreviewAll(); };
-            _form.PreviewStartClicked = delegate { PreviewStart(); };
-            _form.PreviewEndClicked = delegate { PreviewEnd(); };
-            _form.DeleteClicked = delegate { DeleteTrack(); };
-            _form.NextClicked = delegate { NextTrack(); };
-            _form.PreviousClicked = delegate { PreviousTrack(); };
-            _form.AddTrackClicked = delegate { AddTrack(); };
-            _form.StopPreviewClicked = delegate { PreviewStop(); };
-            _form.LoopPlaybackClicked = delegate { ToggleLoopedPlayback(); };
-
+            //TODO: fix click bindings!
+            form.PreviewAllClicked += delegate { PreviewAll(); };
+            form.PreviewStartClicked += delegate { PreviewStart(); };
+            form.PreviewEndClicked += delegate { PreviewEnd(); };
+            form.DeleteClicked += delegate { DeleteTrack(); };
+            form.NextClicked += delegate { NextTrack(); };
+            form.PreviousClicked += delegate { PreviousTrack(); };
+            form.AddTrackClicked += delegate { AddTrack(); };
+            form.StopPreviewClicked += delegate { PreviewStop(); };
+            form.LoopPlaybackClicked += delegate { ToggleLoopedPlayback(); };
         }
 
         public void DeleteTrack()
