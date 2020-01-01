@@ -45,7 +45,17 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 
         private void BindFormActions(EditTracksForm form)
         {
-            //TODO: fix click bindings!
+            //TODO: this fixes buttons not responding to clicks - but there's some woeful duplication...
+            form.BtnPreviewAll.Click += delegate { PreviewAll(); };
+            form.BtnStopPreview.Click += delegate { PreviewStop(); };
+            form.BtnPreviewStart.Click += delegate { PreviewStart(); };
+            form.BtnPreviewEnd.Click += delegate { PreviewEnd(); };
+            form.BtnPrevious.Click += delegate { PreviousTrack(); };
+            form.BtnNext.Click += delegate { NextTrack(); };
+            form.BtnAddTrack.Click += delegate { AddTrack(); };
+            form.BtnDelete.Click += delegate { DeleteTrack(); };
+
+            //TODO: refactor/de-duplicate keybindings are invoking these event handlers
             form.PreviewAllClicked += delegate { PreviewAll(); };
             form.PreviewStartClicked += delegate { PreviewStart(); };
             form.PreviewEndClicked += delegate { PreviewEnd(); };
