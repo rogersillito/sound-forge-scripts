@@ -36,7 +36,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             _tracks = tracks;
             _vm = viewModel;
             viewModel.Build(tracks, _entryPoint.ScriptTitle);
-            EditTracksForm form = _formFactory.Create(viewModel);
+            EditTracksForm form = _formFactory.Create(viewModel, this);
             BindFormActions(form);
             if (_vm.HasTracks)
                 _vm.CurrentTrack = tracks.GetTrack(1);
@@ -45,7 +45,6 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 
         private void BindFormActions(EditTracksForm form)
         {
-            //TODO: this fixes buttons not responding to clicks - but there's some woeful duplication...
             form.BtnPreviewAll.Click += delegate { PreviewAll(); };
             form.BtnStopPreview.Click += delegate { PreviewStop(); };
             form.BtnPreviewStart.Click += delegate { PreviewStart(); };
@@ -54,17 +53,6 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             form.BtnNext.Click += delegate { NextTrack(); };
             form.BtnAddTrack.Click += delegate { AddTrack(); };
             form.BtnDelete.Click += delegate { DeleteTrack(); };
-
-            //TODO: refactor/de-duplicate keybindings are invoking these event handlers
-            form.PreviewAllClicked += delegate { PreviewAll(); };
-            form.PreviewStartClicked += delegate { PreviewStart(); };
-            form.PreviewEndClicked += delegate { PreviewEnd(); };
-            form.DeleteClicked += delegate { DeleteTrack(); };
-            form.NextClicked += delegate { NextTrack(); };
-            form.PreviousClicked += delegate { PreviousTrack(); };
-            form.AddTrackClicked += delegate { AddTrack(); };
-            form.StopPreviewClicked += delegate { PreviewStop(); };
-            form.LoopPlaybackClicked += delegate { ToggleLoopedPlayback(); };
         }
 
         public void DeleteTrack()
@@ -95,7 +83,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
                 return;
             }
             //TODO: if overlaps with existing track adjust existing tracks to suit new track
-            //TODO: insert a track
+            //TODO: IMPLEMENT.. insert a track
         }
 
         public void PreviousTrack()

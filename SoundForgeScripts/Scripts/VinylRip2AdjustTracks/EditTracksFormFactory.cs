@@ -8,14 +8,14 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 {
     public class EditTracksFormFactory
     {
-        public EditTracksForm Create(EditTracksViewModel viewModel)
+        public EditTracksForm Create(EditTracksViewModel viewModel, EditTracksController controller)
         {
             EditTracksForm form = new EditTracksForm();
             BindViewModel(viewModel, form);
             form.Text = viewModel.FormTitle;
             form.KeyDown += delegate(object sender, KeyEventArgs e)
             {
-                KeyboardBindings(form, viewModel, e);
+                KeyboardBindings(form, viewModel, controller, e);
             };
             return form;
         }
@@ -38,8 +38,9 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
                 DataSourceUpdateMode.OnPropertyChanged);
         }
 
-        private void KeyboardBindings(EditTracksForm form, EditTracksViewModel vm, KeyEventArgs e)
+        private void KeyboardBindings(EditTracksForm form, EditTracksViewModel vm, EditTracksController controller, KeyEventArgs e)
         {
+
             if (e.KeyCode == Keys.Escape)
             {
                 form.Close();
@@ -48,44 +49,44 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 
             if (e.KeyCode == Keys.Space)
             {
-                form.StopPreviewClicked.Invoke(form, e);
+                form.BtnStopPreview.PerformClick();
                 e.Handled = true;
             }
 
             if (e.KeyCode == Keys.Q)
             {
                 // "pass-through" behaviour to SF
-                form.LoopPlaybackClicked.Invoke(form, e);
+                controller.ToggleLoopedPlayback();
                 e.Handled = true;
             }
 
             if (vm.HasTracks && e.KeyCode == Keys.Home)
             {
-                form.PreviewStartClicked.Invoke(form, e);
+                form.BtnPreviewStart.PerformClick();
                 e.Handled = true;
             }
 
             if (vm.HasTracks && e.KeyCode == Keys.End)
             {
-                form.PreviewEndClicked.Invoke(form, e);
+                form.BtnPreviewEnd.PerformClick();
                 e.Handled = true;
             }
 
             if (vm.HasTracks && e.KeyCode == Keys.Delete)
             {
-                form.DeleteClicked.Invoke(form, e);
+                form.BtnDelete.PerformClick();
                 e.Handled = true;
             }
 
             if (vm.CanNavigatePrevious && e.KeyCode == Keys.Left)
             {
-                form.PreviousClicked.Invoke(form, e);
+                form.BtnPrevious.PerformClick();
                 e.Handled = true;
             }
 
             if (vm.CanNavigateNext && e.KeyCode == Keys.Right)
             {
-                form.NextClicked.Invoke(form, e);
+                form.BtnNext.PerformClick();
                 e.Handled = true;
             }
         }
