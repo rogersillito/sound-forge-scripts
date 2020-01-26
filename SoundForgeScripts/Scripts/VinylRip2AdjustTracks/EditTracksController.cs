@@ -54,6 +54,9 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             form.BtnAddTrackBefore.Click += delegate { AddTrackBefore(); };
             form.BtnAddTrackAfter.Click += delegate { AddTrackBefore(); };
             form.BtnDelete.Click += delegate { DeleteTrack(); };
+
+            form.BtnMoveStartPlus.Click += delegate { MoveStartPlus(); }; 
+            form.BtnMoveStartMinus.Click += delegate { MoveStartMinus(); }; 
         }
 
         public void DeleteTrack()
@@ -85,6 +88,18 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             }
             //TODO: if overlaps with existing track adjust existing tracks to suit new track
             //TODO: IMPLEMENT.. insert a track
+        }
+
+        public void MoveStartPlus()
+        {
+            //TODO...
+            _output.ToStatusBar("startPlus");
+        }
+
+        public void MoveStartMinus()
+        {
+            //TODO...
+            _output.ToStatusBar("startMinus");
         }
 
         public void AddTrackAfter()

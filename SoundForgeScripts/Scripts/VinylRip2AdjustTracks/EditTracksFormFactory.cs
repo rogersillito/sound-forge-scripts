@@ -90,8 +90,13 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
                 e.Handled = true;
             }
 
+            if (e.KeyCode == Keys.K)
+            {
+                (e.Shift ? form.BtnMoveStartPlus : form.BtnMoveStartMinus).PerformClick();
+                e.Handled = true;
+            }
+
             /*
-                TODO:
                 insert before B
                 insert after  A
                 Start + k
@@ -102,6 +107,16 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
                 end - h
                 fade in + o
                 fade out - y 
+
+                TODO: add ++/-- buttons, click handlers, key bindings
+                Start ++ K
+                Start -- J
+                fade in ++ I
+                fade in -- U
+                end ++ L
+                end -- H
+                fade in ++ O
+                fade out -- Y 
              */
         }
 
