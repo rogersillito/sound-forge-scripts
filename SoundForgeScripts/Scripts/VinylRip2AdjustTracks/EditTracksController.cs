@@ -51,7 +51,8 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             form.BtnPreviewEnd.Click += delegate { PreviewEnd(); };
             form.BtnPrevious.Click += delegate { PreviousTrack(); };
             form.BtnNext.Click += delegate { NextTrack(); };
-            form.BtnAddTrack.Click += delegate { AddTrack(); };
+            form.BtnAddTrackBefore.Click += delegate { AddTrackBefore(); };
+            form.BtnAddTrackAfter.Click += delegate { AddTrackBefore(); };
             form.BtnDelete.Click += delegate { DeleteTrack(); };
         }
 
@@ -73,7 +74,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             _vm.CurrentTrack = nextCurrent;
         }
 
-        public void AddTrack()
+        public void AddTrackBefore()
         {
             //TODO: need this to work modally: "add before"/ "add after" ?
             bool selectionLongEnough = _fileTasks.IsCurrentSelectionGreaterThan(_app, _options.MinimumTrackLengthInSeconds);
@@ -84,6 +85,11 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             }
             //TODO: if overlaps with existing track adjust existing tracks to suit new track
             //TODO: IMPLEMENT.. insert a track
+        }
+
+        public void AddTrackAfter()
+        {
+            //TODO...
         }
 
         public void PreviousTrack()

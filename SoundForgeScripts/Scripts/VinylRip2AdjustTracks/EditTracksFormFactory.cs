@@ -89,6 +89,20 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
                 form.BtnNext.PerformClick();
                 e.Handled = true;
             }
+
+            /*
+                TODO:
+                insert before B
+                insert after  A
+                Start + k
+                Start - j
+                fade in + i
+                fade in - u
+                end + l
+                end - h
+                fade in + o
+                fade out - y 
+             */
         }
 
     }
