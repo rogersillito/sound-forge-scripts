@@ -10,6 +10,9 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
         private readonly FileTasks _fileTasks;
 
         private SplitTrackList _tracks;
+        private string _formTitle;
+        private int _plusOrMinusSamples = 5;
+        private int _plusPlusOrMinusMinusSamples = 50;
 
         public EditTracksViewModel(FileTasks fileTasks)
         {
@@ -20,6 +23,18 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
         {
             _formTitle = scriptTitle;
             _tracks = tracks;
+        }
+
+        public int PlusOrMinusSamples
+        {
+            get { return _plusOrMinusSamples; }
+            set { _plusOrMinusSamples = value; }
+        }
+
+        public int PlusPlusOrMinusMinusSamples
+        {
+            get { return _plusPlusOrMinusMinusSamples; }
+            set { _plusPlusOrMinusMinusSamples = value; }
         }
 
         public bool HasTracks
@@ -62,15 +77,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
         }
-        //protected bool SetField<T>(ref T field, T value, string propertyName)
-        //{
-        //    if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-        //    field = value;
-        //    OnPropertyChanged(propertyName);
-        //    return true;
-        //}
 
-        private string _formTitle;
         public string FormTitle
         {
             get { return _formTitle; }

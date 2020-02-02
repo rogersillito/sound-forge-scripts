@@ -22,21 +22,29 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
         protected internal Button BtnAddTrackAfter = new Button();
         protected internal Label LblTrack = new Label();
 
+        protected internal Button BtnMoveStartMinusMinus = new Button();
         protected internal Button BtnMoveStartMinus = new Button();
         protected internal Label LblMoveStart = new Label();
         protected internal Button BtnMoveStartPlus = new Button();
+        protected internal Button BtnMoveStartPlusPlus = new Button();
 
+        protected internal Button BtnMoveEndMinusMinus = new Button();
         protected internal Button BtnMoveEndMinus = new Button();
         protected internal Label LblMoveEnd = new Label();
         protected internal Button BtnMoveEndPlus = new Button();
+        protected internal Button BtnMoveEndPlusPlus = new Button();
 
+        protected internal Button BtnMoveFadeInMinusMinus = new Button();
         protected internal Button BtnMoveFadeInMinus = new Button();
         protected internal Label LblMoveFadeIn = new Label();
         protected internal Button BtnMoveFadeInPlus = new Button();
+        protected internal Button BtnMoveFadeInPlusPlus = new Button();
 
+        protected internal Button BtnMoveFadeOutMinusMinus = new Button();
         protected internal Button BtnMoveFadeOutMinus = new Button();
         protected internal Label LblMoveFadeOut = new Label();
         protected internal Button BtnMoveFadeOutPlus = new Button();
+        protected internal Button BtnMoveFadeOutPlusPlus = new Button();
 
         private readonly Color LabelBgColor = Color.FromArgb(17, Color.Black);
         private ToolTip _toolTip;
@@ -195,52 +203,53 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             Controls.Add(BtnAddTrackAfter);
 
             // NEW ROW
-            //TODO: add ++/-- buttons, click handlers, key bindings
             _pt.Y += BtnAddTrackAfter.Height + _sSpacer.Height;
             _pt.X = _sOff.Width;
 
-            DoPlusMinusControlLayout(BtnMoveStartMinus, BtnMoveStartPlus, LblMoveStart, BtnPreviewAll.Width);
+            DoPlusMinusControlLayout(BtnMoveStartMinusMinus, BtnMoveStartMinus, LblMoveStart, BtnMoveStartPlus, BtnMoveStartPlusPlus, BtnPreviewAll.Width);
             LblMoveStart.Text = "Start";
             _toolTip.SetToolTip(BtnMoveStartMinusMinus, "Keyboard: J");
             _toolTip.SetToolTip(BtnMoveStartPlusPlus, "Keyboard: K");
-            _toolTip.SetToolTip(BtnMoveStartMinus, "Keyboard: j");
-            _toolTip.SetToolTip(BtnMoveStartPlus, "Keyboard: k");
+            _toolTip.SetToolTip(BtnMoveStartMinus, "Keyboard: Shift + J");
+            _toolTip.SetToolTip(BtnMoveStartPlus, "Keyboard: Shift + K");
 
-            DoPlusMinusControlLayout(BtnMoveEndMinus, BtnMoveEndPlus, LblMoveEnd, BtnPreviewAll.Width);
+            DoPlusMinusControlLayout(BtnMoveEndMinusMinus, BtnMoveEndMinus, LblMoveEnd, BtnMoveEndPlus, BtnMoveEndPlusPlus, BtnPreviewAll.Width);
             LblMoveEnd.Text = "End";
             _toolTip.SetToolTip(BtnMoveEndMinusMinus, "Keyboard: H");
             _toolTip.SetToolTip(BtnMoveEndPlusPlus, "Keyboard: L");
-            _toolTip.SetToolTip(BtnMoveEndMinus, "Keyboard: h");
-            _toolTip.SetToolTip(BtnMoveEndPlus, "Keyboard: l");
+            _toolTip.SetToolTip(BtnMoveEndMinus, "Keyboard: Shift + H");
+            _toolTip.SetToolTip(BtnMoveEndPlus, "Keyboard: Shift + L");
 
             // NEW ROW
             _pt.Y += BtnMoveEndMinus.Height + _sSpacer.Height;
             _pt.X = _sOff.Width;
 
-            DoPlusMinusControlLayout(BtnMoveFadeInMinus, BtnMoveFadeInPlus, LblMoveFadeIn, BtnPreviewAll.Width);
-            LblMoveFadeIn.Text = "FadeIn";
+            DoPlusMinusControlLayout(BtnMoveFadeInMinusMinus, BtnMoveFadeInMinus, LblMoveFadeIn, BtnMoveFadeInPlus, BtnMoveFadeInPlusPlus, BtnPreviewAll.Width);
+            LblMoveFadeIn.Text = "Fade In";
             _toolTip.SetToolTip(BtnMoveFadeInMinusMinus, "Keyboard: U");
             _toolTip.SetToolTip(BtnMoveFadeInPlusPlus, "Keyboard: I");
-            _toolTip.SetToolTip(BtnMoveFadeInMinus, "Keyboard: u");
-            _toolTip.SetToolTip(BtnMoveFadeInPlus, "Keyboard: i");
+            _toolTip.SetToolTip(BtnMoveFadeInMinus, "Keyboard: Shift + U");
+            _toolTip.SetToolTip(BtnMoveFadeInPlus, "Keyboard: Shift + I");
 
-            DoPlusMinusControlLayout(BtnMoveFadeOutMinus, BtnMoveFadeOutPlus, LblMoveFadeOut, BtnPreviewAll.Width);
-            LblMoveFadeOut.Text = "FadeOut";
+            DoPlusMinusControlLayout(BtnMoveFadeOutMinusMinus, BtnMoveFadeOutMinus, LblMoveFadeOut, BtnMoveFadeOutPlus, BtnMoveFadeOutPlusPlus, BtnPreviewAll.Width);
+            LblMoveFadeOut.Text = "Fade Out";
             _toolTip.SetToolTip(BtnMoveFadeOutMinusMinus, "Keyboard: Y");
             _toolTip.SetToolTip(BtnMoveFadeOutPlusPlus, "Keyboard: O");
-            _toolTip.SetToolTip(BtnMoveFadeOutMinus, "Keyboard: y");
-            _toolTip.SetToolTip(BtnMoveFadeOutPlus, "Keyboard: o");
+            _toolTip.SetToolTip(BtnMoveFadeOutMinus, "Keyboard: Shift + Y");
+            _toolTip.SetToolTip(BtnMoveFadeOutPlus, "Keyboard: Shift + O");
         }
 
-        private void DoPlusMinusControlLayout(Button minusButton, Button plusButton, Label label, int groupWidth)
+        private void DoPlusMinusControlLayout(Button minusMinusButton, Button minusButton, Label label,
+            Button plusButton, Button plusPlusButton, int groupWidth)
         {
             //TODO: add ++/-- buttons, click handlers, key bindings
+            Button[] buttons = new Button[] { minusMinusButton, minusButton, plusButton, plusPlusButton };
             int groupSpacerWidth = _sSpacer.Width / 2;
-            int controlsMinusSpacingWidth = groupWidth - (2 * groupSpacerWidth);
+            int controlsMinusSpacingWidth = groupWidth - (buttons.Length * groupSpacerWidth);
             int btnWidth = (int)Math.Floor(controlsMinusSpacingWidth * 0.15f);
-            int lblWidth = controlsMinusSpacingWidth - (2 * btnWidth);
+            int lblWidth = controlsMinusSpacingWidth - (buttons.Length * btnWidth);
 
-            foreach (Button btn in new Button[] { minusButton, plusButton })
+            foreach (Button btn in buttons)
             {
                 btn.TabStop = true;
                 btn.Height = FatButtonHeight;
@@ -248,6 +257,10 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
                 btn.TextAlign = ContentAlignment.MiddleCenter;
                 Controls.Add(btn);
             }
+
+            minusMinusButton.Location = _pt;
+            minusMinusButton.Text = "--";
+            _pt.X += minusMinusButton.Width + groupSpacerWidth;
 
             minusButton.Location = _pt;
             minusButton.Text = "-";
@@ -264,7 +277,11 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 
             plusButton.Location = _pt;
             plusButton.Text = "+";
-            _pt.X += plusButton.Width + _sSpacer.Width;
+            _pt.X += plusButton.Width + groupSpacerWidth;
+
+            plusPlusButton.Location = _pt;
+            plusPlusButton.Text = "++";
+            _pt.X += plusPlusButton.Width + _sSpacer.Width;
         }
     }
 }

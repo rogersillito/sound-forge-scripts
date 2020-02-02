@@ -90,35 +90,53 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
                 e.Handled = true;
             }
 
-            if (e.KeyCode == Keys.K)
+            if (e.KeyCode == Keys.J)
             {
-                (e.Shift ? form.BtnMoveStartPlus : form.BtnMoveStartMinus).PerformClick();
+                (e.Shift ? form.BtnMoveStartMinus : form.BtnMoveStartMinusMinus).PerformClick();
                 e.Handled = true;
             }
 
-            /*
-                insert before B
-                insert after  A
-                Start + k
-                Start - j
-                fade in + i
-                fade in - u
-                end + l
-                end - h
-                fade in + o
-                fade out - y 
+            if (e.KeyCode == Keys.K)
+            {
+                (e.Shift ? form.BtnMoveStartPlus : form.BtnMoveStartPlusPlus).PerformClick();
+                e.Handled = true;
+            }
 
-                TODO: add ++/-- buttons, click handlers, key bindings
-                Start ++ K
-                Start -- J
-                fade in ++ I
-                fade in -- U
-                end ++ L
-                end -- H
-                fade in ++ O
-                fade out -- Y 
-             */
+            if (e.KeyCode == Keys.H)
+            {
+                (e.Shift ? form.BtnMoveEndMinus : form.BtnMoveEndMinusMinus).PerformClick();
+                e.Handled = true;
+            }
+
+            if (e.KeyCode == Keys.L)
+            {
+                (e.Shift ? form.BtnMoveEndPlus : form.BtnMoveEndPlusPlus).PerformClick();
+                e.Handled = true;
+            }
+
+            if (e.KeyCode == Keys.U)
+            {
+                (e.Shift ? form.BtnMoveFadeInMinus : form.BtnMoveFadeInMinusMinus).PerformClick();
+                e.Handled = true;
+            }
+
+            if (e.KeyCode == Keys.I)
+            {
+                (e.Shift ? form.BtnMoveFadeInPlus : form.BtnMoveFadeInPlusPlus).PerformClick();
+                e.Handled = true;
+            }
+
+            if (e.KeyCode == Keys.Y)
+            {
+                (e.Shift ? form.BtnMoveFadeOutMinus : form.BtnMoveFadeOutMinusMinus).PerformClick();
+                e.Handled = true;
+            }
+
+            if (e.KeyCode == Keys.O)
+            {
+                (e.Shift ? form.BtnMoveFadeOutPlus : form.BtnMoveFadeOutPlusPlus).PerformClick();
+                e.Handled = true;
+            }
         }
-
     }
 }
