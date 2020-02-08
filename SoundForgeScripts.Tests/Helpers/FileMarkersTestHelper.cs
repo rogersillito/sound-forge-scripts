@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Moq;
 using SoundForge;
@@ -29,8 +29,6 @@ namespace SoundForgeScripts.Tests.Helpers
             
             markerList.Setup(x => x[It.IsAny<int>()])
                 .Returns<int>(idx => RealMarkerList[idx]);
-
-            //markerList.Setup(x => x.GetEnumerator()).Returns(() => RealMarkerList.ToList().GetEnumerator());
 
             return markerList;
         }

@@ -53,7 +53,6 @@ namespace SoundForgeScriptsLib.VinylRip
         private SfAudioMarker _trackRegionMarker;
         public SfAudioMarker TrackRegion
         {
-            //TODO: test deleted track region marker... should try and recreate in an appropriate location..
             get { return _trackRegionMarker; }
             set { _trackRegionMarker = value; }
         }
@@ -127,5 +126,26 @@ namespace SoundForgeScriptsLib.VinylRip
         }
 
         public int CompareTo(SplitTrackDefinition other) => TrackRegion.Start.CompareTo(other.TrackRegion.Start);
+
+        public bool CanMoveStartBy(int samples)
+        {
+            return false;
+        }
+
+        public bool CanMoveEndBy(int samples)
+        {
+            return false;
+        }
+
+        public bool CanMoveFadeInBy(int samples)
+        {
+            //TODO: implement - pass first test...
+            return false;
+        }
+
+        public bool CanMoveFadeOutBy(int samples)
+        {
+            return false;
+        }
     }
 }
