@@ -57,8 +57,22 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
             Establish context = () =>
                 sut_factory.create_using(() => SplitTrackList.First());
 
+            // CAN
             private It should_get_true_when_checking_set_zero_fade_in = () =>
                 sut.CanMoveFadeInBy(-20).ShouldBeTrue();
+
+            private It should_get_true_when_checking_extend_fade_in = () =>
+                sut.CanMoveFadeInBy(20).ShouldBeTrue();
+
+            private It should_get_true_when_checking_set_fade_in_to_track_end = () =>
+                sut.CanMoveFadeInBy(9980).ShouldBeTrue();
+
+            // CANNOT!
+            private It should_get_false_when_checking_set_fade_in_before_track_start = () =>
+                sut.CanMoveFadeInBy(-21).ShouldBeFalse();
+
+            private It should_get_false_when_checking_set_fade_in_after_track_end = () =>
+                sut.CanMoveFadeInBy(9981).ShouldBeFalse();
         }
     }
 }

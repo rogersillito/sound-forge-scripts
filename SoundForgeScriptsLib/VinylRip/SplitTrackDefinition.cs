@@ -139,8 +139,13 @@ namespace SoundForgeScriptsLib.VinylRip
 
         public bool CanMoveFadeInBy(int samples)
         {
-            //TODO: implement - pass first test...
-            return false;
+            if (FadeInEndMarker.Start + samples < TrackRegion.Start)
+                return false;
+            
+            if (FadeInEndMarker.Start + samples > TrackRegion.Start + TrackRegion.Length)
+                return false;
+            
+            return true;
         }
 
         public bool CanMoveFadeOutBy(int samples)
