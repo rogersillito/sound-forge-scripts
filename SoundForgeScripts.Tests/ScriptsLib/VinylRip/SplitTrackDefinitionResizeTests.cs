@@ -52,7 +52,7 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
         }
 
         [Subject(typeof(SplitTrackDefinition))]
-        public class when_editing_first_track : SplitTrackDefinitionContext
+        public class when_checking_edits_on_first_track : SplitTrackDefinitionContext
         {
             Establish context = () =>
                 sut_factory.create_using(() => SplitTrackList.First());
@@ -73,6 +73,18 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
 
             private It should_get_false_when_checking_set_fade_in_after_track_end = () =>
                 sut.CanMoveFadeInBy(9981).ShouldBeFalse();
+        }
+
+        [Subject(typeof(SplitTrackDefinition))]
+        public class when_moving_fade_in : SplitTrackDefinitionContext
+        {
+            Establish context = () =>
+                sut_factory.create_using(() => SplitTrackList.First());
+
+            Because of = () =>
+                sut.MoveFadeInBy(-19);
+
+            It should_update_fade_in_marker = () => sut.FadeInEndMarker.Start.ShouldEqual(1);
         }
     }
 }

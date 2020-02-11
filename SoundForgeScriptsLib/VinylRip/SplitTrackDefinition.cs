@@ -127,17 +127,17 @@ namespace SoundForgeScriptsLib.VinylRip
 
         public int CompareTo(SplitTrackDefinition other) => TrackRegion.Start.CompareTo(other.TrackRegion.Start);
 
-        public bool CanMoveStartBy(int samples)
+        public bool CanMoveStartBy(long samples)
         {
             return false;
         }
 
-        public bool CanMoveEndBy(int samples)
+        public bool CanMoveEndBy(long samples)
         {
             return false;
         }
 
-        public bool CanMoveFadeInBy(int samples)
+        public bool CanMoveFadeInBy(long samples)
         {
             if (FadeInEndMarker.Start + samples < TrackRegion.Start)
                 return false;
@@ -148,7 +148,14 @@ namespace SoundForgeScriptsLib.VinylRip
             return true;
         }
 
-        public bool CanMoveFadeOutBy(int samples)
+        public void MoveFadeInBy(long samples)
+        {
+            if (!CanMoveFadeInBy(samples))
+                return;
+            FadeInEndMarker.Start += samples;
+        }
+
+        public bool CanMoveFadeOutBy(long samples)
         {
             return false;
         }

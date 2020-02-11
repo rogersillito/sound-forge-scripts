@@ -20,6 +20,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
         private EditTracksViewModel _vm;
         private SplitTrackList _tracks;
         private FindTracksOptions _options;
+        private EditTracksForm _form;
 
         public EditTracksController(IScriptableApp app, EditTracksFormFactory formFactory, EntryPointBase entryPoint, OutputHelper output, FileTasks fileTasks)
         {
@@ -36,27 +37,45 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             _tracks = tracks;
             _vm = viewModel;
             viewModel.Build(tracks, _entryPoint.ScriptTitle);
-            EditTracksForm form = _formFactory.Create(viewModel, this);
-            BindFormActions(form);
+            _form = _formFactory.Create(viewModel, this);
+            BindFormActions();
             if (_vm.HasTracks)
                 _vm.CurrentTrack = tracks.GetTrack(1);
-            form.ShowDialog(_app.Win32Window);
+            _form.ShowDialog(_app.Win32Window);
         }
 
-        private void BindFormActions(EditTracksForm form)
+        private void BindFormActions()
         {
-            form.BtnPreviewAll.Click += delegate { PreviewAll(); };
-            form.BtnStopPreview.Click += delegate { PreviewStop(); };
-            form.BtnPreviewStart.Click += delegate { PreviewStart(); };
-            form.BtnPreviewEnd.Click += delegate { PreviewEnd(); };
-            form.BtnPrevious.Click += delegate { PreviousTrack(); };
-            form.BtnNext.Click += delegate { NextTrack(); };
-            form.BtnAddTrackBefore.Click += delegate { AddTrackBefore(); };
-            form.BtnAddTrackAfter.Click += delegate { AddTrackBefore(); };
-            form.BtnDelete.Click += delegate { DeleteTrack(); };
+            _form.BtnPreviewAll.Click += delegate { PreviewAll(); };
+            _form.BtnStopPreview.Click += delegate { PreviewStop(); };
+            _form.BtnPreviewStart.Click += delegate { PreviewStart(); };
+            _form.BtnPreviewEnd.Click += delegate { PreviewEnd(); };
+            _form.BtnPrevious.Click += delegate { PreviousTrack(); };
+            _form.BtnNext.Click += delegate { NextTrack(); };
+            _form.BtnAddTrackBefore.Click += delegate { AddTrackBefore(); };
+            _form.BtnAddTrackAfter.Click += delegate { AddTrackBefore(); };
+            _form.BtnDelete.Click += delegate { DeleteTrack(); };
 
-            form.BtnMoveStartPlus.Click += delegate { MoveStartPlus(); }; 
-            form.BtnMoveStartMinus.Click += delegate { MoveStartMinus(); }; 
+            _form.BtnMoveStartPlus.Click += delegate { MoveStartPlus(); }; 
+            _form.BtnMoveStartMinus.Click += delegate { MoveStartMinus(); }; 
+
+            _form.BtnMoveFadeInPlus.Click += delegate { MoveFadeIn(_vm.PlusOrMinusSamples); }; 
+            _form.BtnMoveFadeInMinus.Click += delegate { MoveFadeIn(-_vm.PlusOrMinusSamples); }; 
+            _form.BtnMoveFadeInPlusPlus.Click += delegate { MoveFadeIn(_vm.PlusPlusOrMinusMinusSamples); }; 
+            _form.BtnMoveFadeInMinusMinus.Click += delegate { MoveFadeIn(-_vm.PlusPlusOrMinusMinusSamples); }; 
+        }
+
+        public void MoveFadeIn(long samples)
+        {
+            _output.ToStatusField1(string.Format("{0}: {1}", _form.LblMoveFadeIn.Text, samples));
+            _vm.CurrentTrack.MoveFadeInBy(samples);
+            long selectionLength = _vm.CurrentTrack.TrackRegion.Start - _vm.CurrentTrack.FadeInEndMarker.Start;
+            SfAudioSelection selection = new SfAudioSelection(_vm.CurrentTrack.TrackRegion.Start, selectionLength);
+            //TODO: zoom not working right
+            //TODO: selection going wrong way!
+            //TODO: disable button if can't move...
+            _fileTasks.ZoomToShow(selection);
+            _fileTasks.SetSelection(selection, DataWndScrollTo.Leftish | DataWndScrollTo.Rightish);
         }
 
         public void DeleteTrack()
