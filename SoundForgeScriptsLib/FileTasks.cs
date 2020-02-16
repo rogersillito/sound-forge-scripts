@@ -66,20 +66,28 @@ namespace SoundForgeScriptsLib
             return statistics;
         }
 
+        public SfAudioSelection ExpandSelectionAround(SfAudioSelection selection, long tryExpandBy)
+        {
+            SfAudioSelection newSelection = new SfAudioSelection(selection);
+            newSelection.Start -= tryExpandBy;
+            if (newSelection.Start < 0)
+                newSelection.Start = 0;
+
+            newSelection.Length += (2 * tryExpandBy);
+            if (SelectionHelper.GetSelectionEnd(newSelection) > _file.Length)
+                SelectionHelper.SetSelectionEnd(newSelection, _file.Length);
+
+            return newSelection;
+        }
+
         public void SetSelection(SfAudioSelection selection)
         {
             SetSelection(selection, DataWndScrollTo.NoMove);
         }
 
-        public void ZoomToShow(SfAudioSelection selection)
-        {
-            _file.Window.ZoomToShow(selection.Start, selection.Length);
-        }
-
         public void SetSelection(SfAudioSelection selection, DataWndScrollTo scrollTo)
         {
             _file.Window.SetSelectionAndScroll(selection.Start, selection.Length, scrollTo);
-            _file.Window.RedrawWindow(true);
         }
 
         public SfAudioSelection SelectAll()
@@ -89,9 +97,19 @@ namespace SoundForgeScriptsLib
             return selection;
         }
 
+        public void RedrawWindow()
+        {
+            _file.Window.RedrawWindow(false);
+        }
+
         public void ZoomOutFull()
         {
             _file.Window.ZoomToShow(0, _file.Length);
+        }
+
+        public void ZoomToShow(SfAudioSelection selection)
+        {
+            _file.Window.ZoomToShow(selection.Start, selection.Length);
         }
 
         public void ApplyEffectPreset(IScriptableApp app, SfAudioSelection selection, string effectName, string presetName, EffectOptions effectOption, OutputHelper.MessageLogger logger)

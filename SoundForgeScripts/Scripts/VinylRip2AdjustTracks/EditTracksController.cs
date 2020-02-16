@@ -67,15 +67,14 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 
         public void MoveFadeIn(long samples)
         {
+            //TODO: disable button if can't move...
             _output.ToStatusField1(string.Format("{0}: {1}", _form.LblMoveFadeIn.Text, samples));
             _vm.CurrentTrack.MoveFadeInBy(samples);
-            long selectionLength = _vm.CurrentTrack.TrackRegion.Start - _vm.CurrentTrack.FadeInEndMarker.Start;
+            long selectionLength = _vm.CurrentTrack.FadeInEndMarker.Start - _vm.CurrentTrack.TrackRegion.Start;
             SfAudioSelection selection = new SfAudioSelection(_vm.CurrentTrack.TrackRegion.Start, selectionLength);
-            //TODO: zoom not working right
-            //TODO: selection going wrong way!
-            //TODO: disable button if can't move...
-            _fileTasks.ZoomToShow(selection);
-            _fileTasks.SetSelection(selection, DataWndScrollTo.Leftish | DataWndScrollTo.Rightish);
+            _fileTasks.SetSelection(selection);
+            _fileTasks.ZoomToShow(_fileTasks.ExpandSelectionAround(selection, _vm.ZoomPadding));
+            _fileTasks.RedrawWindow();
         }
 
         public void DeleteTrack()
@@ -131,6 +130,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             if (!_vm.CanNavigatePrevious) return;
             int n = _vm.CurrentTrack.Number;
             _vm.CurrentTrack = _tracks.GetTrack(n - 1);
+            _fileTasks.ZoomOutFull();
         }
 
         public void NextTrack()
@@ -138,6 +138,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             if (!_vm.CanNavigateNext) return;
             int n = _vm.CurrentTrack == null ? 0 : _vm.CurrentTrack.Number;
             _vm.CurrentTrack = _tracks.GetTrack(n + 1);
+            _fileTasks.ZoomOutFull();
         }
 
         public void PreviewStart()

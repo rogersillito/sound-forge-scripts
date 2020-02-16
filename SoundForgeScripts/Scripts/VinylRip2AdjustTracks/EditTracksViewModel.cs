@@ -11,8 +11,9 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 
         private SplitTrackList _tracks;
         private string _formTitle;
-        private int _plusOrMinusSamples = 5;
-        private int _plusPlusOrMinusMinusSamples = 50;
+        private long _plusOrMinusSamples = 10;
+        private long _plusPlusOrMinusMinusSamples = 100;
+        private long _zoomPadding = 3000;
 
         public EditTracksViewModel(FileTasks fileTasks)
         {
@@ -25,13 +26,19 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             _tracks = tracks;
         }
 
-        public int PlusOrMinusSamples
+        public long ZoomPadding
+        {
+            get { return _zoomPadding; }
+            set { _zoomPadding = value; }
+        }
+
+        public long PlusOrMinusSamples
         {
             get { return _plusOrMinusSamples; }
             set { _plusOrMinusSamples = value; }
         }
 
-        public int PlusPlusOrMinusMinusSamples
+        public long PlusPlusOrMinusMinusSamples
         {
             get { return _plusPlusOrMinusMinusSamples; }
             set { _plusPlusOrMinusMinusSamples = value; }
@@ -43,6 +50,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
         }
 
         private SplitTrackDefinition _currentTrack;
+
         public SplitTrackDefinition CurrentTrack
         {
             get { return _currentTrack; }

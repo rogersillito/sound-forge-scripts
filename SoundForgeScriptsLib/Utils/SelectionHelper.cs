@@ -1,4 +1,4 @@
-﻿using SoundForge;
+using SoundForge;
 
 namespace SoundForgeScriptsLib.Utils
 {
@@ -14,6 +14,11 @@ namespace SoundForgeScriptsLib.Utils
         public static long GetSelectionEnd(SfAudioSelection selection)
         {
             return selection.Start + selection.Length;
+        }
+
+        public static string PrettyPrint(SfAudioSelection selection)
+        {
+            return $"Start: {selection.Start}, End: {GetSelectionEnd(selection)}, Length: {selection.Length}";
         }
     }
 }
