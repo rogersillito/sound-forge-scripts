@@ -65,6 +65,11 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
                 OnPropertyChanged("CanNavigateNext");
                 OnPropertyChanged("CanNavigatePrevious");
                 OnPropertyChanged("HasTracks");
+
+                OnPropertyChanged("CanMoveFadeInPlus");
+                OnPropertyChanged("CanMoveFadeInPlusPlus");
+                OnPropertyChanged("CanMoveFadeInMinus");
+                OnPropertyChanged("CanMoveFadeInMinusMinus");
             }
         }
 
@@ -99,6 +104,41 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
         public bool CanNavigateNext
         {
             get { return HasTracks && !CurrentTrack.IsLastTrack; }
+        }
+
+        public void MoveFadeIn(long samples)
+        {
+            //TODO: make this return bool so we can exit when not possible (and avoid zoom/selection being changed)
+            CurrentTrack.MoveFadeInBy(samples);
+            OnPropertyChanged("CanMoveFadeInPlus");
+            OnPropertyChanged("CanMoveFadeInPlusPlus");
+            OnPropertyChanged("CanMoveFadeInMinus");
+            OnPropertyChanged("CanMoveFadeInMinusMinus");
+            long selectionLength = CurrentTrack.FadeInEndMarker.Start - CurrentTrack.TrackRegion.Start;
+            SfAudioSelection selection = new SfAudioSelection(CurrentTrack.TrackRegion.Start, selectionLength);
+            _fileTasks.SetSelection(selection);
+            _fileTasks.ZoomToShow(_fileTasks.ExpandSelectionAround(selection, ZoomPadding));
+            _fileTasks.RedrawWindow();
+        }
+
+        public bool CanMoveFadeInPlus
+        {
+            get { return CurrentTrack.CanMoveFadeInBy(PlusOrMinusSamples); }
+        }
+
+        public bool CanMoveFadeInPlusPlus
+        {
+            get { return CurrentTrack.CanMoveFadeInBy(PlusPlusOrMinusMinusSamples); }
+        }
+
+        public bool CanMoveFadeInMinus
+        {
+            get { return CurrentTrack.CanMoveFadeInBy(-PlusOrMinusSamples); }
+        }
+
+        public bool CanMoveFadeInMinusMinus
+        {
+            get { return CurrentTrack.CanMoveFadeInBy(-PlusPlusOrMinusMinusSamples); }
         }
     }
 }

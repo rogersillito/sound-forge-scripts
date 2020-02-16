@@ -67,14 +67,8 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 
         public void MoveFadeIn(long samples)
         {
-            //TODO: disable button if can't move...
             _output.ToStatusField1(string.Format("{0}: {1}", _form.LblMoveFadeIn.Text, samples));
-            _vm.CurrentTrack.MoveFadeInBy(samples);
-            long selectionLength = _vm.CurrentTrack.FadeInEndMarker.Start - _vm.CurrentTrack.TrackRegion.Start;
-            SfAudioSelection selection = new SfAudioSelection(_vm.CurrentTrack.TrackRegion.Start, selectionLength);
-            _fileTasks.SetSelection(selection);
-            _fileTasks.ZoomToShow(_fileTasks.ExpandSelectionAround(selection, _vm.ZoomPadding));
-            _fileTasks.RedrawWindow();
+            _vm.MoveFadeIn(samples);
         }
 
         public void DeleteTrack()
