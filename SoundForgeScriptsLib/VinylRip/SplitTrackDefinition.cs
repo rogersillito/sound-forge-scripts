@@ -150,8 +150,6 @@ namespace SoundForgeScriptsLib.VinylRip
 
         public void MoveFadeInBy(long samples)
         {
-            if (!CanMoveFadeInBy(samples))
-                return;
             FadeInEndMarker.Start += samples;
         }
 

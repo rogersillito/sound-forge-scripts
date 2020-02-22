@@ -108,7 +108,8 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 
         public void MoveFadeIn(long samples)
         {
-            //TODO: make this return bool so we can exit when not possible (and avoid zoom/selection being changed)
+            if (!CurrentTrack.CanMoveFadeInBy(samples))
+                return;
             CurrentTrack.MoveFadeInBy(samples);
             OnPropertyChanged("CanMoveFadeInPlus");
             OnPropertyChanged("CanMoveFadeInPlusPlus");
