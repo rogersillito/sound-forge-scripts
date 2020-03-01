@@ -37,7 +37,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             _tracks = tracks;
             _vm = viewModel;
             viewModel.Build(tracks, _entryPoint.ScriptTitle);
-            _form = _formFactory.Create(viewModel, this);
+            _form = _formFactory.Create(viewModel, this, _output);
             BindFormActions();
             if (_vm.HasTracks)
                 _vm.CurrentTrack = tracks.GetTrack(1);
@@ -70,13 +70,18 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
         public void MoveStart(long samples)
         {
             if (_vm.MoveStart(samples))
-                _output.ToStatusField1(string.Format("{0}: {1}", _form.LblMoveStart.Text, samples));
+                _output.ToStatusField1(string.Format("{0}: {1}", _form.LblMoveStart.Text, FormatSamples(samples)));
         }
 
         public void MoveFadeIn(long samples)
         {
             if (_vm.MoveFadeIn(samples))
-                _output.ToStatusField1(string.Format("{0}: {1}", _form.LblMoveFadeIn.Text, samples));
+                _output.ToStatusField1(string.Format("{0}: {1}", _form.LblMoveFadeIn.Text, FormatSamples(samples)));
+        }
+
+        private string FormatSamples(long samples)
+        {
+            return samples >= 0 ? string.Format("+{0}", samples) : samples.ToString();
         }
 
         public void DeleteTrack()

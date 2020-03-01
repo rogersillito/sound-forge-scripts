@@ -8,7 +8,8 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 {
     public class EditTracksFormFactory
     {
-        public EditTracksForm Create(EditTracksViewModel viewModel, EditTracksController controller)
+        public EditTracksForm Create(EditTracksViewModel viewModel, EditTracksController controller,
+            OutputHelper output)
         {
             EditTracksForm form = new EditTracksForm();
             BindViewModel(viewModel, form);
@@ -16,6 +17,11 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             form.KeyDown += delegate(object sender, KeyEventArgs e)
             {
                 KeyboardBindings(form, viewModel, controller, e);
+            };
+
+            form.Closing += delegate(object sender, System.ComponentModel.CancelEventArgs e)
+            {
+                output.ToStatusField1(string.Empty);
             };
             return form;
         }

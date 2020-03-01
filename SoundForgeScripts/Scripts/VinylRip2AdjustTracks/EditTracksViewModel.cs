@@ -11,8 +11,8 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 
         private SplitTrackList _tracks;
         private string _formTitle;
-        private long _plusOrMinusSamples = 10;
-        private long _plusPlusOrMinusMinusSamples = 100;
+        private long _plusOrMinusSamples = 20;
+        private long _plusPlusOrMinusMinusSamples = 400;
         private long _zoomPadding = 3000;
 
         public EditTracksViewModel(FileTasks fileTasks)
