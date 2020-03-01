@@ -67,8 +67,8 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 
         public void MoveFadeIn(long samples)
         {
-            _output.ToStatusField1(string.Format("{0}: {1}", _form.LblMoveFadeIn.Text, samples));
-            _vm.MoveFadeIn(samples);
+            if (_vm.MoveFadeIn(samples))
+                _output.ToStatusField1(string.Format("{0}: {1}", _form.LblMoveFadeIn.Text, samples));
         }
 
         public void DeleteTrack()

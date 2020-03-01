@@ -106,10 +106,10 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             get { return HasTracks && !CurrentTrack.IsLastTrack; }
         }
 
-        public void MoveFadeIn(long samples)
+        public bool MoveFadeIn(long samples)
         {
             if (!CurrentTrack.CanMoveFadeInBy(samples))
-                return;
+                return false;
             CurrentTrack.MoveFadeInBy(samples);
             OnPropertyChanged("CanMoveFadeInPlus");
             OnPropertyChanged("CanMoveFadeInPlusPlus");
@@ -120,6 +120,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             _fileTasks.SetSelection(selection);
             _fileTasks.ZoomToShow(_fileTasks.ExpandSelectionAround(selection, ZoomPadding));
             _fileTasks.RedrawWindow();
+            return true;
         }
 
         public bool CanMoveFadeInPlus
