@@ -57,7 +57,7 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
             Establish context = () =>
                 sut_factory.create_using(() => SplitTrackList.First());
 
-            // CAN
+            // Fade in - CAN
             private It should_get_true_when_checking_set_zero_fade_in = () =>
                 sut.CanMoveFadeInBy(-20).ShouldBeTrue();
 
@@ -67,12 +67,42 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
             private It should_get_true_when_checking_set_fade_in_to_track_end = () =>
                 sut.CanMoveFadeInBy(9980).ShouldBeTrue();
 
-            // CANNOT!
+            // Fade in - CANNOT!
             private It should_get_false_when_checking_set_fade_in_before_track_start = () =>
                 sut.CanMoveFadeInBy(-21).ShouldBeFalse();
 
             private It should_get_false_when_checking_set_fade_in_after_track_end = () =>
                 sut.CanMoveFadeInBy(9981).ShouldBeFalse();
+
+            // Start - CAN
+            private It should_get_true_when_checking_move_start_forward = () =>
+                sut.CanMoveStartBy(200).ShouldBeTrue();
+
+            private It should_get_true_when_checking_move_start_to_just_before_track_region_end = () =>
+                sut.CanMoveStartBy(9999).ShouldBeTrue();
+
+            // Start - CANNOT!
+            private It should_get_false_when_checking_set_start_before_file_start = () =>
+                sut.CanMoveStartBy(-1).ShouldBeFalse();
+
+            private It should_get_false_when_checking_set_start_equal_to_track_region_end = () =>
+                sut.CanMoveStartBy(10000).ShouldBeFalse();
+        }
+
+        [Subject(typeof(SplitTrackDefinition))]
+        public class when_checking_edits_on_second_track : SplitTrackDefinitionContext
+        {
+            Establish context = () =>
+                sut_factory.create_using(() => SplitTrackList.Last());
+
+            // Start - CAN
+            private It should_get_true_when_checking_move_start_to_end_of_previous_track_fade_out = () =>
+                sut.CanMoveStartBy(-100).ShouldBeTrue();
+
+            // Start - CANNOT!
+            private It should_get_false_when_checking_move_start_before_end_of_previous_track_fade_out = () =>
+                sut.CanMoveStartBy(-101).ShouldBeFalse();
+
         }
 
         [Subject(typeof(SplitTrackDefinition))]

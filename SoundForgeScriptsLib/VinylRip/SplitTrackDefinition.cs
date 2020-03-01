@@ -129,7 +129,26 @@ namespace SoundForgeScriptsLib.VinylRip
 
         public bool CanMoveStartBy(long samples)
         {
-            return false;
+
+            if (TrackRegion.Start + samples >= MarkerHelper.GetMarkerEnd(TrackRegion))
+                return false;
+
+            if (Number > 1)
+            {
+                if (TrackRegion.Start + samples < _splitTrackList.GetTrack(Number - 1).FadeOutEndMarker.Start)
+                    return false;
+            }
+            else
+            {
+                if (TrackRegion.Start + samples < 0)
+                    return false;
+            }
+
+            return true;
+        }
+
+        public void MoveStartBy(long samples)
+        {
         }
 
         public bool CanMoveEndBy(long samples)
