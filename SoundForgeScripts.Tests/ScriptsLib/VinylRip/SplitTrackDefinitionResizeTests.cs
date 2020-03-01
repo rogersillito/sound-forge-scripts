@@ -23,12 +23,12 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
                 ExistingMarkers = new List<SfAudioMarker>
                 {
                     new SfAudioMarker(0, 10000) { Name = $"0001{TrackMarkerNameBuilder.TrackRegionSuffix}" },
-                    new SfAudioMarker(20) { Name = $"0001{TrackMarkerNameBuilder.TrackFadeInEndSuffix}" },
-                    new SfAudioMarker(10200) { Name = $"0001{TrackMarkerNameBuilder.TrackFadeOutEndSuffix}" },
+                    new SfAudioMarker(20) { Name = $"0001{TrackMarkerNameBuilder.TrackFadeInEndSuffix}" }, // fade in == 20
+                    new SfAudioMarker(10200) { Name = $"0001{TrackMarkerNameBuilder.TrackFadeOutEndSuffix}" }, // fade out == 200
 
                     new SfAudioMarker(10300, 20000) { Name = $"0002{TrackMarkerNameBuilder.TrackRegionSuffix}" },
-                    new SfAudioMarker(10320) { Name = $"0002{TrackMarkerNameBuilder.TrackFadeInEndSuffix}" },
-                    new SfAudioMarker(30500) { Name = $"0002{TrackMarkerNameBuilder.TrackFadeOutEndSuffix}" }
+                    new SfAudioMarker(10700) { Name = $"0002{TrackMarkerNameBuilder.TrackFadeInEndSuffix}" }, // fade in == 400
+                    new SfAudioMarker(30500) { Name = $"0002{TrackMarkerNameBuilder.TrackFadeOutEndSuffix}" } // fade out == 200
                 };
 
                 _file = depends.@on<ISfFileHost>();
@@ -115,6 +115,54 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
                 sut.MoveFadeInBy(-19);
 
             It should_update_fade_in_marker = () => sut.FadeInEndMarker.Start.ShouldEqual(1);
+        }
+
+        [Subject(typeof(SplitTrackDefinition))]
+        public class when_moving_start_forwards : SplitTrackDefinitionContext
+        {
+            Establish context = () =>
+                sut_factory.create_using(() => SplitTrackList.First());
+
+            Because of = () =>
+                sut.MoveStartBy(20);
+
+            It should_update_start_marker = () => sut.TrackRegion.Start.ShouldEqual(20);
+
+            It should_update_fade_in_marker_by_same = () => sut.FadeInEndMarker.Start.ShouldEqual(40);
+
+            It should_not_update_end_marker = () => MarkerHelper.GetMarkerEnd(sut.TrackRegion).ShouldEqual(10000);
+        }
+
+        [Subject(typeof(SplitTrackDefinition))]
+        public class when_moving_start_backwards : SplitTrackDefinitionContext
+        {
+            Establish context = () =>
+                sut_factory.create_using(() => SplitTrackList.Last());
+
+            Because of = () =>
+                sut.MoveStartBy(-100);
+
+            It should_update_start_marker = () => sut.TrackRegion.Start.ShouldEqual(10200);
+
+            It should_update_fade_in_marker_by_same = () => sut.FadeInEndMarker.Start.ShouldEqual(10600);
+
+            It should_not_update_end_marker = () => MarkerHelper.GetMarkerEnd(sut.TrackRegion).ShouldEqual(30300);
+        }
+
+        [Subject(typeof(SplitTrackDefinition))]
+        public class when_moving_start_and_fade_in_cannot_be_moved_by_requested_amount : SplitTrackDefinitionContext
+        {
+            Establish context = () =>
+                sut_factory.create_using(() => SplitTrackList.Last());
+
+            Because of = () =>
+                sut.MoveStartBy(19990);
+
+            It should_update_start_marker = () => sut.TrackRegion.Start.ShouldEqual(30290);
+
+            It should_update_fade_in_marker_by_maximum_possible_value = () => sut.FadeInEndMarker.Start.ShouldEqual(30300);
+
+            It should_not_update_end_marker = () => MarkerHelper.GetMarkerEnd(sut.TrackRegion).ShouldEqual(30300);
         }
     }
 }

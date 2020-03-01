@@ -149,6 +149,11 @@ namespace SoundForgeScriptsLib.VinylRip
 
         public void MoveStartBy(long samples)
         {
+            TrackRegion.Start += samples;
+            TrackRegion.Length -= samples;
+            if (!CanMoveFadeInBy(samples))
+                samples = MarkerHelper.GetMarkerEnd(TrackRegion) - FadeInEndMarker.Start;
+            MoveFadeInBy(samples);
         }
 
         public bool CanMoveEndBy(long samples)
@@ -161,7 +166,7 @@ namespace SoundForgeScriptsLib.VinylRip
             if (FadeInEndMarker.Start + samples < TrackRegion.Start)
                 return false;
             
-            if (FadeInEndMarker.Start + samples > TrackRegion.Start + TrackRegion.Length)
+            if (FadeInEndMarker.Start + samples > MarkerHelper.GetMarkerEnd(TrackRegion))
                 return false;
             
             return true;
