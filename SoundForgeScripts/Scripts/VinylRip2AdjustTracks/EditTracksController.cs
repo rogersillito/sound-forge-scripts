@@ -56,13 +56,21 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             _form.BtnAddTrackAfter.Click += delegate { AddTrackBefore(); };
             _form.BtnDelete.Click += delegate { DeleteTrack(); };
 
-            _form.BtnMoveStartPlus.Click += delegate { MoveStartPlus(); }; 
-            _form.BtnMoveStartMinus.Click += delegate { MoveStartMinus(); }; 
+            _form.BtnMoveStartPlus.Click += delegate { MoveStart(_vm.PlusOrMinusSamples); }; 
+            _form.BtnMoveStartMinus.Click += delegate { MoveStart(-_vm.PlusOrMinusSamples); }; 
+            _form.BtnMoveStartPlusPlus.Click += delegate { MoveStart(_vm.PlusPlusOrMinusMinusSamples); }; 
+            _form.BtnMoveStartMinusMinus.Click += delegate { MoveStart(-_vm.PlusPlusOrMinusMinusSamples); }; 
 
             _form.BtnMoveFadeInPlus.Click += delegate { MoveFadeIn(_vm.PlusOrMinusSamples); }; 
             _form.BtnMoveFadeInMinus.Click += delegate { MoveFadeIn(-_vm.PlusOrMinusSamples); }; 
             _form.BtnMoveFadeInPlusPlus.Click += delegate { MoveFadeIn(_vm.PlusPlusOrMinusMinusSamples); }; 
             _form.BtnMoveFadeInMinusMinus.Click += delegate { MoveFadeIn(-_vm.PlusPlusOrMinusMinusSamples); }; 
+        }
+
+        public void MoveStart(long samples)
+        {
+            if (_vm.MoveStart(samples))
+                _output.ToStatusField1(string.Format("{0}: {1}", _form.LblMoveStart.Text, samples));
         }
 
         public void MoveFadeIn(long samples)
@@ -100,18 +108,6 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             }
             //TODO: if overlaps with existing track adjust existing tracks to suit new track
             //TODO: IMPLEMENT.. insert a track
-        }
-
-        public void MoveStartPlus()
-        {
-            //TODO...
-            _output.ToStatusBar("startPlus");
-        }
-
-        public void MoveStartMinus()
-        {
-            //TODO...
-            _output.ToStatusBar("startMinus");
         }
 
         public void AddTrackAfter()

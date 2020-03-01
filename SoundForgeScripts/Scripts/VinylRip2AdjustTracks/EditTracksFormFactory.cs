@@ -37,6 +37,15 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             form.BtnNext.DataBindings.Add("Enabled", viewModel, "CanNavigateNext", false,
                 DataSourceUpdateMode.OnPropertyChanged);
 
+            form.BtnMoveStartPlus.DataBindings.Add("Enabled", viewModel, "CanMoveStartPlus", false,
+                DataSourceUpdateMode.OnPropertyChanged);
+            form.BtnMoveStartPlusPlus.DataBindings.Add("Enabled", viewModel, "CanMoveStartPlusPlus", false,
+                DataSourceUpdateMode.OnPropertyChanged);
+            form.BtnMoveStartMinus.DataBindings.Add("Enabled", viewModel, "CanMoveStartMinus", false,
+                DataSourceUpdateMode.OnPropertyChanged);
+            form.BtnMoveStartMinusMinus.DataBindings.Add("Enabled", viewModel, "CanMoveStartMinusMinus", false,
+                DataSourceUpdateMode.OnPropertyChanged);
+
             form.BtnMoveFadeInPlus.DataBindings.Add("Enabled", viewModel, "CanMoveFadeInPlus", false,
                 DataSourceUpdateMode.OnPropertyChanged);
             form.BtnMoveFadeInPlusPlus.DataBindings.Add("Enabled", viewModel, "CanMoveFadeInPlusPlus", false,
