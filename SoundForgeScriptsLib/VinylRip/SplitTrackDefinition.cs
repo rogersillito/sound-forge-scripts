@@ -129,7 +129,6 @@ namespace SoundForgeScriptsLib.VinylRip
 
         public bool CanMoveStartBy(long samples)
         {
-
             if (TrackRegion.Start + samples >= MarkerHelper.GetMarkerEnd(TrackRegion))
                 return false;
 
@@ -179,7 +178,19 @@ namespace SoundForgeScriptsLib.VinylRip
 
         public bool CanMoveFadeOutBy(long samples)
         {
-            return false;
+            if (samples < 0 && Math.Abs(samples) > FadeOutLength)
+                return false;
+
+            if (samples > 0)
+            {
+                if (!IsLastTrack && FadeOutEndMarker.Start + samples > _splitTrackList.GetTrack(Number + 1).TrackRegion.Start)
+                    return false;
+
+                if (IsLastTrack && FadeOutEndMarker.Start + samples > _originalFile.Length)
+                    return false;
+            }
+
+            return true;
         }
     }
 }

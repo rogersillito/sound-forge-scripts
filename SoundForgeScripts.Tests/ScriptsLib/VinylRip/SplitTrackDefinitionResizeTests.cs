@@ -32,7 +32,7 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
                 };
 
                 _file = depends.@on<ISfFileHost>();
-                _file.setup(x => x.Length).Return(30500);
+                _file.setup(x => x.Length).Return(30600);
 
                 _file.setup(x => x.Markers).Return(
                     new SfAudioMarkerList(ExistingMarkers.ToArray())
@@ -87,6 +87,23 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
 
             private It should_get_false_when_checking_set_start_equal_to_track_region_end = () =>
                 sut.CanMoveStartBy(10000).ShouldBeFalse();
+
+            // Fade out - CAN
+            private It should_get_true_when_checking_set_zero_fade_out = () =>
+                sut.CanMoveFadeOutBy(-200).ShouldBeTrue();
+
+            private It should_get_true_when_checking_extend_fade_out = () =>
+                sut.CanMoveFadeOutBy(20).ShouldBeTrue();
+
+            private It should_get_true_when_checking_set_fade_out_to_start_of_next_track = () =>
+                sut.CanMoveFadeOutBy(100).ShouldBeTrue();
+
+            // Fade out - CANNOT!
+            private It should_get_false_when_checking_set_fade_out_before_track_region_end = () =>
+                sut.CanMoveFadeOutBy(-201).ShouldBeFalse();
+
+            private It should_get_false_when_checking_set_fade_out_after_start_of_next_track = () =>
+                sut.CanMoveFadeOutBy(9981).ShouldBeFalse();
         }
 
         [Subject(typeof(SplitTrackDefinition))]
@@ -102,6 +119,14 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
             // Start - CANNOT!
             private It should_get_false_when_checking_move_start_before_end_of_previous_track_fade_out = () =>
                 sut.CanMoveStartBy(-101).ShouldBeFalse();
+
+            // Fade out - CAN
+            private It should_get_true_when_checking_set_fade_out_to_file_end = () =>
+                sut.CanMoveFadeOutBy(100).ShouldBeTrue();
+
+            // Fade out - CANNOT!
+            private It should_get_false_when_checking_set_fade_out_after_file_end = () =>
+                sut.CanMoveFadeOutBy(101).ShouldBeFalse();
 
         }
 
