@@ -4,7 +4,7 @@ using SoundForgeScriptsLib.Utils;
 
 namespace SoundForgeScriptsLib.VinylRip
 {
-    public class SplitTrackDefinition: IComparable<SplitTrackDefinition>
+    public class SplitTrackDefinition : IComparable<SplitTrackDefinition>
     {
         private readonly SplitTrackList _splitTrackList;
         private readonly ISfFileHost _originalFile;
@@ -164,10 +164,10 @@ namespace SoundForgeScriptsLib.VinylRip
         {
             if (FadeInEndMarker.Start + samples < TrackRegion.Start)
                 return false;
-            
+
             if (FadeInEndMarker.Start + samples > MarkerHelper.GetMarkerEnd(TrackRegion))
                 return false;
-            
+
             return true;
         }
 
@@ -191,6 +191,11 @@ namespace SoundForgeScriptsLib.VinylRip
             }
 
             return true;
+        }
+
+        public void MoveFadeOutBy(long samples)
+        {
+            FadeOutEndMarker.Start += samples;
         }
     }
 }

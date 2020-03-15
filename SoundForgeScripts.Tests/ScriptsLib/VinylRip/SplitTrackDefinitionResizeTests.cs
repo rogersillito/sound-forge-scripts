@@ -189,5 +189,17 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
 
             It should_not_update_end_marker = () => MarkerHelper.GetMarkerEnd(sut.TrackRegion).ShouldEqual(30300);
         }
+
+        [Subject(typeof(SplitTrackDefinition))]
+        public class when_moving_fade_out : SplitTrackDefinitionContext
+        {
+            Establish context = () =>
+                sut_factory.create_using(() => SplitTrackList.First());
+
+            Because of = () =>
+                sut.MoveFadeOutBy(-50);
+
+            It should_update_fade_out_marker = () => sut.FadeOutEndMarker.Start.ShouldEqual(10150);
+        }
     }
 }
