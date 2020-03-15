@@ -71,7 +71,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             _toolTip = new ToolTip();
 
             Label lblPrompt = new Label();
-            lblPrompt.Text = "Adjust track region definitions - click OK to apply changes.";
+            lblPrompt.Text = "Adjust track region/marker definitions:";
             lblPrompt.Width = _sForm.Width - _pt.X - _sOff.Width;
             lblPrompt.Height = LblHeight;
             lblPrompt.Location = _pt;
