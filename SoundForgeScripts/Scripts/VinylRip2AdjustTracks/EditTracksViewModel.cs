@@ -2,6 +2,7 @@ using SoundForgeScriptsLib.VinylRip;
 using System.ComponentModel;
 using SoundForge;
 using SoundForgeScriptsLib;
+using SoundForgeScriptsLib.Utils;
 
 namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 {
@@ -67,6 +68,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
                 OnPropertyChanged("HasTracks");
                 TriggerCanMoveStartPropertiesChanged();
                 TriggerCanMoveFadeInPropertiesChanged();
+                TriggerCanMoveFadeOutPropertiesChanged();
             }
         }
 
@@ -107,6 +109,15 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
         {
             long selectionLength = CurrentTrack.FadeInEndMarker.Start - CurrentTrack.TrackRegion.Start;
             SfAudioSelection selection = new SfAudioSelection(CurrentTrack.TrackRegion.Start, selectionLength);
+            _fileTasks.SetSelection(selection);
+            _fileTasks.ZoomToShow(_fileTasks.ExpandSelectionAround(selection, ZoomPadding));
+            _fileTasks.RedrawWindow();
+        }
+
+        private void ZoomToCurrentTrackEnd()
+        {
+            long selectionLength = CurrentTrack.FadeOutEndMarker.Start - MarkerHelper.GetMarkerEnd(CurrentTrack.TrackRegion);
+            SfAudioSelection selection = new SfAudioSelection(MarkerHelper.GetMarkerEnd(CurrentTrack.TrackRegion), selectionLength);
             _fileTasks.SetSelection(selection);
             _fileTasks.ZoomToShow(_fileTasks.ExpandSelectionAround(selection, ZoomPadding));
             _fileTasks.RedrawWindow();
@@ -187,6 +198,44 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
         public bool CanMoveStartMinusMinus
         {
             get { return CurrentTrack.CanMoveStartBy(-PlusPlusOrMinusMinusSamples); }
+        }
+
+        public bool MoveFadeOut(long samples)
+        {
+            if (!CurrentTrack.CanMoveFadeOutBy(samples))
+                return false;
+            CurrentTrack.MoveFadeOutBy(samples);
+            TriggerCanMoveFadeOutPropertiesChanged();
+            ZoomToCurrentTrackEnd();
+            return true;
+        }
+
+        private void TriggerCanMoveFadeOutPropertiesChanged()
+        {
+            OnPropertyChanged("CanMoveFadeOutPlus");
+            OnPropertyChanged("CanMoveFadeOutPlusPlus");
+            OnPropertyChanged("CanMoveFadeOutMinus");
+            OnPropertyChanged("CanMoveFadeOutMinusMinus");
+        }
+
+        public bool CanMoveFadeOutPlus
+        {
+            get { return CurrentTrack.CanMoveFadeOutBy(PlusOrMinusSamples); }
+        }
+
+        public bool CanMoveFadeOutPlusPlus
+        {
+            get { return CurrentTrack.CanMoveFadeOutBy(PlusPlusOrMinusMinusSamples); }
+        }
+
+        public bool CanMoveFadeOutMinus
+        {
+            get { return CurrentTrack.CanMoveFadeOutBy(-PlusOrMinusSamples); }
+        }
+
+        public bool CanMoveFadeOutMinusMinus
+        {
+            get { return CurrentTrack.CanMoveFadeOutBy(-PlusPlusOrMinusMinusSamples); }
         }
     }
 }
