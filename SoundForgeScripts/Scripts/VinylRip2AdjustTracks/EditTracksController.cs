@@ -70,6 +70,11 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             _form.BtnMoveFadeOutMinus.Click += delegate { MoveFadeOut(-_vm.PlusOrMinusSamples); }; 
             _form.BtnMoveFadeOutPlusPlus.Click += delegate { MoveFadeOut(_vm.PlusPlusOrMinusMinusSamples); }; 
             _form.BtnMoveFadeOutMinusMinus.Click += delegate { MoveFadeOut(-_vm.PlusPlusOrMinusMinusSamples); }; 
+
+            _form.BtnMoveEndPlus.Click += delegate { MoveEnd(_vm.PlusOrMinusSamples); }; 
+            _form.BtnMoveEndMinus.Click += delegate { MoveEnd(-_vm.PlusOrMinusSamples); }; 
+            _form.BtnMoveEndPlusPlus.Click += delegate { MoveEnd(_vm.PlusPlusOrMinusMinusSamples); }; 
+            _form.BtnMoveEndMinusMinus.Click += delegate { MoveEnd(-_vm.PlusPlusOrMinusMinusSamples); }; 
         }
 
         public void MoveStart(long samples)
@@ -88,6 +93,12 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
         {
             if (_vm.MoveFadeOut(samples))
                 _output.ToStatusField1(string.Format("{0}: {1}", _form.LblMoveFadeOut.Text, FormatSamples(samples)));
+        }
+
+        public void MoveEnd(long samples)
+        {
+            if (_vm.MoveEnd(samples))
+                _output.ToStatusField1(string.Format("{0}: {1}", _form.LblMoveEnd.Text, FormatSamples(samples)));
         }
 
         private string FormatSamples(long samples)

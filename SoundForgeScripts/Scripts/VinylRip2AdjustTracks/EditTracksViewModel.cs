@@ -68,6 +68,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
                 OnPropertyChanged("HasTracks");
                 TriggerCanMoveStartPropertiesChanged();
                 TriggerCanMoveFadeInPropertiesChanged();
+                TriggerCanMoveEndPropertiesChanged();
                 TriggerCanMoveFadeOutPropertiesChanged();
             }
         }
@@ -236,6 +237,46 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
         public bool CanMoveFadeOutMinusMinus
         {
             get { return CurrentTrack.CanMoveFadeOutBy(-PlusPlusOrMinusMinusSamples); }
+        }
+
+        public bool MoveEnd(long samples)
+        {
+            if (!CurrentTrack.CanMoveEndBy(samples))
+                return false;
+            CurrentTrack.MoveEndBy(samples);
+            TriggerCanMoveEndPropertiesChanged();
+            TriggerCanMoveFadeInPropertiesChanged();
+            TriggerCanMoveFadeOutPropertiesChanged();
+            ZoomToCurrentTrackEnd();
+            return true;
+        }
+
+        private void TriggerCanMoveEndPropertiesChanged()
+        {
+            OnPropertyChanged("CanMoveEndPlus");
+            OnPropertyChanged("CanMoveEndPlusPlus");
+            OnPropertyChanged("CanMoveEndMinus");
+            OnPropertyChanged("CanMoveEndMinusMinus");
+        }
+
+        public bool CanMoveEndPlus
+        {
+            get { return CurrentTrack.CanMoveEndBy(PlusOrMinusSamples); }
+        }
+
+        public bool CanMoveEndPlusPlus
+        {
+            get { return CurrentTrack.CanMoveEndBy(PlusPlusOrMinusMinusSamples); }
+        }
+
+        public bool CanMoveEndMinus
+        {
+            get { return CurrentTrack.CanMoveEndBy(-PlusOrMinusSamples); }
+        }
+
+        public bool CanMoveEndMinusMinus
+        {
+            get { return CurrentTrack.CanMoveEndBy(-PlusPlusOrMinusMinusSamples); }
         }
     }
 }
