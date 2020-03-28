@@ -104,6 +104,23 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
 
             private It should_get_false_when_checking_set_fade_out_after_start_of_next_track = () =>
                 sut.CanMoveFadeOutBy(9981).ShouldBeFalse();
+
+            // End - CAN
+            private It should_get_true_when_checking_move_end_forward = () =>
+                sut.CanMoveEndBy(100).ShouldBeTrue();
+
+            private It should_get_true_when_checking_move_end_to_start_of_next_track = () =>
+                sut.CanMoveEndBy(300).ShouldBeTrue();
+
+            private It should_get_true_when_checking_move_end_to_just_after_track_start = () =>
+                sut.CanMoveEndBy(-9999).ShouldBeTrue();
+
+            // End - CANNOT!
+            private It should_get_false_when_checking_set_end_after_start_of_next_track = () =>
+                sut.CanMoveEndBy(301).ShouldBeFalse();
+
+            private It should_get_false_when_checking_set_end_equal_to_track_region_start = () =>
+                sut.CanMoveEndBy(-10000).ShouldBeFalse();
         }
 
         [Subject(typeof(SplitTrackDefinition))]
@@ -127,6 +144,14 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
             // Fade out - CANNOT!
             private It should_get_false_when_checking_set_fade_out_after_file_end = () =>
                 sut.CanMoveFadeOutBy(101).ShouldBeFalse();
+
+            // End - CAN
+            private It should_get_true_when_checking_move_end_to_file_end = () =>
+                sut.CanMoveEndBy(300).ShouldBeTrue();
+
+            // End - CANNOT!
+            private It should_get_false_when_checkin_move_end_after_file_end = () =>
+                sut.CanMoveEndBy(301).ShouldBeFalse();
 
         }
 
@@ -200,6 +225,64 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
                 sut.MoveFadeOutBy(-50);
 
             It should_update_fade_out_marker = () => sut.FadeOutEndMarker.Start.ShouldEqual(10150);
+        }
+
+        [Subject(typeof(SplitTrackDefinition))]
+        public class when_moving_end : SplitTrackDefinitionContext
+        {
+            Establish context = () =>
+                sut_factory.create_using(() => SplitTrackList.First());
+
+            Because of = () =>
+                sut.MoveEndBy(75);
+
+            It should_update_end_marker = () => MarkerHelper.GetMarkerEnd(sut.TrackRegion).ShouldEqual(10075);
+
+            It should_update_fade_out_marker_by_same_amount = () => sut.FadeOutEndMarker.Start.ShouldEqual(10275);
+        }
+
+        [Subject(typeof(SplitTrackDefinition))]
+        public class when_moving_end_and_fade_out_cannot_be_moved_by_requested_amount : SplitTrackDefinitionContext
+        {
+            Establish context = () =>
+                sut_factory.create_using(() => SplitTrackList.First());
+
+            Because of = () =>
+                sut.MoveEndBy(297);
+
+            It should_update_end_marker = () => MarkerHelper.GetMarkerEnd(sut.TrackRegion).ShouldEqual(10297);
+
+            It should_update_fade_out_marker_by_maximum_possible_value = () => sut.FadeOutEndMarker.Start.ShouldEqual(10300);
+        }
+
+        [Subject(typeof(SplitTrackDefinition))]
+        public class when_moving_end_of_last_track_and_fade_out_cannot_be_moved_by_requested_amount : SplitTrackDefinitionContext
+        {
+            Establish context = () =>
+                sut_factory.create_using(() => SplitTrackList.Last());
+
+            Because of = () =>
+                sut.MoveEndBy(297);
+
+            It should_update_end_marker = () => MarkerHelper.GetMarkerEnd(sut.TrackRegion).ShouldEqual(30597);
+
+            It should_update_fade_out_marker_by_maximum_possible_value = () => sut.FadeOutEndMarker.Start.ShouldEqual(30600);
+        }
+
+        [Subject(typeof(SplitTrackDefinition))]
+        public class when_moving_end_near_track_start : SplitTrackDefinitionContext
+        {
+            Establish context = () =>
+                sut_factory.create_using(() => SplitTrackList.Last());
+
+            Because of = () =>
+                sut.MoveEndBy(-19900);
+
+            It should_update_end_marker = () => MarkerHelper.GetMarkerEnd(sut.TrackRegion).ShouldEqual(10400);
+
+            It should_update_fade_out_marker_by_same_amount = () => sut.FadeOutEndMarker.Start.ShouldEqual(10600);
+
+            It should_update_fade_in_marker_to_avoid_overlap = () => sut.FadeInEndMarker.Start.ShouldEqual(10400);
         }
     }
 }

@@ -155,11 +155,6 @@ namespace SoundForgeScriptsLib.VinylRip
             MoveFadeInBy(samples);
         }
 
-        public bool CanMoveEndBy(long samples)
-        {
-            return false;
-        }
-
         public bool CanMoveFadeInBy(long samples)
         {
             if (FadeInEndMarker.Start + samples < TrackRegion.Start)
@@ -174,6 +169,38 @@ namespace SoundForgeScriptsLib.VinylRip
         public void MoveFadeInBy(long samples)
         {
             FadeInEndMarker.Start += samples;
+        }
+
+        public bool CanMoveEndBy(long samples)
+        {
+            var newEndPosition = MarkerHelper.GetMarkerEnd(TrackRegion) + samples;
+
+            if (IsLastTrack && newEndPosition > _originalFile.Length)
+                return false;
+
+            if (!IsLastTrack && newEndPosition > _splitTrackList.GetTrack(Number + 1).TrackRegion.Start)
+                return false;
+
+            return newEndPosition > TrackRegion.Start;
+        }
+
+        public void MoveEndBy(long samples)
+        {
+            TrackRegion.Length += samples;
+
+            if (CanMoveFadeOutBy(samples))
+            {
+                MoveFadeOutBy(samples);
+            }
+            else
+            {
+                FadeOutEndMarker.Start = IsLastTrack
+                    ? _originalFile.Length
+                    : _splitTrackList.GetTrack(Number + 1).TrackRegion.Start;
+            }
+
+            if (MarkerHelper.GetMarkerEnd(TrackRegion) < FadeInEndMarker.Start)
+                FadeInEndMarker.Start = MarkerHelper.GetMarkerEnd(TrackRegion);
         }
 
         public bool CanMoveFadeOutBy(long samples)
