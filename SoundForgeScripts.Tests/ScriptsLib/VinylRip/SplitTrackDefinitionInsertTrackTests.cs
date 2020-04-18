@@ -76,6 +76,10 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
                     return SplitTrackList.First();
                 });
             };
+
+            It should_return_true_checking_can_insert_before = () => sut.CanInsertTrackBefore().ShouldBeTrue();
+
+            It should_return_true_checking_can_insert_after = () => sut.CanInsertTrackAfter().ShouldBeTrue();
         }
     }
 }

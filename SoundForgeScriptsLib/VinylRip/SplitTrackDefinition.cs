@@ -224,5 +224,15 @@ namespace SoundForgeScriptsLib.VinylRip
         {
             FadeOutEndMarker.Start += samples;
         }
+
+        public bool CanInsertTrackBefore()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool CanInsertTrackAfter()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

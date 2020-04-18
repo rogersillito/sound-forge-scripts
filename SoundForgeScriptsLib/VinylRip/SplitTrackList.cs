@@ -90,7 +90,6 @@ namespace SoundForgeScriptsLib.VinylRip
         {
             _defaultFadeInLength = defaultTrackFadeInLengthInSamples;
             _defaultFadeOutLength = defaultTrackFadeOutLengthInSamples;
-            // TODO: I'm thinking we'll need a different method for synching gui-originating changes when we move between tracks in the vinyl 2 UI.
             List<SfAudioMarker> trackRegions = GetTrackRegions();
             SetListBounds(trackRegions.Count);
             for (int trackNumber = trackRegions.Count; trackNumber > 0; trackNumber--)
