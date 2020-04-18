@@ -80,6 +80,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScriptFileProcessor\ScriptProcessorTests.cs" />
     <Compile Include="Helpers\FileMarkersTestHelper.cs" />
+    <Compile Include="ScriptsLib\VinylRip\SplitTrackDefinitionInsertTrackTests.cs" />
     <Compile Include="ScriptsLib\VinylRip\SplitTrackDefinitionResizeTests.cs" />
     <Compile Include="ScriptsLib\VinylRip\SplitTrackDefinitionTests.cs" />
     <Compile Include="ScriptsLib\VinylRip\SplitTrackListTests.cs" />
