@@ -56,8 +56,8 @@ namespace SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing
             const int noiseprintLengthSeconds = 2;
             _noiseprintSelection = _fileTasks.EnforceNoisePrintSelection(App, noiseprintLengthSeconds);
             _vinylRipOptions = new VinylRipOptions();
-            _vinylRipOptions.TrackAddFadeOutLengthInSeconds = 3;
-            _vinylRipOptions.TrackFadeInLengthInSamples = 20;
+            _vinylRipOptions.DefaultTrackFadeOutLengthInSeconds = 3;
+            _vinylRipOptions.DefaultTrackFadeInLengthInSamples = 20;
 
             DialogResult result = ConfirmTrackSplitsForm(Script.Application.Win32Window);
             if (result == DialogResult.Cancel)
@@ -250,8 +250,7 @@ namespace SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing
 
         private SplitTrackList GetSplitTrackDefinitions()
         {
-            long fadeOutLengthSamples = _file.SecondsToPosition(_vinylRipOptions.TrackAddFadeOutLengthInSeconds);
-            return _splitTrackList.InitTracks(_vinylRipOptions.TrackFadeInLengthInSamples, fadeOutLengthSamples);
+            return _splitTrackList.InitTracks(_vinylRipOptions);
         }
 
         private void DoTrackSplitting(SplitTrackList tracks)

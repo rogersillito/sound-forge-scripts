@@ -13,8 +13,6 @@ namespace SoundForgeScriptsLib.VinylRip
         private readonly IFileMarkersWrapper _fileMarkers;
         private readonly ITrackMarkerSpecifications _markerSpecifications;
         private readonly IOutputHelper _output;
-        private long _defaultFadeInLength;
-        private long _defaultFadeOutLength;
 
         public SplitTrackList(ICreateFadeMarkers markerFactory, ICreateTrackRegions regionFactory, ICreateTrackMarkerNames trackMarkerNameBuilder, IFileMarkersWrapper fileMarkers, ITrackMarkerSpecifications markerSpecifications, IOutputHelper output)
         {
@@ -27,14 +25,15 @@ namespace SoundForgeScriptsLib.VinylRip
             _output = output;
         }
 
-        public SplitTrackDefinition AddNew(SfAudioMarker trackRegionMarker, int trackNumber, long fadeInLength, long fadeOutLength)
+        public SplitTrackDefinition AddNew(SfAudioMarker trackRegionMarker, int trackNumber, VinylRipOptions options)
         {
             SplitTrackDefinition track = new SplitTrackDefinition(this, _file, _markerFactory, _regionFactory, _output);
             this[trackNumber - 1] = track;
             track.Number = trackNumber;
             track.TrackRegion = trackRegionMarker;
-            track.FadeInEndMarker = GetTrackFadeInEndMarker(track.Number, fadeInLength);
-            track.FadeOutEndMarker = GetTrackFadeOutEndMarker(track.Number, fadeOutLength);
+            track.FadeInEndMarker = GetTrackFadeInEndMarker(track.Number, options.DefaultTrackFadeInLengthInSamples);
+            var fadeOutLengthInSamples = _file.SecondsToPosition(options.DefaultTrackFadeOutLengthInSeconds);
+            track.FadeOutEndMarker = GetTrackFadeOutEndMarker(track.Number, fadeOutLengthInSamples);
             return track;
         }
 
@@ -86,16 +85,14 @@ namespace SoundForgeScriptsLib.VinylRip
             return trackMarkers;
         }
 
-        public SplitTrackList InitTracks(long defaultTrackFadeInLengthInSamples, long defaultTrackFadeOutLengthInSamples)
+        public SplitTrackList InitTracks(VinylRipOptions options)
         {
-            _defaultFadeInLength = defaultTrackFadeInLengthInSamples;
-            _defaultFadeOutLength = defaultTrackFadeOutLengthInSamples;
             List<SfAudioMarker> trackRegions = GetTrackRegions();
             SetListBounds(trackRegions.Count);
             for (int trackNumber = trackRegions.Count; trackNumber > 0; trackNumber--)
             {
                 SfAudioMarker trackRegion = trackRegions[trackNumber - 1];
-                AddNew(trackRegion, trackNumber, defaultTrackFadeInLengthInSamples, defaultTrackFadeOutLengthInSamples);
+                AddNew(trackRegion, trackNumber, options);
             }
             return this;
         }

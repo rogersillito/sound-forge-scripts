@@ -10,20 +10,12 @@ namespace SoundForgeScriptsLib.VinylRip
         private double _minimumTrackLengthInSeconds;
         private long _startScanFilePositionInSamples;
         private long _defaultTrackFadeInLengthInSamples;
-        private long _defaultTrackFadeOutLengthInSamples;
-        private long _trackFadeInLengthInSamples;
-        private double _trackAddFadeOutLengthInSeconds;
+        private double _defaultTrackFadeOutLengthInSeconds;
 
-        public long TrackFadeInLengthInSamples
+        public double DefaultTrackFadeOutLengthInSeconds
         {
-            get { return _trackFadeInLengthInSamples; }
-            set { _trackFadeInLengthInSamples = value; }
-        }
-
-        public double TrackAddFadeOutLengthInSeconds
-        {
-            get { return _trackAddFadeOutLengthInSeconds; }
-            set { _trackAddFadeOutLengthInSeconds = value; }
+            get { return _defaultTrackFadeOutLengthInSeconds; }
+            set { _defaultTrackFadeOutLengthInSeconds = value; }
         }
 
         public double ScanWindowLengthInSeconds
@@ -65,12 +57,6 @@ namespace SoundForgeScriptsLib.VinylRip
         {
             get { return _defaultTrackFadeInLengthInSamples; }
             set { _defaultTrackFadeInLengthInSamples = value; }
-        }
-
-        public long DefaultTrackFadeOutLengthInSamples
-        {
-            get { return _defaultTrackFadeOutLengthInSamples; }
-            set { _defaultTrackFadeOutLengthInSamples = value; }
         }
 
         public void Validate()

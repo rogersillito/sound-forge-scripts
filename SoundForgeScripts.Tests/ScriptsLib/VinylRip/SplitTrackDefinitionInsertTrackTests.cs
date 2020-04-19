@@ -68,11 +68,13 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
             {
                 sut_factory.create_using(() =>
                 {
-                    //var options = new VinylRipOptions
+                    // TODO: set appropriate values...
+                    //_file.setup(x => x.SecondsToPosition(999999999999)).Return(100);
+                    //SplitTrackList.InitTracks(new VinylRipOptions
                     //{
-                    //    MinimumTrackGapInSeconds = 1
-                    //}
-                    SplitTrackList.InitTracks(10, 100);
+                    //    DefaultTrackFadeInLengthInSamples = 10,
+                    //    DefaultTrackFadeOutLengthInSeconds = 999999999999
+                    //});
                     return SplitTrackList.First();
                 });
             };

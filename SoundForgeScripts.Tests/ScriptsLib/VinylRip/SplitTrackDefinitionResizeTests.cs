@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using developwithpassion.specifications.extensions;
 using developwithpassion.specifications.moq;
+using Machine.Fakes;
 using Machine.Specifications;
 using Should;
 using SoundForge;
@@ -44,7 +45,12 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
                 var markerAndRegionFactory = new TrackMarkerFactory(markerList.Object);
 
                 SplitTrackList = new SplitTrackList(markerAndRegionFactory, markerAndRegionFactory, new TrackMarkerNameBuilder(), markerList.Object, new TrackMarkerSpecifications(), depends.@on<IOutputHelper>());
-                SplitTrackList.InitTracks(10, 100);
+                _file.setup(x => x.SecondsToPosition(999999999999)).Return(100);
+                SplitTrackList.InitTracks(new VinylRipOptions
+                {
+                    DefaultTrackFadeInLengthInSamples = 10,
+                    DefaultTrackFadeOutLengthInSeconds = 999999999999
+                });
             };
 
             protected static List<SfAudioMarker> ExistingMarkers;

@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using developwithpassion.specifications.extensions;
 using developwithpassion.specifications.moq;
+using Machine.Fakes;
 using Machine.Specifications;
 using Should;
 using SoundForge;
@@ -54,7 +55,15 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
                 FileMarkersHelper.RealMarkerList.AddRange(ExistingMarkers);
             };
 
-            Because of = () => { _tracks =  sut.InitTracks(30, 7000); };
+            Because of = () =>
+            {
+                _file.setup(x => x.SecondsToPosition(999999999999)).Return(7000);
+                _tracks =  sut.InitTracks(new VinylRipOptions
+                {
+                    DefaultTrackFadeInLengthInSamples = 30,
+                    DefaultTrackFadeOutLengthInSeconds = 999999999999
+                });
+            };
 
             It should_ignore_non_track_regions = () =>
                 _tracks.Count.ShouldEqual(3);
@@ -148,7 +157,15 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
                 FileMarkersHelper.RealMarkerList.AddRange(ExistingMarkers);
             };
 
-            Because of = () => { _tracks =  sut.InitTracks(30, 7000); };
+            Because of = () =>
+            {
+                _file.setup(x => x.SecondsToPosition(999999999999)).Return(7000);
+                _tracks =  sut.InitTracks(new VinylRipOptions
+                {
+                    DefaultTrackFadeInLengthInSamples = 30,
+                    DefaultTrackFadeOutLengthInSeconds = 999999999999
+                });
+            };
 
             It should_ignore_non_track_regions = () =>
                 _tracks.Count.ShouldEqual(3);
@@ -245,7 +262,15 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
                 FileMarkersHelper.RealMarkerList.AddRange(ExistingMarkers);
             };
 
-            Because of = () => { _tracks =  sut.InitTracks(0,0); };
+            Because of = () =>
+            {
+                _file.setup(x => x.SecondsToPosition(999999999999)).Return(0);
+                _tracks =  sut.InitTracks(new VinylRipOptions
+                {
+                    DefaultTrackFadeInLengthInSamples = 0,
+                    DefaultTrackFadeOutLengthInSeconds = 999999999999
+                });
+            };
 
             It should_set_no_fade_in_length_to_each_track = () =>
                 _tracks.All(t => t.FadeInLength == 0).ShouldBeTrue();
@@ -282,7 +307,12 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
 
             private Because of = () =>
             {
-                _tracks = sut.InitTracks(0,0);
+                _file.setup(x => x.SecondsToPosition(999999999999)).Return(0);
+                _tracks =  sut.InitTracks(new VinylRipOptions
+                {
+                    DefaultTrackFadeInLengthInSamples = 0,
+                    DefaultTrackFadeOutLengthInSeconds = 999999999999
+                });
                 sut.Delete(sut[1]);
             };
 

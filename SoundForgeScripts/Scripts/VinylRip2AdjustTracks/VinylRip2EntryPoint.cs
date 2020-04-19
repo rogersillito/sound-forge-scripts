@@ -48,8 +48,8 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 
             //TODO: initial dialog to configure these:
             _vinylRipOptions = new VinylRipOptions();
-            _vinylRipOptions.TrackAddFadeOutLengthInSeconds = 3;
-            _vinylRipOptions.TrackFadeInLengthInSamples = 20;
+            _vinylRipOptions.DefaultTrackFadeOutLengthInSeconds = 3;
+            _vinylRipOptions.DefaultTrackFadeInLengthInSamples = 20;
             _vinylRipOptions.MinimumTrackLengthInSeconds = 10;
 
             GetSplitTrackDefinitions(_splitTrackList);
@@ -62,8 +62,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 
         private void GetSplitTrackDefinitions(SplitTrackList tracks)
         {
-            long fadeOutLengthSamples = _file.SecondsToPosition(_vinylRipOptions.TrackAddFadeOutLengthInSeconds);
-            tracks.InitTracks(_vinylRipOptions.TrackFadeInLengthInSamples, fadeOutLengthSamples);
+            tracks.InitTracks(_vinylRipOptions);
             Output.ToScriptWindow("Found {0} tracks:", tracks.Count);
             foreach (SplitTrackDefinition track in tracks)
             {
