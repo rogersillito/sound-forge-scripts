@@ -1,9 +1,8 @@
 using SoundForge;
-using SoundForgeScriptsLib;
 
-namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
+namespace SoundForgeScriptsLib.VinylRip
 {
-    public class FindTracksOptions
+    public class VinylRipOptions
     {
         private double _scanWindowLengthInSeconds;
         private double _gapNoisefloorThresholdInDecibels;
@@ -12,6 +11,20 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
         private long _startScanFilePositionInSamples;
         private long _defaultTrackFadeInLengthInSamples;
         private long _defaultTrackFadeOutLengthInSamples;
+        private long _trackFadeInLengthInSamples;
+        private double _trackAddFadeOutLengthInSeconds;
+
+        public long TrackFadeInLengthInSamples
+        {
+            get { return _trackFadeInLengthInSamples; }
+            set { _trackFadeInLengthInSamples = value; }
+        }
+
+        public double TrackAddFadeOutLengthInSeconds
+        {
+            get { return _trackAddFadeOutLengthInSeconds; }
+            set { _trackAddFadeOutLengthInSeconds = value; }
+        }
 
         public double ScanWindowLengthInSeconds
         {

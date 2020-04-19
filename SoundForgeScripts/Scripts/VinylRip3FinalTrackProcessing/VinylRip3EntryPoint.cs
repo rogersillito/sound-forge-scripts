@@ -31,7 +31,7 @@ namespace SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing
         private TextBox _tbxAlbum;
         private TextBox _tbxArtist;
         private TextBox _tbxRootFolder;
-        private FindTracksOptions _findTracksOptions;
+        private VinylRipOptions _vinylRipOptions;
         private SfAudioSelection _noiseprintSelection;
         private string _outputDirectory;
         private FileTasks _fileTasks;
@@ -55,9 +55,9 @@ namespace SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing
             _splitTrackList = new SplitTrackList(markerAndRegionFactory, markerAndRegionFactory, _trackMarkerNameBuilder, markers, new TrackMarkerSpecifications(), Output);
             const int noiseprintLengthSeconds = 2;
             _noiseprintSelection = _fileTasks.EnforceNoisePrintSelection(App, noiseprintLengthSeconds);
-            _findTracksOptions = new FindTracksOptions();
-            _findTracksOptions.TrackAddFadeOutLengthInSeconds = 3;
-            _findTracksOptions.TrackFadeInLengthInSamples = 20;
+            _vinylRipOptions = new VinylRipOptions();
+            _vinylRipOptions.TrackAddFadeOutLengthInSeconds = 3;
+            _vinylRipOptions.TrackFadeInLengthInSamples = 20;
 
             DialogResult result = ConfirmTrackSplitsForm(Script.Application.Win32Window);
             if (result == DialogResult.Cancel)
@@ -250,8 +250,8 @@ namespace SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing
 
         private SplitTrackList GetSplitTrackDefinitions()
         {
-            long fadeOutLengthSamples = _file.SecondsToPosition(_findTracksOptions.TrackAddFadeOutLengthInSeconds);
-            return _splitTrackList.InitTracks(_findTracksOptions.TrackFadeInLengthInSamples, fadeOutLengthSamples);
+            long fadeOutLengthSamples = _file.SecondsToPosition(_vinylRipOptions.TrackAddFadeOutLengthInSeconds);
+            return _splitTrackList.InitTracks(_vinylRipOptions.TrackFadeInLengthInSamples, fadeOutLengthSamples);
         }
 
         private void DoTrackSplitting(SplitTrackList tracks)

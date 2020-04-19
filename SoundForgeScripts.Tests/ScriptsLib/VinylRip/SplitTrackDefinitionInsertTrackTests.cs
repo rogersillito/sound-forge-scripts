@@ -68,7 +68,7 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
             {
                 sut_factory.create_using(() =>
                 {
-                    //var options = new FindTracksOptions
+                    //var options = new VinylRipOptions
                     //{
                     //    MinimumTrackGapInSeconds = 1
                     //}

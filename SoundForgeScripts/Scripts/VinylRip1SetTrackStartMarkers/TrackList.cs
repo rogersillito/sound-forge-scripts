@@ -1,16 +1,17 @@
 using System.Collections.Generic;
 using SoundForge;
+using SoundForgeScriptsLib.VinylRip;
 
 namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
 {
     public class TrackList : List<TrackDefinition>
     {
-        private readonly FindTracksOptions _findTracksOptions;
+        private readonly VinylRipOptions _vinylRipOptions;
         private readonly ISfFileHost _file;
 
-        public TrackList(FindTracksOptions findTracksOptions, ISfFileHost file)
+        public TrackList(VinylRipOptions vinylRipOptions, ISfFileHost file)
         {
-            _findTracksOptions = findTracksOptions;
+            _vinylRipOptions = vinylRipOptions;
             _file = file;
         }
 
@@ -20,7 +21,7 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
                 return true;
 
             // would track gap be too short ?
-            long minimumAllowableStartPosition = LastAdded.EndPosition + _file.SecondsToPosition(_findTracksOptions.MinimumTrackGapInSeconds);
+            long minimumAllowableStartPosition = LastAdded.EndPosition + _file.SecondsToPosition(_vinylRipOptions.MinimumTrackGapInSeconds);
             return minimumAllowableStartPosition <= nextTrackStartPosition;
         }
 
@@ -30,7 +31,7 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
                 return true;
 
             // would track length be too short ?
-            return _file.PositionToSeconds(LastAdded.Length) >= _findTracksOptions.MinimumTrackLengthInSeconds;
+            return _file.PositionToSeconds(LastAdded.Length) >= _vinylRipOptions.MinimumTrackLengthInSeconds;
         }
 
         public TrackDefinition LastAdded

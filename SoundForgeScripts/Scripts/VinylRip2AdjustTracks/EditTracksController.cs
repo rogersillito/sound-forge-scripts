@@ -19,7 +19,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
         private readonly EntryPointBase _entryPoint;
         private EditTracksViewModel _vm;
         private SplitTrackList _tracks;
-        private FindTracksOptions _options;
+        private VinylRipOptions _options;
         private EditTracksForm _form;
 
         public EditTracksController(IScriptableApp app, EditTracksFormFactory formFactory, EntryPointBase entryPoint, OutputHelper output, FileTasks fileTasks)
@@ -31,7 +31,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             _fileTasks = fileTasks;
         }
 
-        public void Edit(EditTracksViewModel viewModel, SplitTrackList tracks, FindTracksOptions options)
+        public void Edit(EditTracksViewModel viewModel, SplitTrackList tracks, VinylRipOptions options)
         {
             _options = options;
             _tracks = tracks;

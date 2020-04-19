@@ -55,7 +55,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Scripts\VinylRip1SetTrackStartMarkers\FindTracksOptions.cs" />
     <Compile Include="Scripts\VinylRip1SetTrackStartMarkers\ScanResult.cs" />
     <Compile Include="Scripts\VinylRip1SetTrackStartMarkers\TrackDefinition.cs" />
     <Compile Include="Scripts\VinylRip1SetTrackStartMarkers\TrackList.cs" />
@@ -66,9 +65,7 @@
     </Compile>
     <Compile Include="Scripts\VinylRip2AdjustTracks\EditTracksFormFactory.cs" />
     <Compile Include="Scripts\VinylRip2AdjustTracks\EditTracksViewModel.cs" />
-    <Compile Include="Scripts\VinylRip2AdjustTracks\FindTracksOptions.cs" />
     <Compile Include="Scripts\VinylRip2AdjustTracks\VinylRip2EntryPoint.cs" />
-    <Compile Include="Scripts\VinylRip3FinalTrackProcessing\FindTracksOptions.cs" />
     <Compile Include="Scripts\VinylRip3FinalTrackProcessing\VinylRip3EntryPoint.cs" />
     <Compile Include="Scripts\VinylRip3FinalTrackProcessing\WindowTasks.cs" />
   </ItemGroup>
