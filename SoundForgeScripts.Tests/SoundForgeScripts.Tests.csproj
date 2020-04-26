@@ -84,6 +84,7 @@
     <Compile Include="ScriptsLib\VinylRip\SplitTrackDefinitionResizeTests.cs" />
     <Compile Include="ScriptsLib\VinylRip\SplitTrackDefinitionTests.cs" />
     <Compile Include="ScriptsLib\VinylRip\SplitTrackListTests.cs" />
+    <Compile Include="ScriptsLib\VinylRip\VinylRipTestHelpers.cs" />
     <Compile Include="Scripts\VinylRip1SetTrackStartMarkers\TrackListTests.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -106,9 +107,7 @@
   <ItemGroup>
     <EmbeddedResource Include="ScriptFileProcessor\using_test.txt" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ScriptsLib\Utils\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

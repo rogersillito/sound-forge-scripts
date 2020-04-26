@@ -12,7 +12,7 @@ using SoundForgeScriptsLib.VinylRip;
 using It = Machine.Specifications.It;
 
 namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
-{   
+{
     public class SplitTrackDefinitionTests
     {
         public abstract class SplitTrackDefinitionContext : Observes<SplitTrackDefinition>
@@ -40,11 +40,11 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
                 var markerAndRegionFactory = new TrackMarkerFactory(markerList.Object);
 
                 SplitTrackList = new SplitTrackList(markerAndRegionFactory, markerAndRegionFactory, new TrackMarkerNameBuilder(), markerList.Object, new TrackMarkerSpecifications(), depends.@on<IOutputHelper>());
-                _file.setup(x => x.SecondsToPosition(999999999999)).Return(100);
+                _file.setup(x => x.SecondsToPosition(VinylRipTestHelpers.TrackFadeOutLengthInSecondsForMockSetup)).Return(100);
                 SplitTrackList.InitTracks(new VinylRipOptions
                 {
                     DefaultTrackFadeInLengthInSamples = 10,
-                    DefaultTrackFadeOutLengthInSeconds = 999999999999
+                    DefaultTrackFadeOutLengthInSeconds = VinylRipTestHelpers.TrackFadeOutLengthInSecondsForMockSetup
                 });
             };
 
@@ -58,9 +58,9 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
             Establish context = () =>
                 sut_factory.create_using(() => SplitTrackList.First());
 
-            Because of = () => 
+            Because of = () =>
                 sut.FadeInLength = 150;
-            
+
             private It should_return_value_set = () =>
                 sut.FadeInLength.ShouldEqual(150);
 
@@ -74,9 +74,9 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
             Establish context = () =>
                 sut_factory.create_using(() => SplitTrackList.First());
 
-            Because of = () => 
+            Because of = () =>
                 sut.FadeInLength = 15000;
-            
+
             private It should_return_value_set = () =>
                 sut.FadeInLength.ShouldEqual(10000);
 
@@ -90,9 +90,9 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
             Establish context = () =>
                 sut_factory.create_using(() => SplitTrackList.First());
 
-            Because of = () => 
+            Because of = () =>
                 sut.FadeInLength = -1;
-            
+
             private It should_return_value_set = () =>
                 sut.FadeInLength.ShouldEqual(0);
 
@@ -106,9 +106,9 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
             Establish context = () =>
                 sut_factory.create_using(() => SplitTrackList.First());
 
-            Because of = () => 
+            Because of = () =>
                 sut.FadeOutLength = 200;
-            
+
             private It should_update_selection = () =>
                 sut.GetSelectionWithFades().Length.ShouldEqual(10200);
 
@@ -164,9 +164,9 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
             Establish context = () =>
                 sut_factory.create_using(() => SplitTrackList.First());
 
-            Because of = () => 
+            Because of = () =>
                 sut.FadeOutLength = -1;
-            
+
             private It should_return_value_set = () =>
                 sut.FadeOutLength.ShouldEqual(0);
 
@@ -182,9 +182,9 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
             Establish context = () =>
                 sut_factory.create_using(() => SplitTrackList.First());
 
-            Because of = () => 
+            Because of = () =>
                 _file.Markers.Remove(sut.FadeInEndMarker);
-            
+
             private It should_recreate_fade_in_end_marker = () =>
                 sut.FadeInEndMarker.ShouldNotBeNull();
 
@@ -201,9 +201,9 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
             Establish context = () =>
                 sut_factory.create_using(() => SplitTrackList.First());
 
-            Because of = () => 
+            Because of = () =>
                 _file.Markers.Remove(sut.FadeOutEndMarker);
-            
+
             private It should_recreate_fade_out_end_marker = () =>
                 sut.FadeOutEndMarker.ShouldNotBeNull();
 

@@ -12,7 +12,7 @@ using SoundForgeScriptsLib.VinylRip;
 using It = Machine.Specifications.It;
 
 namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
-{   
+{
     public class SplitTrackDefinitionResizeTests
     {
         public abstract class SplitTrackDefinitionContext : Observes<SplitTrackDefinition>
@@ -45,11 +45,11 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
                 var markerAndRegionFactory = new TrackMarkerFactory(markerList.Object);
 
                 SplitTrackList = new SplitTrackList(markerAndRegionFactory, markerAndRegionFactory, new TrackMarkerNameBuilder(), markerList.Object, new TrackMarkerSpecifications(), depends.@on<IOutputHelper>());
-                _file.setup(x => x.SecondsToPosition(999999999999)).Return(100);
+                _file.setup(x => x.SecondsToPosition(VinylRipTestHelpers.TrackFadeOutLengthInSecondsForMockSetup)).Return(100);
                 SplitTrackList.InitTracks(new VinylRipOptions
                 {
                     DefaultTrackFadeInLengthInSamples = 10,
-                    DefaultTrackFadeOutLengthInSeconds = 999999999999
+                    DefaultTrackFadeOutLengthInSeconds = VinylRipTestHelpers.TrackFadeOutLengthInSecondsForMockSetup
                 });
             };
 

@@ -12,7 +12,7 @@ using SoundForgeScriptsLib.VinylRip;
 using It = Machine.Specifications.It;
 
 namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
-{   
+{
     public class SplitTrackListTests
     {
         public abstract class SplitTrackListContext : Observes<SplitTrackList>
@@ -57,11 +57,11 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
 
             Because of = () =>
             {
-                _file.setup(x => x.SecondsToPosition(999999999999)).Return(7000);
+                _file.setup(x => x.SecondsToPosition(VinylRipTestHelpers.TrackFadeOutLengthInSecondsForMockSetup)).Return(7000);
                 _tracks =  sut.InitTracks(new VinylRipOptions
                 {
                     DefaultTrackFadeInLengthInSamples = 30,
-                    DefaultTrackFadeOutLengthInSeconds = 999999999999
+                    DefaultTrackFadeOutLengthInSeconds = VinylRipTestHelpers.TrackFadeOutLengthInSecondsForMockSetup
                 });
             };
 
@@ -159,11 +159,11 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
 
             Because of = () =>
             {
-                _file.setup(x => x.SecondsToPosition(999999999999)).Return(7000);
+                _file.setup(x => x.SecondsToPosition(VinylRipTestHelpers.TrackFadeOutLengthInSecondsForMockSetup)).Return(7000);
                 _tracks =  sut.InitTracks(new VinylRipOptions
                 {
                     DefaultTrackFadeInLengthInSamples = 30,
-                    DefaultTrackFadeOutLengthInSeconds = 999999999999
+                    DefaultTrackFadeOutLengthInSeconds = VinylRipTestHelpers.TrackFadeOutLengthInSecondsForMockSetup
                 });
             };
 
@@ -264,11 +264,11 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
 
             Because of = () =>
             {
-                _file.setup(x => x.SecondsToPosition(999999999999)).Return(0);
+                _file.setup(x => x.SecondsToPosition(VinylRipTestHelpers.TrackFadeOutLengthInSecondsForMockSetup)).Return(0);
                 _tracks =  sut.InitTracks(new VinylRipOptions
                 {
                     DefaultTrackFadeInLengthInSamples = 0,
-                    DefaultTrackFadeOutLengthInSeconds = 999999999999
+                    DefaultTrackFadeOutLengthInSeconds = VinylRipTestHelpers.TrackFadeOutLengthInSecondsForMockSetup
                 });
             };
 
@@ -298,7 +298,7 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
                     new SfAudioMarker(600000, 100000) { Name = $"0002{TrackMarkerNameBuilder.TrackRegionSuffix}" },
                     new SfAudioMarker(701000, 100000) { Name = $"0003{TrackMarkerNameBuilder.TrackRegionSuffix}" },
                 };
-                
+
                 FileMarkersHelper.RealMarkerList.AddRange(ExistingMarkers);
 
                 _file.setup(x => x.Markers).Return(
@@ -307,11 +307,11 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
 
             private Because of = () =>
             {
-                _file.setup(x => x.SecondsToPosition(999999999999)).Return(0);
+                _file.setup(x => x.SecondsToPosition(VinylRipTestHelpers.TrackFadeOutLengthInSecondsForMockSetup)).Return(0);
                 _tracks =  sut.InitTracks(new VinylRipOptions
                 {
                     DefaultTrackFadeInLengthInSamples = 0,
-                    DefaultTrackFadeOutLengthInSeconds = 999999999999
+                    DefaultTrackFadeOutLengthInSeconds = VinylRipTestHelpers.TrackFadeOutLengthInSecondsForMockSetup
                 });
                 sut.Delete(sut[1]);
             };
