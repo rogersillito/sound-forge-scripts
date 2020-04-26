@@ -12,8 +12,15 @@ namespace SoundForgeScriptsLib.VinylRip
         private readonly ICreateTrackRegions _regionFactory;
         private readonly IOutputHelper _output;
 
-        public SplitTrackDefinition(SplitTrackList splitTrackList, ISfFileHost file, ICreateFadeMarkers markerFactory, ICreateTrackRegions regionFactory, IOutputHelper output)
+        public SplitTrackDefinition(
+            SplitTrackList splitTrackList,
+            ISfFileHost file,
+            VinylRipOptions options,
+            ICreateFadeMarkers markerFactory,
+            ICreateTrackRegions regionFactory,
+            IOutputHelper output)
         {
+            _options = options;
             _splitTrackList = splitTrackList;
             _originalFile = file;
             _markerFactory = markerFactory;
@@ -68,6 +75,8 @@ namespace SoundForgeScriptsLib.VinylRip
         }
 
         private SfAudioMarker _fadeOutEndMarker;
+        private VinylRipOptions _options;
+
         public SfAudioMarker FadeOutEndMarker
         {
             get { return _fadeOutEndMarker ?? (_fadeOutEndMarker = _markerFactory.CreateFadeOutEnd(Number, TrackRegion.Start)); }
@@ -225,14 +234,24 @@ namespace SoundForgeScriptsLib.VinylRip
             FadeOutEndMarker.Start += samples;
         }
 
+        private long MinimumTrackInsertionLength =>
+            _originalFile.SecondsToPosition(_options.DefaultTrackFadeOutLengthInSeconds) +
+            _originalFile.SecondsToPosition(_options.MinimumTrackLengthInSeconds);
+
         public bool CanInsertTrackBefore()
         {
-            throw new NotImplementedException();
+            var preceedingLimitPoint = Number > 1
+                ? _splitTrackList.GetTrack(Number - 1).FadeOutEndMarker.Start
+                : 0;
+            return preceedingLimitPoint + MinimumTrackInsertionLength <= TrackRegion.Start;
         }
 
         public bool CanInsertTrackAfter()
         {
-            throw new NotImplementedException();
+            var followingLimitPoint = IsLastTrack
+                ? _originalFile.Length
+                : _splitTrackList.GetTrack(Number + 1).TrackRegion.Start;
+            return MarkerHelper.GetMarkerEnd(TrackRegion) + MinimumTrackInsertionLength <= followingLimitPoint;
         }
     }
 }

@@ -27,7 +27,7 @@ namespace SoundForgeScriptsLib.VinylRip
 
         public SplitTrackDefinition AddNew(SfAudioMarker trackRegionMarker, int trackNumber, VinylRipOptions options)
         {
-            SplitTrackDefinition track = new SplitTrackDefinition(this, _file, _markerFactory, _regionFactory, _output);
+            SplitTrackDefinition track = new SplitTrackDefinition(this, _file, options, _markerFactory, _regionFactory, _output);
             this[trackNumber - 1] = track;
             track.Number = trackNumber;
             track.TrackRegion = trackRegionMarker;
