@@ -251,7 +251,7 @@ namespace SoundForgeScriptsLib.VinylRip
             var followingLimitPoint = IsLastTrack
                 ? _originalFile.Length
                 : _splitTrackList.GetTrack(Number + 1).TrackRegion.Start;
-            return MarkerHelper.GetMarkerEnd(TrackRegion) + MinimumTrackInsertionLength <= followingLimitPoint;
+            return FadeOutEndMarker.Start + MinimumTrackInsertionLength <= followingLimitPoint;
         }
     }
 }

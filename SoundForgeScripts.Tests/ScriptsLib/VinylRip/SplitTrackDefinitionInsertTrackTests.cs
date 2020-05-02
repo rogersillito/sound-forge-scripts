@@ -31,7 +31,7 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
                     new SfAudioMarker(10000,  10000) { Name = $"0001{TrackMarkerNameBuilder.TrackRegionSuffix}" },
                     new SfAudioMarker(10000 + FadeLength) { Name = $"0001{TrackMarkerNameBuilder.TrackFadeInEndSuffix}" }, // FadeLength sample fade in
                     new SfAudioMarker(20000 + FadeLength) { Name = $"0001{TrackMarkerNameBuilder.TrackFadeOutEndSuffix}" }, // FadeLength sample fade out
-                    // FadeLength00 gap
+                    //  9900 gap
                     new SfAudioMarker(30000,  10000) { Name = $"0002{TrackMarkerNameBuilder.TrackRegionSuffix}" },
                     new SfAudioMarker(30000 + FadeLength) { Name = $"0002{TrackMarkerNameBuilder.TrackFadeInEndSuffix}" }, // FadeLength sample fade in
                     new SfAudioMarker(40000 + FadeLength) { Name = $"0002{TrackMarkerNameBuilder.TrackFadeOutEndSuffix}" }, // FadeLength sample fade out
@@ -66,7 +66,7 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
         }
 
         [Subject(typeof(SplitTrackDefinition))]
-        public class when_can_insert_either_side_of_first_track : SplitTrackDefinitionContext
+        public class when_can_insert_before_first_track : SplitTrackDefinitionContext
         {
             private Establish context = () =>
             {
@@ -74,6 +74,30 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
                 {
                     _file.setup(x => x.SecondsToPosition(VinylRipTestHelpers.TrackFadeOutLengthInSecondsForMockSetup)).Return(FadeLength);
                     _file.setup(x => x.SecondsToPosition(VinylRipTestHelpers.MinimumTrackLengthInSecondsForMockSetup)).Return(9900);
+                    SplitTrackList.InitTracks(new VinylRipOptions
+                    {
+                        DefaultTrackFadeInLengthInSamples = FadeLength,
+                        DefaultTrackFadeOutLengthInSeconds = VinylRipTestHelpers.TrackFadeOutLengthInSecondsForMockSetup,
+                        MinimumTrackLengthInSeconds = VinylRipTestHelpers.MinimumTrackLengthInSecondsForMockSetup
+                    });
+                    return SplitTrackList.First();
+                });
+            };
+
+            It should_return_true_checking_can_insert_before = () => sut.CanInsertTrackBefore().ShouldBeTrue();
+
+            It should_return_false_checking_can_insert_after = () => sut.CanInsertTrackAfter().ShouldBeFalse();
+        }
+
+        [Subject(typeof(SplitTrackDefinition))]
+        public class when_can_insert_either_side_of_first_track : SplitTrackDefinitionContext
+        {
+            private Establish context = () =>
+            {
+                sut_factory.create_using(() =>
+                {
+                    _file.setup(x => x.SecondsToPosition(VinylRipTestHelpers.TrackFadeOutLengthInSecondsForMockSetup)).Return(FadeLength);
+                    _file.setup(x => x.SecondsToPosition(VinylRipTestHelpers.MinimumTrackLengthInSecondsForMockSetup)).Return(9800);
                     SplitTrackList.InitTracks(new VinylRipOptions
                     {
                         DefaultTrackFadeInLengthInSamples = FadeLength,
@@ -106,6 +130,77 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
                         MinimumTrackLengthInSeconds = VinylRipTestHelpers.MinimumTrackLengthInSecondsForMockSetup
                     });
                     return SplitTrackList.First();
+                });
+            };
+
+            It should_return_false_checking_can_insert_before = () => sut.CanInsertTrackBefore().ShouldBeFalse();
+
+            It should_return_false_checking_can_insert_after = () => sut.CanInsertTrackAfter().ShouldBeFalse();
+        }
+
+        [Subject(typeof(SplitTrackDefinition))]
+        public class when_can_insert_either_side_of_second_track : SplitTrackDefinitionContext
+        {
+            private Establish context = () =>
+            {
+                sut_factory.create_using(() =>
+                {
+                    _file.setup(x => x.SecondsToPosition(VinylRipTestHelpers.TrackFadeOutLengthInSecondsForMockSetup)).Return(FadeLength);
+                    _file.setup(x => x.SecondsToPosition(VinylRipTestHelpers.MinimumTrackLengthInSecondsForMockSetup)).Return(9800);
+                    SplitTrackList.InitTracks(new VinylRipOptions
+                    {
+                        DefaultTrackFadeInLengthInSamples = FadeLength,
+                        DefaultTrackFadeOutLengthInSeconds = VinylRipTestHelpers.TrackFadeOutLengthInSecondsForMockSetup,
+                        MinimumTrackLengthInSeconds = VinylRipTestHelpers.MinimumTrackLengthInSecondsForMockSetup
+                    });
+                    return SplitTrackList.Last();
+                });
+            };
+
+            It should_return_true_checking_can_insert_before = () => sut.CanInsertTrackBefore().ShouldBeTrue();
+
+            It should_return_true_checking_can_insert_after = () => sut.CanInsertTrackAfter().ShouldBeTrue();
+        }
+
+        [Subject(typeof(SplitTrackDefinition))]
+        public class when_can_insert_max_possible_length_track_after_second_track : SplitTrackDefinitionContext
+        {
+            private Establish context = () =>
+            {
+                sut_factory.create_using(() =>
+                {
+                    _file.setup(x => x.SecondsToPosition(VinylRipTestHelpers.TrackFadeOutLengthInSecondsForMockSetup)).Return(FadeLength);
+                    _file.setup(x => x.SecondsToPosition(VinylRipTestHelpers.MinimumTrackLengthInSecondsForMockSetup)).Return(19800);
+                    SplitTrackList.InitTracks(new VinylRipOptions
+                    {
+                        DefaultTrackFadeInLengthInSamples = FadeLength,
+                        DefaultTrackFadeOutLengthInSeconds = VinylRipTestHelpers.TrackFadeOutLengthInSecondsForMockSetup,
+                        MinimumTrackLengthInSeconds = VinylRipTestHelpers.MinimumTrackLengthInSecondsForMockSetup
+                    });
+                    return SplitTrackList.Last();
+                });
+            };
+
+            It should_return_true_checking_can_insert_after = () => sut.CanInsertTrackAfter().ShouldBeTrue();
+        }
+
+        [Subject(typeof(SplitTrackDefinition))]
+        public class when_cannot_insert_either_side_of_second_track : SplitTrackDefinitionContext
+        {
+            private Establish context = () =>
+            {
+                sut_factory.create_using(() =>
+                {
+                    _file.setup(x => x.SecondsToPosition(VinylRipTestHelpers.TrackFadeOutLengthInSecondsForMockSetup)).Return(FadeLength);
+                    // required length is 1 sample TOO LONG
+                    _file.setup(x => x.SecondsToPosition(VinylRipTestHelpers.MinimumTrackLengthInSecondsForMockSetup)).Return(19801);
+                    SplitTrackList.InitTracks(new VinylRipOptions
+                    {
+                        DefaultTrackFadeInLengthInSamples = FadeLength,
+                        DefaultTrackFadeOutLengthInSeconds = VinylRipTestHelpers.TrackFadeOutLengthInSecondsForMockSetup,
+                        MinimumTrackLengthInSeconds = VinylRipTestHelpers.MinimumTrackLengthInSecondsForMockSetup
+                    });
+                    return SplitTrackList.Last();
                 });
             };
 
