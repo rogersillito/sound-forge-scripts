@@ -263,10 +263,7 @@ namespace SoundForgeScriptsLib.VinylRip
             var newTrackNumber = Number;
             var newRegion = _regionFactory.CreateRegion(newTrackNumber, PreceedingInsertionLimitPoint, newTrackLength);
             _splitTrackList.Insert(Number - 1, null);
-            _splitTrackList.RenumberMarkers(newTrackNumber + 1);
-            var newTrack = _splitTrackList.AddNew(newRegion, newTrackNumber, _options);
-            _splitTrackList.RenumberMarkers();
-            return newTrack;
+            return CreateTrackInList(newTrackNumber, newRegion);
         }
 
         public SplitTrackDefinition InsertTrackAfter()
@@ -275,6 +272,11 @@ namespace SoundForgeScriptsLib.VinylRip
             var newTrackNumber = Number + 1;
             var newRegion = _regionFactory.CreateRegion(newTrackNumber, FadeOutEndMarker.Start, newTrackLength);
             _splitTrackList.Insert(Number, null);
+            return CreateTrackInList(newTrackNumber, newRegion);
+        }
+
+        private SplitTrackDefinition CreateTrackInList(int newTrackNumber, SfAudioMarker newRegion)
+        {
             _splitTrackList.RenumberMarkers(newTrackNumber + 1);
             var newTrack = _splitTrackList.AddNew(newRegion, newTrackNumber, _options);
             _splitTrackList.RenumberMarkers();

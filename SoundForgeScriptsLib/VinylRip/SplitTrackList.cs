@@ -107,12 +107,12 @@ namespace SoundForgeScriptsLib.VinylRip
             }
         }
 
-        internal void RenumberMarkers(int startFromTrack = 1)
+        internal void RenumberMarkers(int renumberFromTrack = 1)
         {
             var n = 1;
             foreach (var track in this)
             {
-                if (track != null && n >= startFromTrack)
+                if (track != null && n >= renumberFromTrack)
                 {
                     track.Number = n;
                     track.TrackRegion.Name = _trackMarkerNameBuilder.GetRegionMarkerName(n);
