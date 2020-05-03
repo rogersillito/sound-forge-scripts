@@ -241,6 +241,13 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
                 _newTrack.FadeOutEndMarker.Start.ShouldEqual(10000);
             };
 
+            It should_name_new_track = () =>
+            {
+                _newTrack.TrackRegion.Name.ShouldContain("001");
+                _newTrack.FadeInEndMarker.Name.ShouldContain("001");
+                _newTrack.FadeOutEndMarker.Name.ShouldContain("001");
+            };
+
             It should_add_track_to_list = () => SplitTrackList.Count.ShouldEqual(3);
 
             It should_reset_track_numbering = () =>
@@ -283,6 +290,13 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
                 _newTrack.TrackRegion.Start.ShouldEqual(20100);
                 MarkerHelper.GetMarkerEnd(_newTrack.TrackRegion).ShouldEqual(29000);
                 _newTrack.FadeOutEndMarker.Start.ShouldEqual(30000);
+            };
+
+            It should_name_new_track = () =>
+            {
+                _newTrack.TrackRegion.Name.ShouldContain("002");
+                _newTrack.FadeInEndMarker.Name.ShouldContain("002");
+                _newTrack.FadeOutEndMarker.Name.ShouldContain("002");
             };
 
             It should_add_track_to_list = () => SplitTrackList.Count.ShouldEqual(3);

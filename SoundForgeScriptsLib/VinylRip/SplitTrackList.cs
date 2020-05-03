@@ -107,16 +107,19 @@ namespace SoundForgeScriptsLib.VinylRip
             }
         }
 
-        private void RenumberMarkers()
+        internal void RenumberMarkers()
         {
             var n = 1;
             Sort();
             foreach (var track in this)
             {
-                track.Number = n;
-                track.TrackRegion.Name = _trackMarkerNameBuilder.GetRegionMarkerName(n);
-                track.FadeInEndMarker.Name = _trackMarkerNameBuilder.GetFadeInEndMarkerName(n);
-                track.FadeOutEndMarker.Name = _trackMarkerNameBuilder.GetFadeOutEndMarkerName(n);
+                if (track != null)
+                {
+                    track.Number = n;
+                    track.TrackRegion.Name = _trackMarkerNameBuilder.GetRegionMarkerName(n);
+                    track.FadeInEndMarker.Name = _trackMarkerNameBuilder.GetFadeInEndMarkerName(n);
+                    track.FadeOutEndMarker.Name = _trackMarkerNameBuilder.GetFadeOutEndMarkerName(n);
+                }
                 n++;
             }
         }

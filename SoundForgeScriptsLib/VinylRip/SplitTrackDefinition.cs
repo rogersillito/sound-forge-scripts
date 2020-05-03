@@ -223,6 +223,7 @@ namespace SoundForgeScriptsLib.VinylRip
                     return false;
 
                 if (IsLastTrack && FadeOutEndMarker.Start + samples > _originalFile.Length)
+
                     return false;
             }
 
@@ -238,30 +239,46 @@ namespace SoundForgeScriptsLib.VinylRip
             _originalFile.SecondsToPosition(_options.DefaultTrackFadeOutLengthInSeconds) +
             _originalFile.SecondsToPosition(_options.MinimumTrackLengthInSeconds);
 
+        private long PreceedingInsertionLimitPoint => Number > 1
+            ? _splitTrackList.GetTrack(Number - 1).FadeOutEndMarker.Start
+            : 0;
+
+        private long FollowingInsertionLimitPoint => IsLastTrack
+            ? _originalFile.Length
+            : _splitTrackList.GetTrack(Number + 1).TrackRegion.Start;
+
         public bool CanInsertTrackBefore()
         {
-            var preceedingLimitPoint = Number > 1
-                ? _splitTrackList.GetTrack(Number - 1).FadeOutEndMarker.Start
-                : 0;
-            return preceedingLimitPoint + MinimumTrackInsertionLength <= TrackRegion.Start;
+            return PreceedingInsertionLimitPoint + MinimumTrackInsertionLength <= TrackRegion.Start;
         }
 
         public bool CanInsertTrackAfter()
         {
-            var followingLimitPoint = IsLastTrack
-                ? _originalFile.Length
-                : _splitTrackList.GetTrack(Number + 1).TrackRegion.Start;
-            return FadeOutEndMarker.Start + MinimumTrackInsertionLength <= followingLimitPoint;
+            return FadeOutEndMarker.Start + MinimumTrackInsertionLength <= FollowingInsertionLimitPoint;
         }
 
         public SplitTrackDefinition InsertTrackBefore()
         {
-            throw new NotImplementedException();
+            var newTrackLength = TrackRegion.Start - _originalFile.SecondsToPosition(_options.DefaultTrackFadeOutLengthInSeconds) - PreceedingInsertionLimitPoint;
+            var newRegion = new SfAudioMarker(PreceedingInsertionLimitPoint, newTrackLength);
+            var newTrackNumber = Number;
+            _splitTrackList.Insert(Number - 1, null);
+            _splitTrackList.RenumberMarkers();
+            var newTrack = _splitTrackList.AddNew(newRegion, newTrackNumber, _options);
+            _splitTrackList.RenumberMarkers();
+            return newTrack;
         }
 
         public SplitTrackDefinition InsertTrackAfter()
         {
-            throw new NotImplementedException();
+            var newTrackLength = FollowingInsertionLimitPoint - FadeOutEndMarker.Start - _originalFile.SecondsToPosition(_options.DefaultTrackFadeOutLengthInSeconds);
+            var newRegion = new SfAudioMarker(FadeOutEndMarker.Start, newTrackLength);
+            var newTrackNumber = Number;
+            _splitTrackList.Insert(Number, null);
+            _splitTrackList.RenumberMarkers();
+            var newTrack = _splitTrackList.AddNew(newRegion, newTrackNumber, _options);
+            _splitTrackList.RenumberMarkers();
+            return newTrack;
         }
     }
 }
