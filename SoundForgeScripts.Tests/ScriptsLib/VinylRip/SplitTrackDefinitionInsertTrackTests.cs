@@ -248,9 +248,9 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
 
             It should_name_new_track = () =>
             {
-                _newTrack.TrackRegion.Name.ShouldContain("001");
-                _newTrack.FadeInEndMarker.Name.ShouldContain("001");
-                _newTrack.FadeOutEndMarker.Name.ShouldContain("001");
+                _newTrack.TrackRegion.Name.ShouldContain("0001");
+                _newTrack.FadeInEndMarker.Name.ShouldContain("0001");
+                _newTrack.FadeOutEndMarker.Name.ShouldContain("0001");
             };
 
             It should_add_track_to_list = () => SplitTrackList.Count.ShouldEqual(3);
@@ -275,7 +275,7 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
                 sut_factory.create_using(() =>
                 {
                     _file.setup(x => x.SecondsToPosition(VinylRipTestHelpers.TrackFadeOutLengthInSecondsForMockSetup)).Return(FadeLength);
-                    _file.setup(x => x.SecondsToPosition(VinylRipTestHelpers.MinimumTrackLengthInSecondsForMockSetup)).Return(9900);
+                    _file.setup(x => x.SecondsToPosition(VinylRipTestHelpers.MinimumTrackLengthInSecondsForMockSetup)).Return(9800);
                     SplitTrackList.InitTracks(new VinylRipOptions
                     {
                         DefaultTrackFadeInLengthInSamples = FadeLength,
@@ -302,9 +302,9 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
 
             It should_name_new_track = () =>
             {
-                _newTrack.TrackRegion.Name.ShouldContain("002");
-                _newTrack.FadeInEndMarker.Name.ShouldContain("002");
-                _newTrack.FadeOutEndMarker.Name.ShouldContain("002");
+                _newTrack.TrackRegion.Name.ShouldContain("0002");
+                _newTrack.FadeInEndMarker.Name.ShouldContain("0002");
+                _newTrack.FadeOutEndMarker.Name.ShouldContain("0002");
             };
 
             It should_add_track_to_list = () => SplitTrackList.Count.ShouldEqual(3);
@@ -317,6 +317,114 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
             };
 
             It should_return_false_checking_can_insert_after = () => sut.CanInsertTrackAfter().ShouldBeFalse();
+        }
+
+        [Subject(typeof(SplitTrackDefinition))]
+        public class when_track_inserted_before_second_track : SplitTrackDefinitionContext
+        {
+            private static SplitTrackDefinition _newTrack;
+
+            private Establish context = () =>
+            {
+                sut_factory.create_using(() =>
+                {
+                    _file.setup(x => x.SecondsToPosition(VinylRipTestHelpers.TrackFadeOutLengthInSecondsForMockSetup)).Return(FadeLength);
+                    _file.setup(x => x.SecondsToPosition(VinylRipTestHelpers.MinimumTrackLengthInSecondsForMockSetup)).Return(9800);
+                    SplitTrackList.InitTracks(new VinylRipOptions
+                    {
+                        DefaultTrackFadeInLengthInSamples = FadeLength,
+                        DefaultTrackFadeOutLengthInSeconds = VinylRipTestHelpers.TrackFadeOutLengthInSecondsForMockSetup,
+                        MinimumTrackLengthInSeconds = VinylRipTestHelpers.MinimumTrackLengthInSecondsForMockSetup
+                    });
+                    return SplitTrackList.Last();
+                });
+            };
+
+            Because of = () => _newTrack = sut.InsertTrackBefore();
+
+            It should_create_track = () => _newTrack.ShouldNotBeNull();
+
+            It should_add_markers_to_file = () =>
+                _markerList.Verify(x => x.Add(Moq.It.IsAny<SfAudioMarker>()), Times.Exactly(3));
+
+            It should_add_track_to_list = () => SplitTrackList.Count.ShouldEqual(3);
+
+            It should_create_track_to_fill_available_space = () =>
+            {
+                _newTrack.TrackRegion.Start.ShouldEqual(20100);
+                MarkerHelper.GetMarkerEnd(_newTrack.TrackRegion).ShouldEqual(29900);
+                _newTrack.FadeOutEndMarker.Start.ShouldEqual(30000);
+            };
+
+            It should_name_new_track = () =>
+            {
+                _newTrack.TrackRegion.Name.ShouldContain("0002");
+                _newTrack.FadeInEndMarker.Name.ShouldContain("0002");
+                _newTrack.FadeOutEndMarker.Name.ShouldContain("0002");
+            };
+
+            It should_reset_track_numbering = () =>
+            {
+                SplitTrackList.First().Number.ShouldEqual(1);
+                _newTrack.Number.ShouldEqual(2);
+                sut.Number.ShouldEqual(3);
+            };
+
+            It should_return_false_checking_can_insert_before = () => sut.CanInsertTrackBefore().ShouldBeFalse();
+        }
+
+        [Subject(typeof(SplitTrackDefinition))]
+        public class when_track_inserted_after_second_track : SplitTrackDefinitionContext
+        {
+            private static SplitTrackDefinition _newTrack;
+
+            private Establish context = () =>
+            {
+                sut_factory.create_using(() =>
+                {
+                    _file.setup(x => x.SecondsToPosition(VinylRipTestHelpers.TrackFadeOutLengthInSecondsForMockSetup)).Return(FadeLength);
+                    _file.setup(x => x.SecondsToPosition(VinylRipTestHelpers.MinimumTrackLengthInSecondsForMockSetup)).Return(19800);
+                    SplitTrackList.InitTracks(new VinylRipOptions
+                    {
+                        DefaultTrackFadeInLengthInSamples = FadeLength,
+                        DefaultTrackFadeOutLengthInSeconds = VinylRipTestHelpers.TrackFadeOutLengthInSecondsForMockSetup,
+                        MinimumTrackLengthInSeconds = VinylRipTestHelpers.MinimumTrackLengthInSecondsForMockSetup
+                    });
+                    return SplitTrackList.Last();
+                });
+            };
+
+            Because of = () => _newTrack = sut.InsertTrackAfter();
+
+            It should_create_track = () => _newTrack.ShouldNotBeNull();
+
+            It should_add_markers_to_file = () =>
+                _markerList.Verify(x => x.Add(Moq.It.IsAny<SfAudioMarker>()), Times.Exactly(3));
+
+            It should_add_track_to_list = () => SplitTrackList.Count.ShouldEqual(3);
+
+            It should_create_track_to_fill_available_space = () =>
+            {
+                _newTrack.TrackRegion.Start.ShouldEqual(40100);
+                MarkerHelper.GetMarkerEnd(_newTrack.TrackRegion).ShouldEqual(59900);
+                _newTrack.FadeOutEndMarker.Start.ShouldEqual(60000);
+            };
+
+            It should_name_new_track = () =>
+            {
+                _newTrack.TrackRegion.Name.ShouldContain("0003");
+                _newTrack.FadeInEndMarker.Name.ShouldContain("0003");
+                _newTrack.FadeOutEndMarker.Name.ShouldContain("0003");
+            };
+
+            It should_reset_track_numbering = () =>
+            {
+                SplitTrackList.First().Number.ShouldEqual(1);
+                sut.Number.ShouldEqual(2);
+                _newTrack.Number.ShouldEqual(3);
+            };
+
+            It should_return_false_checking_can_insert_before = () => sut.CanInsertTrackBefore().ShouldBeFalse();
         }
     }
 }
