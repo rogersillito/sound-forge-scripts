@@ -208,5 +208,93 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
 
             It should_return_false_checking_can_insert_after = () => sut.CanInsertTrackAfter().ShouldBeFalse();
         }
+
+        [Subject(typeof(SplitTrackDefinition))]
+        public class when_track_inserted_before_first_track : SplitTrackDefinitionContext
+        {
+            private static SplitTrackDefinition _newTrack;
+
+            private Establish context = () =>
+            {
+                sut_factory.create_using(() =>
+                {
+                    _file.setup(x => x.SecondsToPosition(VinylRipTestHelpers.TrackFadeOutLengthInSecondsForMockSetup)).Return(FadeLength);
+                    _file.setup(x => x.SecondsToPosition(VinylRipTestHelpers.MinimumTrackLengthInSecondsForMockSetup)).Return(9900);
+                    SplitTrackList.InitTracks(new VinylRipOptions
+                    {
+                        DefaultTrackFadeInLengthInSamples = FadeLength,
+                        DefaultTrackFadeOutLengthInSeconds = VinylRipTestHelpers.TrackFadeOutLengthInSecondsForMockSetup,
+                        MinimumTrackLengthInSeconds = VinylRipTestHelpers.MinimumTrackLengthInSecondsForMockSetup
+                    });
+                    return SplitTrackList.First();
+                });
+            };
+
+            Because of = () => _newTrack = sut.InsertTrackBefore();
+
+            It should_create_track = () => _newTrack.ShouldNotBeNull();
+
+            It should_create_track_to_fill_available_space = () =>
+            {
+                _newTrack.TrackRegion.Start.ShouldEqual(0);
+                MarkerHelper.GetMarkerEnd(_newTrack.TrackRegion).ShouldEqual(9900);
+                _newTrack.FadeOutEndMarker.Start.ShouldEqual(10000);
+            };
+
+            It should_add_track_to_list = () => SplitTrackList.Count.ShouldEqual(3);
+
+            It should_reset_track_numbering = () =>
+            {
+                _newTrack.Number.ShouldEqual(1);
+                sut.Number.ShouldEqual(2);
+                SplitTrackList.Last().Number.ShouldEqual(3);
+            };
+
+            It should_return_false_checking_can_insert_before = () => sut.CanInsertTrackBefore().ShouldBeFalse();
+        }
+
+        [Subject(typeof(SplitTrackDefinition))]
+        public class when_track_inserted_after_first_track : SplitTrackDefinitionContext
+        {
+            private static SplitTrackDefinition _newTrack;
+
+            private Establish context = () =>
+            {
+                sut_factory.create_using(() =>
+                {
+                    _file.setup(x => x.SecondsToPosition(VinylRipTestHelpers.TrackFadeOutLengthInSecondsForMockSetup)).Return(FadeLength);
+                    _file.setup(x => x.SecondsToPosition(VinylRipTestHelpers.MinimumTrackLengthInSecondsForMockSetup)).Return(9900);
+                    SplitTrackList.InitTracks(new VinylRipOptions
+                    {
+                        DefaultTrackFadeInLengthInSamples = FadeLength,
+                        DefaultTrackFadeOutLengthInSeconds = VinylRipTestHelpers.TrackFadeOutLengthInSecondsForMockSetup,
+                        MinimumTrackLengthInSeconds = VinylRipTestHelpers.MinimumTrackLengthInSecondsForMockSetup
+                    });
+                    return SplitTrackList.First();
+                });
+            };
+
+            Because of = () => _newTrack = sut.InsertTrackAfter();
+
+            It should_create_track = () => _newTrack.ShouldNotBeNull();
+
+            It should_create_track_to_fill_available_space = () =>
+            {
+                _newTrack.TrackRegion.Start.ShouldEqual(20100);
+                MarkerHelper.GetMarkerEnd(_newTrack.TrackRegion).ShouldEqual(29000);
+                _newTrack.FadeOutEndMarker.Start.ShouldEqual(30000);
+            };
+
+            It should_add_track_to_list = () => SplitTrackList.Count.ShouldEqual(3);
+
+            It should_reset_track_numbering = () =>
+            {
+                sut.Number.ShouldEqual(1);
+                _newTrack.Number.ShouldEqual(2);
+                SplitTrackList.Last().Number.ShouldEqual(3);
+            };
+
+            It should_return_false_checking_can_insert_after = () => sut.CanInsertTrackAfter().ShouldBeFalse();
+        }
     }
 }

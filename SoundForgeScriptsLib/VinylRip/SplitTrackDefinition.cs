@@ -253,5 +253,15 @@ namespace SoundForgeScriptsLib.VinylRip
                 : _splitTrackList.GetTrack(Number + 1).TrackRegion.Start;
             return FadeOutEndMarker.Start + MinimumTrackInsertionLength <= followingLimitPoint;
         }
+
+        public SplitTrackDefinition InsertTrackBefore()
+        {
+            throw new NotImplementedException();
+        }
+
+        public SplitTrackDefinition InsertTrackAfter()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
