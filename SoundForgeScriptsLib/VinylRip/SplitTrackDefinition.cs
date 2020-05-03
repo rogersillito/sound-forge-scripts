@@ -260,10 +260,10 @@ namespace SoundForgeScriptsLib.VinylRip
         public SplitTrackDefinition InsertTrackBefore()
         {
             var newTrackLength = TrackRegion.Start - _originalFile.SecondsToPosition(_options.DefaultTrackFadeOutLengthInSeconds) - PreceedingInsertionLimitPoint;
-            var newRegion = new SfAudioMarker(PreceedingInsertionLimitPoint, newTrackLength);
             var newTrackNumber = Number;
+            var newRegion = _regionFactory.CreateRegion(newTrackNumber, PreceedingInsertionLimitPoint, newTrackLength);
             _splitTrackList.Insert(Number - 1, null);
-            _splitTrackList.RenumberMarkers();
+            _splitTrackList.RenumberMarkers(newTrackNumber + 1);
             var newTrack = _splitTrackList.AddNew(newRegion, newTrackNumber, _options);
             _splitTrackList.RenumberMarkers();
             return newTrack;
@@ -272,10 +272,10 @@ namespace SoundForgeScriptsLib.VinylRip
         public SplitTrackDefinition InsertTrackAfter()
         {
             var newTrackLength = FollowingInsertionLimitPoint - FadeOutEndMarker.Start - _originalFile.SecondsToPosition(_options.DefaultTrackFadeOutLengthInSeconds);
-            var newRegion = new SfAudioMarker(FadeOutEndMarker.Start, newTrackLength);
-            var newTrackNumber = Number;
+            var newTrackNumber = Number + 1;
+            var newRegion = _regionFactory.CreateRegion(newTrackNumber, FadeOutEndMarker.Start, newTrackLength);
             _splitTrackList.Insert(Number, null);
-            _splitTrackList.RenumberMarkers();
+            _splitTrackList.RenumberMarkers(newTrackNumber + 1);
             var newTrack = _splitTrackList.AddNew(newRegion, newTrackNumber, _options);
             _splitTrackList.RenumberMarkers();
             return newTrack;

@@ -107,13 +107,12 @@ namespace SoundForgeScriptsLib.VinylRip
             }
         }
 
-        internal void RenumberMarkers()
+        internal void RenumberMarkers(int startFromTrack = 1)
         {
             var n = 1;
-            Sort();
             foreach (var track in this)
             {
-                if (track != null)
+                if (track != null && n >= startFromTrack)
                 {
                     track.Number = n;
                     track.TrackRegion.Name = _trackMarkerNameBuilder.GetRegionMarkerName(n);
@@ -137,6 +136,7 @@ namespace SoundForgeScriptsLib.VinylRip
             _fileMarkers.Remove(trackRegion);
             _fileMarkers.Remove(fadeInEndMarker);
             _fileMarkers.Remove(fadeOutEndMarker);
+            Sort();
             RenumberMarkers();
         }
     }

@@ -4,6 +4,7 @@ using System.Linq;
 using developwithpassion.specifications.extensions;
 using developwithpassion.specifications.moq;
 using Machine.Specifications;
+using Moq;
 using Should;
 using SoundForge;
 using SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers;
@@ -46,15 +47,15 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
                 );
 
                 var fileMarkersHelper = new FileMarkersTestHelper();
-                var markerList = fileMarkersHelper.CreateStubMarkerList(_file);
+                _markerList = fileMarkersHelper.CreateStubMarkerList(_file);
                 fileMarkersHelper.RealMarkerList.AddRange(ExistingMarkers);
-                var markerAndRegionFactory = new TrackMarkerFactory(markerList.Object);
+                var markerAndRegionFactory = new TrackMarkerFactory(_markerList.Object);
 
                 SplitTrackList = new SplitTrackList(
                     markerAndRegionFactory,
                     markerAndRegionFactory,
                     new TrackMarkerNameBuilder(),
-                    markerList.Object,
+                    _markerList.Object,
                     new TrackMarkerSpecifications(),
                     depends.@on<IOutputHelper>()
                 );
@@ -63,6 +64,7 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
 
             protected static List<SfAudioMarker> ExistingMarkers;
             protected internal static SplitTrackList SplitTrackList;
+            protected static Mock<IFileMarkersWrapper> _markerList;
         }
 
         [Subject(typeof(SplitTrackDefinition))]
@@ -241,6 +243,9 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
                 _newTrack.FadeOutEndMarker.Start.ShouldEqual(10000);
             };
 
+            It should_add_markers_to_file = () =>
+                _markerList.Verify(x => x.Add(Moq.It.IsAny<SfAudioMarker>()), Times.Exactly(3));
+
             It should_name_new_track = () =>
             {
                 _newTrack.TrackRegion.Name.ShouldContain("001");
@@ -288,9 +293,12 @@ namespace SoundForgeScripts.Tests.ScriptsLib.VinylRip
             It should_create_track_to_fill_available_space = () =>
             {
                 _newTrack.TrackRegion.Start.ShouldEqual(20100);
-                MarkerHelper.GetMarkerEnd(_newTrack.TrackRegion).ShouldEqual(29000);
+                MarkerHelper.GetMarkerEnd(_newTrack.TrackRegion).ShouldEqual(29900);
                 _newTrack.FadeOutEndMarker.Start.ShouldEqual(30000);
             };
+
+            It should_add_markers_to_file = () =>
+                _markerList.Verify(x => x.Add(Moq.It.IsAny<SfAudioMarker>()), Times.Exactly(3));
 
             It should_name_new_track = () =>
             {
