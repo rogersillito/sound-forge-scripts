@@ -53,7 +53,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             _form.BtnPrevious.Click += delegate { PreviousTrack(); };
             _form.BtnNext.Click += delegate { NextTrack(); };
             _form.BtnAddTrackBefore.Click += delegate { AddTrackBefore(); };
-            _form.BtnAddTrackAfter.Click += delegate { AddTrackBefore(); };
+            _form.BtnAddTrackAfter.Click += delegate { AddTrackAfter(); };
             _form.BtnDelete.Click += delegate { DeleteTrack(); };
 
             _form.BtnMoveStartPlus.Click += delegate { MoveStart(_vm.PlusOrMinusSamples); }; 
@@ -126,20 +126,18 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
 
         public void AddTrackBefore()
         {
-            //TODO: need this to work modally: "add before"/ "add after" ?
-            bool selectionLongEnough = _fileTasks.IsCurrentSelectionGreaterThan(_app, _options.MinimumTrackLengthInSeconds);
-            if (!selectionLongEnough)
-            {
-                _output.ToMessageBox(MessageBoxIcon.Exclamation, MessageBoxButtons.OK, "You must first make a selection of {0} seconds or more", _options.MinimumTrackLengthInSeconds);
-                return;
-            }
-            //TODO: if overlaps with existing track adjust existing tracks to suit new track
-            //TODO: IMPLEMENT.. insert a track
+            if (!_vm.CurrentTrack.CanInsertTrackBefore()) return;
+            _vm.CurrentTrack.InsertTrackBefore();
+            _fileTasks.RedrawWindow();
+            PreviousTrack();
         }
 
         public void AddTrackAfter()
         {
-            //TODO...
+            if (!_vm.CurrentTrack.CanInsertTrackAfter()) return;
+            _vm.CurrentTrack.InsertTrackAfter();
+            _fileTasks.RedrawWindow();
+            NextTrack();
         }
 
         public void PreviousTrack()

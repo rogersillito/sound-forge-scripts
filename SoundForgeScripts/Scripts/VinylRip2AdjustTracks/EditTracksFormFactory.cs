@@ -42,6 +42,10 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
                 DataSourceUpdateMode.OnPropertyChanged);
             form.BtnNext.DataBindings.Add("Enabled", viewModel, "CanNavigateNext", false,
                 DataSourceUpdateMode.OnPropertyChanged);
+            form.BtnAddTrackBefore.DataBindings.Add("Enabled", viewModel, "CanAddTrackBefore", false,
+                DataSourceUpdateMode.OnPropertyChanged);
+            form.BtnAddTrackAfter.DataBindings.Add("Enabled", viewModel, "CanAddTrackAfter", false,
+                DataSourceUpdateMode.OnPropertyChanged);
 
             form.BtnMoveStartPlus.DataBindings.Add("Enabled", viewModel, "CanMoveStartPlus", false,
                 DataSourceUpdateMode.OnPropertyChanged);

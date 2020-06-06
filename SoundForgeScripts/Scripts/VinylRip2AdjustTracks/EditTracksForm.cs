@@ -242,7 +242,6 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
         private void DoPlusMinusControlLayout(Button minusMinusButton, Button minusButton, Label label,
             Button plusButton, Button plusPlusButton, int groupWidth)
         {
-            //TODO: add ++/-- buttons, click handlers, key bindings
             Button[] buttons = new Button[] { minusMinusButton, minusButton, plusButton, plusPlusButton };
             int groupSpacerWidth = _sSpacer.Width / 2;
             int controlsMinusSpacingWidth = groupWidth - (buttons.Length * groupSpacerWidth);

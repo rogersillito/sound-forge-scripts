@@ -70,6 +70,8 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
                 TriggerCanMoveFadeInPropertiesChanged();
                 TriggerCanMoveEndPropertiesChanged();
                 TriggerCanMoveFadeOutPropertiesChanged();
+                TriggerCanAddTrackBeforePropertyChanged();
+                TriggerCanAddTrackAfterPropertyChanged();
             }
         }
 
@@ -142,6 +144,26 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             OnPropertyChanged("CanMoveFadeInMinusMinus");
         }
 
+        public bool CanAddTrackBefore
+        {
+            get { return CurrentTrack.CanInsertTrackBefore(); }
+        }
+
+        public bool CanAddTrackAfter
+        {
+            get { return CurrentTrack.CanInsertTrackAfter(); }
+        }
+
+        private void TriggerCanAddTrackBeforePropertyChanged()
+        {
+            OnPropertyChanged("CanAddTrackAfter");
+        }
+
+        private void TriggerCanAddTrackAfterPropertyChanged()
+        {
+            OnPropertyChanged("CanAddTrackAfter");
+        }
+
         public bool CanMoveFadeInPlus
         {
             get { return CurrentTrack.CanMoveFadeInBy(PlusOrMinusSamples); }
@@ -169,6 +191,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             CurrentTrack.MoveStartBy(samples);
             TriggerCanMoveStartPropertiesChanged();
             TriggerCanMoveFadeInPropertiesChanged();
+            TriggerCanAddTrackBeforePropertyChanged();
             ZoomToCurrentTrackStart();
             return true;
         }
@@ -207,6 +230,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
                 return false;
             CurrentTrack.MoveFadeOutBy(samples);
             TriggerCanMoveFadeOutPropertiesChanged();
+            TriggerCanAddTrackAfterPropertyChanged();
             ZoomToCurrentTrackEnd();
             return true;
         }
@@ -247,6 +271,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             TriggerCanMoveEndPropertiesChanged();
             TriggerCanMoveFadeInPropertiesChanged();
             TriggerCanMoveFadeOutPropertiesChanged();
+            TriggerCanAddTrackAfterPropertyChanged();
             ZoomToCurrentTrackEnd();
             return true;
         }
