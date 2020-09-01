@@ -27,16 +27,15 @@ namespace SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing
     public class EntryPoint : EntryPointBase
     {
         private ISfFileHost _file;
+        private VinylRipOptions _vinylRipOptions;
+        private FileTasks _fileTasks;
+        private SplitTrackList _splitTrackList;
 
         private TextBox _tbxAlbum;
         private TextBox _tbxArtist;
         private TextBox _tbxRootFolder;
-        private VinylRipOptions _vinylRipOptions;
         private SfAudioSelection _noiseprintSelection;
         private string _outputDirectory;
-        private FileTasks _fileTasks;
-        private SplitTrackList _splitTrackList;
-        private ICreateTrackMarkerNames _trackMarkerNameBuilder;
 
         private const string FinalCleaningPreset = "Vinyl Processing (Final)";
         private const string DefaultRootLibraryFolder = @"F:\My Music\From Vinyl\";
@@ -45,19 +44,23 @@ namespace SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing
         protected override void Execute()
         {
             _file = App.CurrentFile;
-
             _fileTasks = new FileTasks(_file);
-            _trackMarkerNameBuilder = new TrackMarkerNameBuilder();
             _fileTasks.EnforceStereoFileOpen();
+            _fileTasks.ZoomOutFull();
 
             FileMarkersWrapper markers = new FileMarkersWrapper(_file);
+            TrackMarkerNameBuilder trackMarkerNameBuilder = new TrackMarkerNameBuilder();
             TrackMarkerFactory markerAndRegionFactory = new TrackMarkerFactory(markers);
-            _splitTrackList = new SplitTrackList(markerAndRegionFactory, markerAndRegionFactory, _trackMarkerNameBuilder, markers, new TrackMarkerSpecifications(), Output);
+            _splitTrackList = new SplitTrackList(markerAndRegionFactory, markerAndRegionFactory, trackMarkerNameBuilder, markers, new TrackMarkerSpecifications(), Output);
+
             const int noiseprintLengthSeconds = 2;
             _noiseprintSelection = _fileTasks.EnforceNoisePrintSelection(App, noiseprintLengthSeconds);
             _vinylRipOptions = new VinylRipOptions();
             _vinylRipOptions.DefaultTrackFadeOutLengthInSeconds = 3;
             _vinylRipOptions.DefaultTrackFadeInLengthInSamples = 20;
+
+            // TODO: aiming to get this to re-use the initialisation from VinylRip2, then once valid/initialized, throw up the confirm tracks form and do the existing processing/splitting
+            // TODO: validate tracks
 
             DialogResult result = ConfirmTrackSplitsForm(Script.Application.Win32Window);
             if (result == DialogResult.Cancel)
@@ -65,8 +68,11 @@ namespace SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing
 
             DoFinalAudioClean();
             Directory.CreateDirectory(_outputDirectory);
-            SplitTrackList tracks = GetSplitTrackDefinitions();
-            DoTrackSplitting(tracks);
+
+            _splitTrackList.InitTracks(_vinylRipOptions);
+            _splitTrackList.DumpToScriptWindow();
+
+            DoTrackSplitting(_splitTrackList, trackMarkerNameBuilder);
         }
 
         private void CleanVinylRecording(string presetName, int noiseReductionPasses, SfAudioSelection noiseprintSelection)
@@ -85,6 +91,11 @@ namespace SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing
                 App.DoMenuAndWait("Edit.Delete", false);
             }
             Output.LineBreakToScriptWindow();
+        }
+
+        private SplitTrackList GetSplitTrackDefinitions()
+        {
+            return _splitTrackList.InitTracks(_vinylRipOptions);
         }
 
         #region Results Form
@@ -248,12 +259,7 @@ namespace SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing
             Output.LineBreakToScriptWindow();
         }
 
-        private SplitTrackList GetSplitTrackDefinitions()
-        {
-            return _splitTrackList.InitTracks(_vinylRipOptions);
-        }
-
-        private void DoTrackSplitting(SplitTrackList tracks)
+        private void DoTrackSplitting(SplitTrackList tracks, ICreateTrackMarkerNames trackMarkerNameBuilder)
         {
             //App.FindRenderer("FLAC Audio", "flac");
             //foreach (ISfRenderer r in App.Renderers)
@@ -291,7 +297,7 @@ namespace SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing
                 }
                 trackTasks.ApplyEffectPreset(App, trackTasks.SelectAll(), "iZotope MBIT+ Dither", "Convert to 16 bit (advanced light dither)", EffectOptions.EffectOnly, Output.ToScriptWindow);
 
-                string savePath = string.Concat(_outputDirectory, Path.DirectorySeparatorChar, _trackMarkerNameBuilder.GetRegionMarkerName(track.Number) + ".flac");
+                string savePath = string.Concat(_outputDirectory, Path.DirectorySeparatorChar, trackMarkerNameBuilder.GetRegionMarkerName(track.Number) + ".flac");
                 trackFile.SaveAs(savePath, "FLAC Audio", "44,100 Hz, 16 Bit, Stereo", RenderOptions.SaveMetadata);
                 trackFile.Close(CloseOptions.QuerySaveIfChanged);
 

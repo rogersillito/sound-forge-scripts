@@ -25,6 +25,19 @@ namespace SoundForgeScriptsLib.VinylRip
             _output = output;
         }
 
+        public void DumpToScriptWindow()
+        {
+            _output.ToScriptWindow("Found {0} tracks:", Count);
+            foreach (SplitTrackDefinition track in this)
+            {
+                _output.ToScriptWindow("{0}:\t{1}\t{2}\t(Start fade @ {3})", track.Number,
+                    OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(track.TrackRegion.Start)),
+                    OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(track.GetSelectionWithFades().Length)),
+                    OutputHelper.FormatToTimeSpan(_file.PositionToSeconds(track.FadeOutStartPosition)));
+            }
+            _output.LineBreakToScriptWindow();
+        }
+
         public SplitTrackDefinition AddNew(SfAudioMarker trackRegionMarker, int trackNumber, VinylRipOptions options)
         {
             SplitTrackDefinition track = new SplitTrackDefinition(this, _file, options, _markerFactory, _regionFactory, _output);
