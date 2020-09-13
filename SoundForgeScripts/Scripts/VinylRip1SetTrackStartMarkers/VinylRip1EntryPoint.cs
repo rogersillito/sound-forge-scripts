@@ -51,16 +51,11 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
 
             const int noiseprintLengthSeconds = 2;
             _noiseprintSelection = _fileTasks.EnforceNoisePrintSelection(App, noiseprintLengthSeconds);
-            //TODO: add marker for noiseprint so it can be reused?
+
             _file.Markers.Add(new SfAudioMarker(_noiseprintSelection));
             CleanVinylRecording(AggressiveCleaningPreset, 3, _noiseprintSelection); //TODO: configure number of noise reduction passes?
 
-            //TODO: initial dialog to configure these:
             _vinylRipOptions = new VinylRipOptions();
-            _vinylRipOptions.ScanWindowLengthInSeconds = 1.0;
-            _vinylRipOptions.GapNoisefloorThresholdInDecibels = -70;
-            _vinylRipOptions.MinimumTrackGapInSeconds = 1;
-            _vinylRipOptions.MinimumTrackLengthInSeconds = 10;
             _vinylRipOptions.StartScanFilePositionInSamples = _file.SecondsToPosition(noiseprintLengthSeconds);
 
             _trackList = FindTracks(App, _file);

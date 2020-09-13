@@ -43,11 +43,7 @@ namespace SoundForgeScripts.Scripts.VinylRip2AdjustTracks
             TrackMarkerFactory markerAndRegionFactory = new TrackMarkerFactory(markers, Output, trackMarkerNameBuilder);
             _splitTrackList = new SplitTrackList(markerAndRegionFactory, markerAndRegionFactory, trackMarkerNameBuilder, markers, new TrackMarkerSpecifications(), Output);
 
-            //TODO: initial dialog to configure these:
             _vinylRipOptions = new VinylRipOptions();
-            _vinylRipOptions.DefaultTrackFadeOutLengthInSeconds = 3;
-            _vinylRipOptions.DefaultTrackFadeInLengthInSamples = 20;
-            _vinylRipOptions.MinimumTrackLengthInSeconds = 10;
 
             // TODO: validate tracks
 

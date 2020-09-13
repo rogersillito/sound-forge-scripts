@@ -4,74 +4,38 @@ namespace SoundForgeScriptsLib.VinylRip
 {
     public class VinylRipOptions
     {
-        private double _scanWindowLengthInSeconds;
-        private double _gapNoisefloorThresholdInDecibels;
-        private double _minimumTrackGapInSeconds;
-        private double _minimumTrackLengthInSeconds;
-        private long _startScanFilePositionInSamples;
-        private long _defaultTrackFadeInLengthInSamples;
-        private double _defaultTrackFadeOutLengthInSeconds;
+        public double DefaultTrackFadeOutLengthInSeconds { get; set; } = 3;
 
-        public double DefaultTrackFadeOutLengthInSeconds
-        {
-            get { return _defaultTrackFadeOutLengthInSeconds; }
-            set { _defaultTrackFadeOutLengthInSeconds = value; }
-        }
-
-        public double ScanWindowLengthInSeconds
-        {
-            get { return _scanWindowLengthInSeconds; }
-            set { _scanWindowLengthInSeconds = value; }
-        }
+        public double ScanWindowLengthInSeconds { get; set; } = 1.0;
 
         public long ScanWindowLengthInSamples(ISfFileHost file)
         {
-            return file.SecondsToPosition(_scanWindowLengthInSeconds);
+            return file.SecondsToPosition(ScanWindowLengthInSeconds);
         }
 
-        public double GapNoisefloorThresholdInDecibels
-        {
-            get { return _gapNoisefloorThresholdInDecibels; }
-            set { _gapNoisefloorThresholdInDecibels = value; }
-        }
+        public double GapNoisefloorThresholdInDecibels { get; set; } = -70;
 
-        public double MinimumTrackGapInSeconds
-        {
-            get { return _minimumTrackGapInSeconds; }
-            set { _minimumTrackGapInSeconds = value; }
-        }
+        public double MinimumTrackGapInSeconds { get; set; } = 1;
 
-        public double MinimumTrackLengthInSeconds
-        {
-            get { return _minimumTrackLengthInSeconds; }
-            set { _minimumTrackLengthInSeconds = value; }
-        }
+        public double MinimumTrackLengthInSeconds { get; set; } = 10;
 
-        public long StartScanFilePositionInSamples
-        {
-            get { return _startScanFilePositionInSamples; }
-            set { _startScanFilePositionInSamples = value; }
-        }
+        public long StartScanFilePositionInSamples { get; set; }
 
-        public long DefaultTrackFadeInLengthInSamples
-        {
-            get { return _defaultTrackFadeInLengthInSamples; }
-            set { _defaultTrackFadeInLengthInSamples = value; }
-        }
+        public long DefaultTrackFadeInLengthInSamples { get; set; } = 20;
 
         public void Validate()
         {
             //TODO: instead of validating, set defaults? use in an initial UI to allow reconfiguring?
             const double minWinLength = 0.1;
-            if (_scanWindowLengthInSeconds < minWinLength)
+            if (ScanWindowLengthInSeconds < minWinLength)
                 throw new ScriptAbortedException("ScanWindowLengthInSeconds must be >= {0}", minWinLength);
 
             const double minNoiseFloor = -100;
-            if (_gapNoisefloorThresholdInDecibels < minNoiseFloor)
+            if (GapNoisefloorThresholdInDecibels < minNoiseFloor)
                 throw new ScriptAbortedException("GapNoisefloorThresholdInDecibels must be >= {0}", minNoiseFloor);
 
             const double minTrackGap = 0.5;
-            if (_minimumTrackGapInSeconds < minTrackGap)
+            if (MinimumTrackGapInSeconds < minTrackGap)
                 throw new ScriptAbortedException("MinimumTrackGapInSeconds must be >= {0}", minTrackGap);
 
             const double minTrackLength = 5.0;

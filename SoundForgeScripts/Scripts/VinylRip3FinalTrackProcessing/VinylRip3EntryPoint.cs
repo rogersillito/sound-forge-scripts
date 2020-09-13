@@ -50,14 +50,12 @@ namespace SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing
 
             FileMarkersWrapper markers = new FileMarkersWrapper(_file);
             TrackMarkerNameBuilder trackMarkerNameBuilder = new TrackMarkerNameBuilder();
-            TrackMarkerFactory markerAndRegionFactory = new TrackMarkerFactory(markers);
+            TrackMarkerFactory markerAndRegionFactory = new TrackMarkerFactory(markers, Output, trackMarkerNameBuilder);
             _splitTrackList = new SplitTrackList(markerAndRegionFactory, markerAndRegionFactory, trackMarkerNameBuilder, markers, new TrackMarkerSpecifications(), Output);
 
             const int noiseprintLengthSeconds = 2;
             _noiseprintSelection = _fileTasks.EnforceNoisePrintSelection(App, noiseprintLengthSeconds);
             _vinylRipOptions = new VinylRipOptions();
-            _vinylRipOptions.DefaultTrackFadeOutLengthInSeconds = 3;
-            _vinylRipOptions.DefaultTrackFadeInLengthInSamples = 20;
 
             // TODO: aiming to get this to re-use the initialisation from VinylRip2, then once valid/initialized, throw up the confirm tracks form and do the existing processing/splitting
             // TODO: validate tracks
