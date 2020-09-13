@@ -40,7 +40,6 @@ namespace SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing
         private const string FinalCleaningPreset = "Vinyl Processing (Final)";
         private const string DefaultRootLibraryFolder = @"F:\My Music\From Vinyl\";
 
-        //TODO: come up with a way of saving settings between script runs, and between the 2 scripts (save options to json?)
         protected override void Execute()
         {
             _file = App.CurrentFile;
@@ -53,9 +52,8 @@ namespace SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing
             TrackMarkerFactory markerAndRegionFactory = new TrackMarkerFactory(markers, Output, trackMarkerNameBuilder);
             _splitTrackList = new SplitTrackList(markerAndRegionFactory, markerAndRegionFactory, trackMarkerNameBuilder, markers, new TrackMarkerSpecifications(), Output);
 
-            const int noiseprintLengthSeconds = 2;
-            _noiseprintSelection = _fileTasks.EnforceNoisePrintSelection(App, noiseprintLengthSeconds);
             _vinylRipOptions = new VinylRipOptions();
+            _noiseprintSelection = _fileTasks.EnforceNoisePrintSelection(App, _vinylRipOptions.NoiseprintLengthSeconds);
 
             // TODO: aiming to get this to re-use the initialisation from VinylRip2, then once valid/initialized, throw up the confirm tracks form and do the existing processing/splitting
             // TODO: validate tracks
@@ -89,11 +87,6 @@ namespace SoundForgeScripts.Scripts.VinylRip3FinalTrackProcessing
                 App.DoMenuAndWait("Edit.Delete", false);
             }
             Output.LineBreakToScriptWindow();
-        }
-
-        private SplitTrackList GetSplitTrackDefinitions()
-        {
-            return _splitTrackList.InitTracks(_vinylRipOptions);
         }
 
         #region Results Form

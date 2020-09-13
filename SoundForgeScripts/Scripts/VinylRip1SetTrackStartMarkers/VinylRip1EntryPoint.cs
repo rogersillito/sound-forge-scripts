@@ -49,14 +49,13 @@ namespace SoundForgeScripts.Scripts.VinylRip1SetTrackStartMarkers
             //int undoId = _file.BeginUndo("PrepareAudio");
             //_file.EndUndo(undoId, true); 
 
-            const int noiseprintLengthSeconds = 2;
-            _noiseprintSelection = _fileTasks.EnforceNoisePrintSelection(App, noiseprintLengthSeconds);
+            _vinylRipOptions = new VinylRipOptions();
+            _noiseprintSelection = _fileTasks.EnforceNoisePrintSelection(App, _vinylRipOptions.NoiseprintLengthSeconds);
 
             _file.Markers.Add(new SfAudioMarker(_noiseprintSelection));
             CleanVinylRecording(AggressiveCleaningPreset, 3, _noiseprintSelection); //TODO: configure number of noise reduction passes?
 
-            _vinylRipOptions = new VinylRipOptions();
-            _vinylRipOptions.StartScanFilePositionInSamples = _file.SecondsToPosition(noiseprintLengthSeconds);
+            _vinylRipOptions.StartScanFilePositionInSamples = _file.SecondsToPosition(_vinylRipOptions.NoiseprintLengthSeconds);
 
             _trackList = FindTracks(App, _file);
 

@@ -19,9 +19,12 @@ namespace SoundForgeScriptsLib.VinylRip
 
         public double MinimumTrackLengthInSeconds { get; set; } = 10;
 
+        public int NoiseprintLengthSeconds { get; set; } = 2;
+
         public long StartScanFilePositionInSamples { get; set; }
 
         public long DefaultTrackFadeInLengthInSamples { get; set; } = 20;
+
 
         public void Validate()
         {
